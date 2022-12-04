@@ -48,6 +48,8 @@ public class HandleUpdateService
         if (msg.Text is not string messageText)
             return;
 
+        if (messageText.Length > 16) throw new FormatException("Max message length is 16");
+
         var gifUrl = await _tenor.RandomTrendingAsync();
 
         var file = await _edit.AddText(gifUrl, messageText);
@@ -67,10 +69,16 @@ public class HandleUpdateService
         _logger.LogInformation($"Recieved '{inlineQuery.Query}' inline query from user Id '{inlineQuery.From.Id}.'");
 
         if (String.IsNullOrWhiteSpace(inlineQuery.Query)) return;
-        var gifUrl = await _tenor.RandomTrendingAsync();
 
         try
         {
+
+            if (inlineQuery.Query.Length > 16) throw new FormatException("Max message length is 16");
+
+
+            var gifUrl = await _tenor.RandomTrendingAsync();
+
+
             var file = await _edit.AddText(gifUrl, inlineQuery.Query);
             InputOnlineFile? tgFile = null;
 
@@ -84,6 +92,7 @@ public class HandleUpdateService
                     new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId) }, isPersonal: true);
                 };
         }
+
         catch (FormatException ex)
         {
             await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
@@ -96,7 +105,6 @@ public class HandleUpdateService
 
     }
 
-
     private async Task ReportErrorAsync(Exception ex, Update update)
     {
         if (update.Message is { } message)
@@ -107,14 +115,12 @@ public class HandleUpdateService
 
     }
 
-
     private async Task<string> UploadAnimationAsync(InputOnlineFile file)
     {
         var msg = await _botClient.SendAnimationAsync(
                             chatId: 35306756,
                             animation: file
                         );
-
         var fileId = msg.Animation.FileId;
 
         await _botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);

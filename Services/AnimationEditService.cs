@@ -20,9 +20,7 @@ public class AnimationEditService
 
     }
     public async Task<string?> AddText(string url, string text)
-    {
-       if (text.Length > 16) throw new FormatException("Max message length is 16");
-
+    { 
         var http = _httpClientFactory.CreateClient();
         using (var filestream = System.IO.File.OpenWrite(_inputPath))
         {
