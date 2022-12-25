@@ -15,12 +15,16 @@ public class HandleUpdateService
 
     private readonly ILogger<HandleUpdateService> _logger;
 
-    public HandleUpdateService(ITelegramBotClient botClient, TenorService tenor, AnimationEditService edit, ILogger<HandleUpdateService> logger)
+    private readonly int _maximumTextLength;
+
+
+    public HandleUpdateService(ITelegramBotClient botClient, TenorService tenor, AnimationEditService edit, ILogger<HandleUpdateService> logger, IConfiguration configuration)
     {
         _botClient = botClient;
         _tenor = tenor;
         _edit = edit;
         _logger = logger;
+        _maximumTextLength = configuration.GetValue<int>("MaximumTextLength");
     }
 
     public async Task HandleUpdateAsync(Update update)
@@ -48,7 +52,7 @@ public class HandleUpdateService
         if (msg.Text is not string messageText)
             return;
 
-        if (messageText.Length > 16) throw new FormatException("Max message length is 16");
+        if (messageText.Length > _maximumTextLength) throw new FormatException($"Max message length is {_maximumTextLength}");
 
         var gifUrl = await _tenor.RandomTrendingAsync();
 
@@ -61,7 +65,16 @@ public class HandleUpdateService
                             chatId: msg.Chat.Id,
                             animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4")
                         );
+
+                
+
+
             }
+
+            await _edit.Clean();
+
+       
+
     }
 
     private async Task InlineQueryRespondAsync(InlineQuery inlineQuery)
@@ -72,14 +85,15 @@ public class HandleUpdateService
 
         try
         {
+            if (inlineQuery.Query.Length - 1 > _maximumTextLength) throw new FormatException($"Max message length is {_maximumTextLength}");
 
-            if (inlineQuery.Query.Length > 16) throw new FormatException("Max message length is 16");
+            if (!inlineQuery.Query.EndsWith(".")) throw new FormatException("Add a dot ('.') at the end to generate");
 
 
             var gifUrl = await _tenor.RandomTrendingAsync();
 
 
-            var file = await _edit.AddText(gifUrl, inlineQuery.Query);
+            var file = await _edit.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
             InputOnlineFile? tgFile = null;
 
             if (file != null)
@@ -90,7 +104,13 @@ public class HandleUpdateService
 
                     await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
                     new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId) }, isPersonal: true);
+
+                   
                 };
+
+                 await _edit.Clean();
+
+            
         }
 
         catch (FormatException ex)
@@ -100,13 +120,11 @@ public class HandleUpdateService
             });
         }
 
-
-
-
     }
 
     private async Task ReportErrorAsync(Exception ex, Update update)
     {
+        _logger.LogError($"{ex.Message}:{ex.Source}");
         if (update.Message is { } message)
             await _botClient.SendTextMessageAsync(
                                 chatId: message.Chat.Id,
@@ -119,12 +137,16 @@ public class HandleUpdateService
     {
         var msg = await _botClient.SendAnimationAsync(
                             chatId: 35306756,
-                            animation: file
+                            animation: file,
+                            disableNotification: true
                         );
+
         var fileId = msg.Animation.FileId;
 
         await _botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);
+        //await _edit.Clean();
 
         return msg.Animation.FileId;
+        
     }
 }
