@@ -101,7 +101,7 @@ public class HandleUpdateService
                     var animationFileId = await UploadAnimationAsync(tgFile);
 
                     await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
-                    new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId) }, isPersonal: true);
+                    new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId) }, isPersonal: false);
 
                    
                 };
