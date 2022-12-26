@@ -65,10 +65,6 @@ public class HandleUpdateService
                             chatId: msg.Chat.Id,
                             animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4")
                         );
-
-                
-
-
             }
 
             await _edit.Clean();  
