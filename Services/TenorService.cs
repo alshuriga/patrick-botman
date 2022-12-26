@@ -22,7 +22,6 @@ public class TenorService
     public async Task<string> RandomTrendingAsync()
     {
         var http = _httpClientFactory.CreateClient("tenorclient");
-        http.Timeout = TimeSpan.FromSeconds(10); 
         var url = new Uri($"{_tenorConfiguration.HostAddress}&key={_tenorConfiguration.ApiToken}");
         _logger.LogInformation("Getting gif from Tenor API...");
         var response = await http.GetAsync(url);
