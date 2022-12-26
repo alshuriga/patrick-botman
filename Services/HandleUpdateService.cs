@@ -71,9 +71,7 @@ public class HandleUpdateService
 
             }
 
-            await _edit.Clean();
-
-       
+            await _edit.Clean();  
 
     }
 
@@ -128,13 +126,14 @@ public class HandleUpdateService
         if (update.Message is { } message)
             await _botClient.SendTextMessageAsync(
                                 chatId: message.Chat.Id,
-                                text: $"❌ {ex.Message}"
+                                text: $"❌ {ex.Message}\n\n{ex.StackTrace}\n\n{ex.Source}"
                             );
 
     }
 
     private async Task<string> UploadAnimationAsync(InputOnlineFile file)
     {
+        _logger.LogInformation("Animation uploading...");
         var msg = await _botClient.SendAnimationAsync(
                             chatId: 35306756,
                             animation: file,
@@ -144,7 +143,6 @@ public class HandleUpdateService
         var fileId = msg.Animation.FileId;
 
         await _botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);
-        //await _edit.Clean();
 
         return msg.Animation.FileId;
         
