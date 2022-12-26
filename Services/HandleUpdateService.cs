@@ -29,19 +29,26 @@ public class HandleUpdateService
 
     public async Task HandleUpdateAsync(Update update)
     {
-        try
-        {
-            await (update.Type switch
+        // try
+        // {
+        //     await (update.Type switch
+        //     {
+        //         UpdateType.Message => EchoAsync(update.Message!),
+        //         UpdateType.InlineQuery => InlineQueryRespondAsync(update.InlineQuery!),
+        //         _ => Task.CompletedTask
+        //     });
+        // }
+        // catch (Exception ex)
+        // {
+        //     await ReportErrorAsync(ex, update);
+        // }
+
+                    await (update.Type switch
             {
                 UpdateType.Message => EchoAsync(update.Message!),
                 UpdateType.InlineQuery => InlineQueryRespondAsync(update.InlineQuery!),
                 _ => Task.CompletedTask
             });
-        }
-        catch (Exception ex)
-        {
-            await ReportErrorAsync(ex, update);
-        }
 
     }
 
