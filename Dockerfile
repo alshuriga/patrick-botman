@@ -5,7 +5,6 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /App
 
 
-
 # Copy everything
 COPY . ./
 # Restore as distinct layers
@@ -19,9 +18,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /App
 COPY --from=build-env /App/out .
 ENTRYPOINT ["dotnet", "patrick-botman.dll"]
-ENV ASPNETCORE_URLS=http://+:5265
+ENV ASPNETCORE_URLS=http://+:80
 
-EXPOSE 5265
+EXPOSE 80
 
 #FFMPEG Install
 RUN apt update && apt install -y ffmpeg
