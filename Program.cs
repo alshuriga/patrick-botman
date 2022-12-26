@@ -1,4 +1,3 @@
-using PatrickBotman;
 using PatrickBotman.Services;
 using PatrickBotman.Models;
 using Telegram.Bot;
@@ -36,7 +35,6 @@ app.UseEndpoints(endpoints => {
     );
     endpoints.MapControllers();
 });
-
 
 
 app.Run();

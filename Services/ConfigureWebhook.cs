@@ -8,10 +8,13 @@ public class ConfigureWebhook : IHostedService
 {   
     private readonly IServiceProvider _services;
     private readonly BotConfiguration _botConfig;
+
+    private readonly ILogger<ConfigureWebhook> _logger;
     
-    public ConfigureWebhook(IServiceProvider services, IConfiguration configuration)
+    public ConfigureWebhook(IServiceProvider services, IConfiguration configuration, ILogger<ConfigureWebhook> logger)
     {
         _services = services;
+        _logger = logger;
         _botConfig = configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
     }
 
@@ -20,13 +23,15 @@ public class ConfigureWebhook : IHostedService
         using var scope = _services.CreateScope();
         var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
 
+        
         var webhookAdress = @$"{_botConfig.HostAddress}/bot/{_botConfig.BotToken}";
+        _logger.LogInformation($"Address: {_botConfig.HostAddress}");
+        
         await botClient.SetWebhookAsync(
             url: webhookAdress,
             allowedUpdates: new UpdateType[] { UpdateType.Message, UpdateType.InlineQuery, UpdateType.ChosenInlineResult },
             cancellationToken: cancellationToken
         );
-
     }
 
     async Task IHostedService.StopAsync(CancellationToken cancellationToken)
