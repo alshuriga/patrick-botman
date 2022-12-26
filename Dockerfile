@@ -17,8 +17,8 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /App
 COPY --from=build-env /App/out .
-ENTRYPOINT ["dotnet", "patrick-botman.dll"]
 EXPOSE 80
+ENTRYPOINT ["dotnet", "patrick-botman.dll"]
 
 #FFMPEG Install
 RUN apt update && apt install -y ffmpeg

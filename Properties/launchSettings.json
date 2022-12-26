@@ -20,6 +20,14 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    }
+    },
+    "publicdev": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "applicationUrl": "http://+:80",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
   }
+}
 }
