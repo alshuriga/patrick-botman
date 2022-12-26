@@ -57,10 +57,10 @@ public class AnimationEditService
         {
             _logger.LogInformation("FFmpeg executable registering...");
             var engine = new Engine(_ffmpegBinary);
-            engine.Progress += OnProgress;
-            engine.Data += OnData;
+            // engine.Progress += OnProgress;
+            // engine.Data += OnData;
             engine.Error += OnError;
-            engine.Complete += OnComplete;
+            // engine.Complete += OnComplete;
             var inputFile = new InputFile(input.FullName);
             var outputFile = new OutputFile(_outputPath);
             var formattedText = text.Split("\n", options: StringSplitOptions.RemoveEmptyEntries);
