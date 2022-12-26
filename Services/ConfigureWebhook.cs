@@ -38,12 +38,12 @@ public class ConfigureWebhook : IHostedService
 
     async Task IHostedService.StopAsync(CancellationToken cancellationToken)
     {
-        using var scope = _services.CreateScope();
-        var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
+        // using var scope = _services.CreateScope();
+        // var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
 
-        await botClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
+        // await botClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
 
-        _logger.LogInformation("Webhook Removed");
+        // _logger.LogInformation("Webhook Removed");
 ;    }
 }
 
