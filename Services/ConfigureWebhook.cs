@@ -32,6 +32,8 @@ public class ConfigureWebhook : IHostedService
             allowedUpdates: new UpdateType[] { UpdateType.Message, UpdateType.InlineQuery, UpdateType.ChosenInlineResult },
             cancellationToken: cancellationToken
         );
+
+        _logger.LogInformation("Webhook Added");
     }
 
     async Task IHostedService.StopAsync(CancellationToken cancellationToken)
@@ -40,6 +42,8 @@ public class ConfigureWebhook : IHostedService
         var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
 
         await botClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
-    }
+
+        _logger.LogInformation("Webhook Removed");
+;    }
 }
 
