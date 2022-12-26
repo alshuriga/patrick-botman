@@ -18,8 +18,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /App
 COPY --from=build-env /App/out .
 ENTRYPOINT ["dotnet", "patrick-botman.dll"]
-ENV ASPNETCORE_URLS=http://+:80
-
 EXPOSE 80
 
 #FFMPEG Install
