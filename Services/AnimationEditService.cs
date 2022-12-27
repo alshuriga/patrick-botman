@@ -75,7 +75,7 @@ public class AnimationEditService
                 ExtraArguments = $"-vf \"scale=300:-1,{String.Join(',', new string[] { drawtext, drawtext2 })}\"",
                 VideoFormat = FFmpeg.NET.Enums.VideoFormat.mp4,
                 RemoveAudio = true,
-                VideoCodec = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? FFmpeg.NET.Enums.VideoCodec.mpeg4 : FFmpeg.NET.Enums.VideoCodec.h264_nvenc,
+                VideoCodec = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? FFmpeg.NET.Enums.VideoCodec.Default : FFmpeg.NET.Enums.VideoCodec.h264_nvenc,
             };
             var cancellationTokenSource = new CancellationTokenSource();
             _logger.LogInformation("Conversion starting...");
