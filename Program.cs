@@ -1,8 +1,7 @@
-using PatrickBotman;
+using PatrickBotman.Interfaces;
 using PatrickBotman.Services;
 using PatrickBotman.Models;
 using Telegram.Bot;
-using PatrickBotman.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +22,7 @@ builder.Services.AddHttpClient("tenorclient", tenorclient => {
 
 builder.Services.AddHostedService<ConfigureWebhook>();
 
-builder.Services.AddScoped<TenorService>();
+builder.Services.AddScoped<IGifService, GiphyService>();
 
 builder.Services.AddScoped<HandleUpdateService>();
 

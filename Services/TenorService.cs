@@ -1,10 +1,10 @@
 using PatrickBotman.Models;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PatrickBotman.Interfaces;
 
 namespace PatrickBotman.Services;
 
-public class TenorService 
+public class TenorService : IGifService
 {
     private readonly TenorConfiguration _tenorConfiguration;
     private readonly IHttpClientFactory _httpClientFactory;

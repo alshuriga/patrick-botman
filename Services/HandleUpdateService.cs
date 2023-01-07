@@ -3,13 +3,14 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.InlineQueryResults;
+using PatrickBotman.Interfaces;
 
 namespace PatrickBotman.Services;
 
 public class HandleUpdateService
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly TenorService _tenor;
+    private readonly IGifService _gifService;
 
     private readonly AnimationEditService _edit;
 
@@ -18,10 +19,10 @@ public class HandleUpdateService
     private readonly int _maximumTextLength;
 
 
-    public HandleUpdateService(ITelegramBotClient botClient, TenorService tenor, AnimationEditService edit, ILogger<HandleUpdateService> logger, IConfiguration configuration)
+    public HandleUpdateService(ITelegramBotClient botClient, IGifService gifService, AnimationEditService edit, ILogger<HandleUpdateService> logger, IConfiguration configuration)
     {
         _botClient = botClient;
-        _tenor = tenor;
+        _gifService = gifService;
         _edit = edit;
         _logger = logger;
         _maximumTextLength = configuration.GetValue<int>("MaximumTextLength");
@@ -29,26 +30,12 @@ public class HandleUpdateService
 
     public async Task HandleUpdateAsync(Update update)
     {
-        // try
-        // {
-        //     await (update.Type switch
-        //     {
-        //         UpdateType.Message => EchoAsync(update.Message!),
-        //         UpdateType.InlineQuery => InlineQueryRespondAsync(update.InlineQuery!),
-        //         _ => Task.CompletedTask
-        //     });
-        // }
-        // catch (Exception ex)
-        // {
-        //     await ReportErrorAsync(ex, update);
-        // }
-
-                    await (update.Type switch
-            {
-                UpdateType.Message => EchoAsync(update.Message!),
-                UpdateType.InlineQuery => InlineQueryRespondAsync(update.InlineQuery!),
-                _ => Task.CompletedTask
-            });
+        await (update.Type switch
+        {
+            UpdateType.Message => EchoAsync(update.Message!),
+            UpdateType.InlineQuery => InlineQueryRespondAsync(update.InlineQuery!),
+            _ => Task.CompletedTask
+        });
 
     }
 
@@ -61,7 +48,7 @@ public class HandleUpdateService
 
         if (messageText.Length > _maximumTextLength) throw new FormatException($"Max message length is {_maximumTextLength}");
 
-        var gifUrl = await _tenor.RandomTrendingAsync();
+        var gifUrl = await _gifService.RandomTrendingAsync();
 
         var file = await _edit.AddText(gifUrl, messageText);
 
@@ -74,7 +61,7 @@ public class HandleUpdateService
                         );
             }
 
-            await _edit.Clean();  
+        await _edit.Clean();
 
     }
 
@@ -91,7 +78,7 @@ public class HandleUpdateService
             if (!inlineQuery.Query.EndsWith(".")) throw new FormatException("Add a dot ('.') at the end to generate");
 
 
-            var gifUrl = await _tenor.RandomTrendingAsync();
+            var gifUrl = await _gifService.RandomTrendingAsync();
 
 
             var file = await _edit.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
@@ -106,12 +93,12 @@ public class HandleUpdateService
                     await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
                     new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId) }, isPersonal: true, cacheTime: 5);
 
-                   
+
                 };
 
-                 await _edit.Clean();
+            await _edit.Clean();
 
-            
+
         }
 
         catch (FormatException ex)
@@ -123,6 +110,8 @@ public class HandleUpdateService
 
     }
 
+
+
     private async Task ReportErrorAsync(Exception ex, Update update)
     {
         _logger.LogError($"{ex.Message}:{ex.Source}");
@@ -133,6 +122,8 @@ public class HandleUpdateService
                             );
 
     }
+
+    
 
     private async Task<string> UploadAnimationAsync(InputOnlineFile file)
     {
@@ -148,6 +139,6 @@ public class HandleUpdateService
         await _botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);
 
         return msg.Animation.FileId;
-        
+
     }
 }
