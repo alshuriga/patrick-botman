@@ -459,3 +459,4 @@ $RECYCLE.BIN/
 ##
 misc/
 assets/
+*.env

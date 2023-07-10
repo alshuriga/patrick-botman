@@ -15,10 +15,16 @@ builder.Services.AddHttpClient("tgwebhook").
         return new TelegramBotClient(opts, httpClient);
     } );
 
-builder.Services.AddHttpClient("tenorclient", tenorclient => {
-    var tenorConfiguration = builder.Configuration.GetSection("TenorConfiguration").Get<TenorConfiguration>();
-    tenorclient.BaseAddress = new Uri($"{tenorConfiguration.HostAddress}?key={tenorConfiguration.ApiToken}");
+// builder.Services.AddHttpClient("tenorclient", tenorclient => {
+//     var tenorConfiguration = builder.Configuration.GetSection("TenorConfiguration").Get<TenorConfiguration>();
+//     tenorclient.BaseAddress = new Uri($"{tenorConfiguration.HostAddress}?key={tenorConfiguration.ApiToken}");
+// });
+
+builder.Services.AddHttpClient("giphyclient", giphyclient => {
+    var giphyConfiguration = builder.Configuration.GetSection("giphyConfiguration").Get<GiphyConfiguration>();
+    giphyclient.BaseAddress = new Uri($"{giphyConfiguration.HostAddress}?api_key={giphyConfiguration.ApiToken}");
 });
+
 
 builder.Services.AddHostedService<ConfigureWebhook>();
 
