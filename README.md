@@ -2,7 +2,8 @@
 
 Patrick-Botman is a Telegram bot that adds text to a random GIF from popular public databases such as Giphy and Tenor. This project was developed as a part of my study in .NET web development.
 
-https://github.com/alshuriga/patrick-botman/assets/8162224/cd224f57-56ca-498f-a583-827af4f02920
+
+https://github.com/alshuriga/patrick-botman/assets/8162224/1fa35c90-d62c-452b-b9cd-3488edcee239
 
 
 
