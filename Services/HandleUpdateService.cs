@@ -55,6 +55,7 @@ public class HandleUpdateService
         if (file != null)
             await using (var stream = System.IO.File.OpenRead(file))
             {
+                stream.Position = 0;
                 await _botClient.SendAnimationAsync(
                             chatId: msg.Chat.Id,
                             animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4")
