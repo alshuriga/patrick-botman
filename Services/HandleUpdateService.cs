@@ -46,7 +46,19 @@ public class HandleUpdateService
         if (msg.Text is not string messageText)
             return;
 
-        if (messageText.Length > _maximumTextLength) throw new FormatException($"Max message length is {_maximumTextLength}");
+        if (messageText.Length > _maximumTextLength) return;
+
+        var botUserName = (await _botClient.GetMeAsync()).Username;
+
+        if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
+        {
+            if ((messageText.Contains("💩") || messageText.Contains("🤮"))
+            && msg.ReplyToMessage?.Text is string replyText)
+            {
+                messageText = replyText;
+            }
+            else return;
+        }
 
         var gifUrl = await _gifService.RandomTrendingAsync();
 
@@ -124,7 +136,7 @@ public class HandleUpdateService
 
     }
 
-    
+
 
     private async Task<string> UploadAnimationAsync(InputOnlineFile file)
     {
