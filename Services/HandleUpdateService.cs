@@ -43,8 +43,8 @@ public class HandleUpdateService
     {
         _logger.LogInformation($"Recieved '{msg.Text}' message from user Id '{msg.From?.Id}.'");
 
-        if (msg.Text is not string messageText)
-            return;
+        string? messageText = msg.Caption ?? msg.Text;
+        if(messageText == null) return;
 
         if (messageText.Length > _maximumTextLength) return;
 
@@ -52,10 +52,10 @@ public class HandleUpdateService
 
         if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
         {
-            if ((messageText.Contains("💩") || messageText.Contains("🤮"))
-            && msg.ReplyToMessage?.Text is string replyText)
+            if ((messageText.Contains("💩") || messageText.Contains("🤮")))
             {
-                messageText = replyText;
+                messageText = msg.ReplyToMessage?.Caption ?? msg.ReplyToMessage?.Text;
+                if(messageText == null) return;
             }
             else return;
         }
