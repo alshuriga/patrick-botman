@@ -11,11 +11,8 @@ public class HandleUpdateService
 {
     private readonly ITelegramBotClient _botClient;
     private readonly IGifService _gifService;
-
     private readonly AnimationEditService _edit;
-
     private readonly ILogger<HandleUpdateService> _logger;
-
     private readonly int _maximumTextLength;
 
 
@@ -30,24 +27,29 @@ public class HandleUpdateService
 
     public async Task HandleUpdateAsync(Update update)
     {
-        await (update.Type switch
+        try
         {
-            UpdateType.Message => EchoAsync(update.Message!),
-            UpdateType.InlineQuery => InlineQueryRespondAsync(update.InlineQuery!),
-            _ => Task.CompletedTask
-        });
+            await (update.Type switch
+            {
+                UpdateType.Message => EchoAsync(update.Message!),
+                UpdateType.InlineQuery => InlineQueryRespondAsync(update.InlineQuery!),
+                _ => Task.CompletedTask
+            });
+        }
+        finally
+        {
+
+            await _edit.Clean();
+        }
 
     }
 
     private async Task EchoAsync(Message msg)
     {
         _logger.LogInformation($"Recieved '{msg.Text}' message from user Id '{msg.From?.Id}.'");
-
         string? messageText = msg.Caption ?? msg.Text;
-        if(messageText == null) return;
-
+        if (messageText == null) return;
         if (messageText.Length > _maximumTextLength) return;
-
         var botUserName = (await _botClient.GetMeAsync()).Username;
 
         if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
@@ -55,13 +57,12 @@ public class HandleUpdateService
             if ((messageText.Contains("💩") || messageText.Contains("🤮")))
             {
                 messageText = msg.ReplyToMessage?.Caption ?? msg.ReplyToMessage?.Text;
-                if(messageText == null) return;
+                if (messageText == null) return;
             }
             else return;
         }
-
+        messageText = messageText.Substring(0, Math.Min(_maximumTextLength, messageText.Length - 1));
         var gifUrl = await _gifService.RandomTrendingAsync();
-
         var file = await _edit.AddText(gifUrl, messageText);
 
         if (file != null)
@@ -74,8 +75,6 @@ public class HandleUpdateService
                         );
             }
 
-        await _edit.Clean();
-
     }
 
     private async Task InlineQueryRespondAsync(InlineQuery inlineQuery)
@@ -86,15 +85,11 @@ public class HandleUpdateService
 
         try
         {
-            if (inlineQuery.Query.Length - 1 > _maximumTextLength) throw new FormatException($"Max message length is {_maximumTextLength}");
-
+            //if (inlineQuery.Query.Length - 1 > _maximumTextLength) throw new FormatException($"Max message length is {_maximumTextLength}");
             if (!inlineQuery.Query.EndsWith(".")) throw new FormatException("Add a dot ('.') at the end to generate");
-
-
             var gifUrl = await _gifService.RandomTrendingAsync();
-
-
-            var file = await _edit.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
+            var file = await _edit.AddText(gifUrl, inlineQuery.Query.Substring(
+                0, Math.Min(_maximumTextLength, inlineQuery.Query.Length - 1)));
             InputOnlineFile? tgFile = null;
 
             if (file != null)
@@ -102,16 +97,9 @@ public class HandleUpdateService
                 {
                     tgFile = new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4");
                     var animationFileId = await UploadAnimationAsync(tgFile);
-
                     await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
                     new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId) }, isPersonal: true, cacheTime: 5);
-
-
                 };
-
-            await _edit.Clean();
-
-
         }
 
         catch (FormatException ex)
@@ -120,9 +108,7 @@ public class HandleUpdateService
                     new InlineQueryResultArticle(Guid.NewGuid().ToString(), "❌Error", new InputTextMessageContent(ex.Message)) {Description = ex.Message}
             });
         }
-
     }
-
 
 
     private async Task ReportErrorAsync(Exception ex, Update update)
@@ -133,9 +119,7 @@ public class HandleUpdateService
                                 chatId: message.Chat.Id,
                                 text: $"❌ {ex.Message}\n\n{ex.StackTrace}\n\n{ex.Source}"
                             );
-
     }
-
 
 
     private async Task<string> UploadAnimationAsync(InputOnlineFile file)
@@ -147,10 +131,8 @@ public class HandleUpdateService
                             disableNotification: true
                         );
 
-        var fileId = msg.Animation.FileId;
-
+        var fileId = msg.Animation!.FileId;
         await _botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);
-
         return msg.Animation.FileId;
 
     }
