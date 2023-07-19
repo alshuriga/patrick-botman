@@ -61,7 +61,7 @@ public class HandleUpdateService
             }
             else return;
         }
-        messageText = messageText.Substring(0, Math.Min(_maximumTextLength, messageText.Length - 1));
+        messageText = messageText.Substring(0, Math.Min(_maximumTextLength, messageText.Length));
         var gifUrl = await _gifService.RandomTrendingAsync();
         var file = await _edit.AddText(gifUrl, messageText);
 
@@ -89,7 +89,7 @@ public class HandleUpdateService
             if (!inlineQuery.Query.EndsWith(".")) throw new FormatException("Add a dot ('.') at the end to generate");
             var gifUrl = await _gifService.RandomTrendingAsync();
             var file = await _edit.AddText(gifUrl, inlineQuery.Query.Substring(
-                0, Math.Min(_maximumTextLength, inlineQuery.Query.Length - 1)));
+                0, Math.Min(_maximumTextLength, inlineQuery.Query.Length)));
             InputOnlineFile? tgFile = null;
 
             if (file != null)
