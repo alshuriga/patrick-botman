@@ -60,7 +60,7 @@ public class HandleUpdateService
         var gifUrl = await _gifService.RandomTrendingAsync();
         var file = await _edit.AddText(gifUrl, messageText);
 
-        if (file != null)
+        if (file != null) {
             await using (var stream = System.IO.File.OpenRead(file))
             {
                 stream.Position = 0;
@@ -69,6 +69,7 @@ public class HandleUpdateService
                             animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4")
                         );
             }
+        }
 
     }
 
