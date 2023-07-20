@@ -89,7 +89,12 @@ public class AnimationEditService
 
     private TextInput PrepareText(string text)
     {
-        text = text.Trim().ToUpper().Substring(0, Math.Min(_maximumTextLength, text.Length)).Substring(0, text.IndexOf('\n', text.IndexOf('\n')+1));
+        text = text.Trim().ToUpper().Substring(0, Math.Min(_maximumTextLength, text.Length));
+        var newLineChar = text.IndexOf('\n');
+        if(newLineChar != -1 && text.IndexOf('\n', newLineChar + 1) != -1)
+            {
+                text = text.Substring(0, text.IndexOf('\n', newLineChar));
+            }
 
         int separationIndex = 0;
         for(int i = 0; i < text.Length; i++) {   
@@ -98,7 +103,7 @@ public class AnimationEditService
                     separationIndex = i;
             }
         }
-        if (text[separationIndex] != '\n')
+        if (text[separationIndex] != '\n' && text.IndexOf('\n') != -1)
             text = text.Remove(text.IndexOf('\n'));
 
         string firstLine = text.Substring(0, separationIndex);
