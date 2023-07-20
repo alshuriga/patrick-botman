@@ -64,7 +64,7 @@ public class AnimationEditService
             var inputFile = new InputFile(input.FullName);
             var outputFile = new OutputFile(_outputPath);
             var maxLineLength = Math.Max(textInput.FirstLine.Length, textInput.SecondLine.Length);
-            int fontSize = Math.Min(35, (int)Math.Round((30.0 / (maxLineLength / 20.0))));
+            int fontSize = Math.Min(35, (295 / maxLineLength) * 2);
             string drawtext = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text='{textInput.FirstLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
             string? drawtext2 = $"drawtext=fontsize={fontSize}:line_spacing=4:fontfile='Impact':text='{textInput.SecondLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
             Console.WriteLine($"Fontsize: {fontSize}");
@@ -89,18 +89,18 @@ public class AnimationEditService
 
     private TextInput PrepareText(string text)
     {
-        text = text.Trim().ToUpper().Substring(0, Math.Min(_maximumTextLength, text.Length));
+        text = text.Trim().ToUpper().Substring(0, Math.Min(_maximumTextLength, text.Length)).Substring(0, text.IndexOf('\n', text.IndexOf('\n')+1));
+
         int separationIndex = 0;
-        for(int i = 0; i < text.Length; i++) {
-            if(text[i] == '\n') {
-            separationIndex = i;
-            break;
-            }
-            else if(text[i] == ' ') {
+        for(int i = 0; i < text.Length; i++) {   
+            if(Char.IsSeparator(text[i])) {
                 if(Math.Abs(text.Length/2 - i) <  Math.Abs(text.Length/2 - separationIndex)) 
                     separationIndex = i;
             }
         }
+        if (text[separationIndex] != '\n')
+            text = text.Remove(text.IndexOf('\n'));
+
         string firstLine = text.Substring(0, separationIndex);
         string secondLine = text.Substring(firstLine.Length, text.Length - firstLine.Length);
         return new TextInput(firstLine, secondLine);
