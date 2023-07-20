@@ -1,24 +1,24 @@
-
 using System.Runtime.InteropServices;
 using FFmpeg.NET;
 using FFmpeg.NET.Events;
+using PatrickBotman.Models;
+
+
 
 public class AnimationEditService
 {
     private readonly IHttpClientFactory _httpClientFactory;
-
     private readonly string _inputPath;
     private readonly string _outputPath;
-
     private readonly string _ffmpegBinary;
-
+    private readonly int _maximumTextLength;
     private readonly ILogger<AnimationEditService> _logger;
 
 
     public AnimationEditService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<AnimationEditService> logger)
     {
         var guid = Guid.NewGuid();
-
+        _maximumTextLength = configuration.GetValue<int>("MaximumTextLength");
         _httpClientFactory = httpClientFactory;
         _ffmpegBinary = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
            ? "ffmpeg"
@@ -37,7 +37,6 @@ public class AnimationEditService
     public async Task<string?> AddText(string url, string text)
     {
         _logger.LogInformation("Downloading GIF from Tenor...");
-
         var http = _httpClientFactory.CreateClient();
         http.Timeout = TimeSpan.FromSeconds(10);
         using (var filestream = System.IO.File.OpenWrite(_inputPath))
@@ -55,6 +54,7 @@ public class AnimationEditService
 
         if (input.Exists)
         {
+            TextInput textInput = PrepareText(text);
             _logger.LogInformation("FFmpeg executable registering...");
             var engine = new Engine(_ffmpegBinary);
             // engine.Progress += OnProgress;
@@ -63,12 +63,10 @@ public class AnimationEditService
             // engine.Complete += OnComplete;
             var inputFile = new InputFile(input.FullName);
             var outputFile = new OutputFile(_outputPath);
-            var formattedText = text.Split("\n", options: StringSplitOptions.RemoveEmptyEntries);
-            var maxLineLength = formattedText.Max(s => s.Length);
+            var maxLineLength = Math.Max(textInput.FirstLine.Length, textInput.SecondLine.Length);
             int fontSize = Math.Min(35, (int)Math.Round((30.0 / (maxLineLength / 20.0))));
-            string drawtext = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text='{(formattedText.ElementAtOrDefault(0) ?? String.Empty).ToUpper()}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
-            string? drawtext2 = $"drawtext=fontsize={fontSize}:line_spacing=4:fontfile='Impact':text='{(formattedText.ElementAtOrDefault(1) ?? String.Empty).ToUpper()}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
-
+            string drawtext = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text='{textInput.FirstLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+            string? drawtext2 = $"drawtext=fontsize={fontSize}:line_spacing=4:fontfile='Impact':text='{textInput.SecondLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
             Console.WriteLine($"Fontsize: {fontSize}");
             var opts = new ConversionOptions
             {
@@ -87,6 +85,21 @@ public class AnimationEditService
             }
         }
         return null;
+    }
+
+    private TextInput PrepareText(string text)
+    {
+        text = text.Substring(0, Math.Min(_maximumTextLength, text.Length));
+        int separationIndex = 0;
+        for(int i = 0; i > text.Length; i++) {
+            if(text[i] == ' '  || (text[i] == '\n')) {
+                if(Math.Abs(text.Length/2 - i) <  Math.Abs(text.Length/2 - separationIndex)) 
+                    separationIndex = i;
+            }
+        }
+        string firstLine = text.Substring(0, separationIndex);
+        string secondLine = text.Substring(separationIndex, text.Length - 1);
+        return new TextInput(firstLine, secondLine);
     }
 
 
