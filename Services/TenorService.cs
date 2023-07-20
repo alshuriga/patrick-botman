@@ -23,15 +23,20 @@ public class TenorService : IGifService
     {
         var http = _httpClientFactory.CreateClient("tenorclient");
         var url = new Uri($"{_tenorConfiguration.HostAddress}&key={_tenorConfiguration.ApiToken}");
+
         _logger.LogInformation("Getting gif from Tenor API...");
+
         var response = await http.GetAsync(url);
         var txt = await response.Content.ReadAsStringAsync();
         var jobject = JObject.Parse(txt);
-        _logger.LogInformation("Successfull retrieval of gif URL");
-        string[] gif = jobject.SelectToken("results")!.Select(r => r.SelectToken("media_formats.tinymp4.url")!.ToString()).ToArray();
-        _logger.LogInformation($"Gifs array length: {gif.Length}");
-        return gif[new Random().Next(gif.Length)];
 
+        _logger.LogInformation("Successfull retrieval of gif URL");
+
+        string[] gif = jobject.SelectToken("results")!.Select(r => r.SelectToken("media_formats.tinymp4.url")!.ToString()).ToArray();
+
+        _logger.LogInformation($"Gifs array length: {gif.Length}");
+
+        return gif[new Random().Next(gif.Length)];
     }
 
 }
