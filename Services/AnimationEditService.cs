@@ -89,16 +89,20 @@ public class AnimationEditService
 
     private TextInput PrepareText(string text)
     {
-        text = text.Substring(0, Math.Min(_maximumTextLength, text.Length));
+        text = text.Trim().ToUpper().Substring(0, Math.Min(_maximumTextLength, text.Length));
         int separationIndex = 0;
-        for(int i = 0; i > text.Length; i++) {
-            if(text[i] == ' '  || (text[i] == '\n')) {
+        for(int i = 0; i < text.Length; i++) {
+            if(text[i] == '\n') {
+            separationIndex = i;
+            break;
+            }
+            else if(text[i] == ' ') {
                 if(Math.Abs(text.Length/2 - i) <  Math.Abs(text.Length/2 - separationIndex)) 
                     separationIndex = i;
             }
         }
         string firstLine = text.Substring(0, separationIndex);
-        string secondLine = text.Substring(separationIndex, text.Length - 1);
+        string secondLine = text.Substring(firstLine.Length, text.Length - firstLine.Length);
         return new TextInput(firstLine, secondLine);
     }
 

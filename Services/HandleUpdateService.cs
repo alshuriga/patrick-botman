@@ -49,7 +49,6 @@ public class HandleUpdateService
         _logger.LogInformation($"Recieved '{msg.Text}' message from user Id '{msg.From?.Id}.'");
         string? messageText = msg.Caption ?? msg.Text;
         if (messageText == null) return;
-        if (messageText.Length > _maximumTextLength) return;
         var botUserName = (await _botClient.GetMeAsync()).Username;
 
         if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
