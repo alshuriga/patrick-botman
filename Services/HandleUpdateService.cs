@@ -53,12 +53,9 @@ public class HandleUpdateService
 
         if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
         {
-            if ((messageText.Contains("💩") || messageText.Contains("🤮")))
-            {
-                messageText = msg.ReplyToMessage?.Caption ?? msg.ReplyToMessage?.Text;
-                if (messageText == null) return;
-            }
-            else return;
+            if (!(messageText.Contains($"/gif@{botUserName}"))) return;
+            messageText = msg.ReplyToMessage?.Caption ?? msg.ReplyToMessage?.Text;
+            if (messageText == null) return;
         }
         var gifUrl = await _gifService.RandomTrendingAsync();
         var file = await _edit.AddText(gifUrl, messageText);

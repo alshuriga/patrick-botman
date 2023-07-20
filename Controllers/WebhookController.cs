@@ -13,10 +13,4 @@ public class WebhookController : ControllerBase
         await handleUpdateService.HandleUpdateAsync(update);
         return Ok();
     }
-
-    [HttpGet("/test")]
-    public ContentResult Test()
-    {
-        return Content("Test");
-    }
 }
