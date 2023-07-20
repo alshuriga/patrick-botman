@@ -53,7 +53,7 @@ public class HandleUpdateService
 
         if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
         {
-            if (!(messageText.Contains($"/gif@{botUserName}"))) return;
+            if (!(messageText.Contains($"/gif"))) return;
             messageText = msg.ReplyToMessage?.Caption ?? msg.ReplyToMessage?.Text;
             if (messageText == null) return;
         }
