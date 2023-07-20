@@ -30,7 +30,8 @@ public class ConfigureWebhook : IHostedService
         await botClient.SetWebhookAsync(
             url: webhookAdress,
             allowedUpdates: new UpdateType[] { UpdateType.Message, UpdateType.InlineQuery, UpdateType.ChosenInlineResult },
-            cancellationToken: cancellationToken
+            cancellationToken: cancellationToken,
+            dropPendingUpdates: true
         );
 
         _logger.LogInformation("Webhook Added");
