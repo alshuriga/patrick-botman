@@ -49,7 +49,6 @@ public class HandleUpdateService
         _logger.LogInformation($"Recieved '{msg.Text}' message from user Id '{msg.From?.Id}.'");
         string? messageText = msg.Caption ?? msg.Text;
         if (messageText == null) return;
-        if (messageText.Length > _maximumTextLength) return;
         var botUserName = (await _botClient.GetMeAsync()).Username;
 
         if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
@@ -61,7 +60,6 @@ public class HandleUpdateService
             }
             else return;
         }
-        messageText = messageText.Substring(0, Math.Min(_maximumTextLength, messageText.Length));
         var gifUrl = await _gifService.RandomTrendingAsync();
         var file = await _edit.AddText(gifUrl, messageText);
 
@@ -88,8 +86,7 @@ public class HandleUpdateService
             //if (inlineQuery.Query.Length - 1 > _maximumTextLength) throw new FormatException($"Max message length is {_maximumTextLength}");
             if (!inlineQuery.Query.EndsWith(".")) throw new FormatException("Add a dot ('.') at the end to generate");
             var gifUrl = await _gifService.RandomTrendingAsync();
-            var file = await _edit.AddText(gifUrl, inlineQuery.Query.Substring(
-                0, Math.Min(_maximumTextLength, inlineQuery.Query.Length)));
+            var file = await _edit.AddText(gifUrl, inlineQuery.Query);
             InputOnlineFile? tgFile = null;
 
             if (file != null)
