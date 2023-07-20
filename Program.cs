@@ -36,6 +36,7 @@ builder.Services.AddScoped<AnimationEditService>();
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 
+
 var app = builder.Build();
 
 app.UseRouting();
@@ -47,6 +48,7 @@ app.UseEndpoints(endpoints => {
     );
     endpoints.MapControllers();
 });
+
 
 
 

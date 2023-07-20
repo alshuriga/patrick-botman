@@ -25,6 +25,7 @@ public class AnimationEditService
            ? "ffmpeg"
            : configuration.GetValue<string>("FfmpegBinary");
         var workDir = configuration.GetValue<string>("TempDirectory") ?? string.Empty; ;
+
         System.IO.Directory.CreateDirectory(workDir);
         _inputPath = System.IO.Path.Combine(workDir, $"{guid}_input.mp4");
         _outputPath = System.IO.Path.Combine(workDir, $"{guid}_output.mp4");
@@ -57,14 +58,16 @@ public class AnimationEditService
         _logger.LogInformation("FFmpeg executable registering...");
         var engine = new Engine(_ffmpegBinary);
 
+        engine.Error += OnError!;
+
         var inputFile = new InputFile(input.FullName);
         var outputFile = new OutputFile(_outputPath);
 
         var maxLineLength = Math.Max(textInput.FirstLine.Length, textInput.SecondLine.Length);
         int fontSize = Math.Min(35, (295 / maxLineLength) * 2);
 
-        string firstLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text='{textInput.FirstLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
-        string? secondLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:fontfile='Impact':text='{textInput.SecondLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+        string firstLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text=\"'{textInput.FirstLine.Replace("'", "")}'\":fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+        string? secondLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:fontfile='Impact':text=\"'{textInput.SecondLine.Replace("'", "")}\"':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
 
         Console.WriteLine($"Fontsize: {fontSize}");
         var opts = new ConversionOptions
@@ -79,14 +82,19 @@ public class AnimationEditService
 
         _logger.LogInformation("Conversion starting...");
 
-        var output = await engine.ConvertAsync(inputFile, outputFile, options: opts, cancellationTokenSource.Token);
-
-        _logger.LogInformation($"Is OUTPUT file exists: {output.FileInfo.Exists}");
-
-        if (!output.FileInfo.Exists) return null;
-
-        return output.FileInfo.FullName;
+        try
+        {
+            var output = await engine.ConvertAsync(inputFile, outputFile, options: opts, cancellationTokenSource.Token);
+            _logger.LogInformation($"Is OUTPUT file exists: {output.FileInfo.Exists}");
+            if (!output.FileInfo.Exists) return null;
+            return output.FileInfo.FullName;
+        }
+        catch (ApplicationException ex)
+        {
+            return null;
+        }
     }
+
 
 
     public async Task Clean()
@@ -109,5 +117,7 @@ public class AnimationEditService
 
     private void OnError(object sender, ConversionErrorEventArgs e)
     {
+        _logger.LogCritical($"{e.Exception.StackTrace}: {e.Exception.Message}");
+        throw new ApplicationException("Error while converting file");
     }
 }
