@@ -83,7 +83,7 @@ public class AnimationEditService
         var opts = new ConversionOptions
         {
             // ExtraArguments = $"-vf \"scale=300:-1,{String.Join(',', new string[] { firstLineArgs, secondLineArgs })}\"",
-            ExtraArguments = $"-vf \"scale=300:-1\"",
+            ExtraArguments = $"-vf \"{String.Join(',', new string[] { firstLineArgs, secondLineArgs })}\"",
             VideoFormat = FFmpeg.NET.Enums.VideoFormat.mp4,
             RemoveAudio = true,
             VideoCodec = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? FFmpeg.NET.Enums.VideoCodec.Default : FFmpeg.NET.Enums.VideoCodec.h264_nvenc,
