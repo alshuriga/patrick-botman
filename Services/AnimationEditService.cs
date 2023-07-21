@@ -121,7 +121,8 @@ public class AnimationEditService
 
     private void OnError(object sender, ConversionErrorEventArgs e)
     {
-        _logger.LogCritical($"[{0} => {1}]: Error: {2}\n{3}", e.Input.Name, e.Output.Name, e.Exception.ExitCode, e.Exception.InnerException);
+        _logger.LogCritical($"[{0} => {1}]: Error: {2}\n{3}\n{4}", e.Input.Name, e.Output.Name,
+        e.Exception.ExitCode, e.Exception.Message, e.Exception.InnerException?.Message);
         throw new ApplicationException("Error while converting file");
     }
 }
