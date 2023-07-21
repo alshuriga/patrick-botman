@@ -95,8 +95,9 @@ public class AnimationEditService
             if (!output.FileInfo.Exists) return null;
             return output.FileInfo.FullName;
         }
-        catch (ApplicationException ex)
+        catch (Exception ex)
         {
+            _logger.LogError($"CONVERSION ERROR:\n{ex.Source}\n{ex.Source}\n{ex.StackTrace}\n{ex.InnerException}");
             return null;
         }
     }
