@@ -71,11 +71,8 @@ public class AnimationEditService
         _logger.LogInformation($"Font Size: {fontSize}");
 
         
-        // string firstLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text='{textInput.FirstLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
-        // string secondLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:fontfile='Impact':text='{textInput.SecondLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
-
-        string firstLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:fontfile='Impact':text='test':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
-        string secondLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:fontfile='Impact':text='test':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+        string firstLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text='{textInput.FirstLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+        string secondLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text='{textInput.SecondLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
 
         _logger.LogInformation($"firstLineArgs: {firstLineArgs}\nsecondLineArgs: {secondLineArgs}");
         _logger.LogInformation($"Input file info:\n    Size = {inputFile.FileInfo.Length} bytes");
@@ -84,7 +81,7 @@ public class AnimationEditService
 
         var opts = new ConversionOptions
         {
-            ExtraArguments = $"-vf \"scale=300:-1,{String.Join(',', new string[] { firstLineArgs, secondLineArgs })}\"",
+            // ExtraArguments = $"-vf \"scale=300:-1,{String.Join(',', new string[] { firstLineArgs, secondLineArgs })}\"",
             VideoFormat = FFmpeg.NET.Enums.VideoFormat.mp4,
             RemoveAudio = true,
             VideoCodec = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? FFmpeg.NET.Enums.VideoCodec.Default : FFmpeg.NET.Enums.VideoCodec.h264_nvenc,
