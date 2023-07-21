@@ -13,7 +13,7 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 
 #FFMPEG Install
-RUN apt update && apt install -y ffmpeg
+RUN apt update && apt install -y ffmpeg=7:5.1.3-1ubuntu4
 
 #Font install
 COPY ./impact.ttf ./
