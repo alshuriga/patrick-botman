@@ -29,11 +29,11 @@ public class TextInput {
                     separationIndex = i;
             }
         }
-        if (text[separationIndex] != '\n' && text.IndexOf('\n') != -1)
-            text = text.Remove(text.IndexOf('\n'));
+        if (text[separationIndex] != '\n')
+            text = text.Replace("\n", string.Empty);
 
-        FirstLine = text.Substring(0, separationIndex);
-        SecondLine = text.Substring(FirstLine.Length, text.Length - FirstLine.Length);    
+        FirstLine = text.Substring(0, separationIndex + 1);
+        SecondLine = text.Substring(separationIndex + 1, text.Length - FirstLine.Length);    
 
         var regex = new Regex("[}{:;\"'`]");  
         
