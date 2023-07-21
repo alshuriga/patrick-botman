@@ -37,6 +37,7 @@ public class AnimationEditService
     public async Task<string?> AddText(string url, string text)
     {
         _logger.LogInformation("Downloading GIF from Tenor...");
+        
         var http = _httpClientFactory.CreateClient();
         http.Timeout = TimeSpan.FromSeconds(10);
         using (var filestream = System.IO.File.OpenWrite(_inputPath))
@@ -53,12 +54,11 @@ public class AnimationEditService
         _logger.LogInformation($"Is INPUT file exists: {input.Exists}");
 
         if (!input.Exists) return null;
-
         var textInput = new TextInput(text, _configuration);
 
         _logger.LogInformation("FFmpeg executable registering...");
-        var engine = new Engine(_ffmpegBinary);
 
+        var engine = new Engine(_ffmpegBinary);
         engine.Error += OnError!;
 
         var inputFile = new InputFile(input.FullName);
@@ -121,7 +121,7 @@ public class AnimationEditService
 
     private void OnError(object sender, ConversionErrorEventArgs e)
     {
-        _logger.LogCritical($"{e.Exception.StackTrace}: {e.Exception.Message}");
+        _logger.LogCritical($"[{0} => {1}]: Error: {2}\n{3}", e.Input.Name, e.Output.Name, e.Exception.ExitCode, e.Exception.InnerException);
         throw new ApplicationException("Error while converting file");
     }
 }
