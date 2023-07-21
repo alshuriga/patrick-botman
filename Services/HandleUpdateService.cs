@@ -39,7 +39,7 @@ public class HandleUpdateService
         finally
         {
 
-            await _edit.Clean();
+           // await _edit.Clean();
         }
 
     }
