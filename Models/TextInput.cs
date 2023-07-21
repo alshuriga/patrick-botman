@@ -35,7 +35,7 @@ public class TextInput {
         FirstLine = text.Substring(0, separationIndex);
         SecondLine = text.Substring(FirstLine.Length, text.Length - FirstLine.Length);    
 
-        var regex = new Regex("[!@#$%^}{&*:;\"'<>?~`;]");  
+        var regex = new Regex("[}{:;\"'`]");  
         
         FirstLine = regex.Replace(FirstLine, string.Empty);
         SecondLine = regex.Replace(SecondLine, string.Empty);

@@ -4,7 +4,7 @@ using FFmpeg.NET;
 using FFmpeg.NET.Events;
 using PatrickBotman.Models;
 
-
+namespace PatrickBotman.Services;
 
 public class AnimationEditService
 {
@@ -60,6 +60,8 @@ public class AnimationEditService
 
         var engine = new Engine(_ffmpegBinary);
         engine.Error += OnError!;
+        engine.Complete += OnComplete!;
+        engine.Data += OnData!;
 
         var inputFile = new InputFile(input.FullName);
         var outputFile = new OutputFile(_outputPath);
@@ -110,13 +112,16 @@ public class AnimationEditService
 
     private void OnProgress(object sender, ConversionProgressEventArgs e)
     {
+         _logger.LogDebug($"Data {e.Input.Argument}");
     }
     private void OnData(object sender, ConversionDataEventArgs e)
     {
+       _logger.LogDebug($"Data {e.Data}");
     }
 
     private void OnComplete(object sender, ConversionCompleteEventArgs e)
     {
+        _logger.LogDebug($"{e.Output.Argument}, {e.Input.Argument}");
     }
 
     private void OnError(object sender, ConversionErrorEventArgs e)
