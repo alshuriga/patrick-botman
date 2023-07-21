@@ -78,6 +78,7 @@ public class AnimationEditService
         string secondLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:fontfile='Impact':text='test':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
 
         _logger.LogInformation($"firstLineArgs: {firstLineArgs}\nsecondLineArgs: {secondLineArgs}");
+        _logger.LogInformation($"Input file info:\n    Size = {inputFile.FileInfo.Length} bytes");
 
 
 
