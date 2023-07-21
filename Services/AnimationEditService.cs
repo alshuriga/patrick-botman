@@ -71,8 +71,8 @@ public class AnimationEditService
         _logger.LogInformation($"Font Size: {fontSize}");
 
         
-        string firstLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text='{textInput.FirstLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
-        string secondLineArgs = $"drawtext=fontsize={fontSize}:line_spacing=4:font='Impact':text='{textInput.SecondLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+        string firstLineArgs = $"drawtext=fontsize=min(35\\,(w/{maxLineLength})*2):line_spacing=4:font='Impact':text='{textInput.FirstLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+        string secondLineArgs = $"drawtext=fontsize=min(35\\,(w/{maxLineLength})*2):line_spacing=4:font='Impact':text='{textInput.SecondLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
 
 
         _logger.LogInformation($"firstLineArgs: {firstLineArgs}\nsecondLineArgs: {secondLineArgs}");
