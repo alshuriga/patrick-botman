@@ -97,7 +97,7 @@ public class AnimationEditService
         }
         catch (Exception ex)
         {
-            _logger.LogError($"CONVERSION ERROR:\n{ex.Source}\n{ex.Message}\n{ex.StackTrace}\nMessage: {ex.InnerException?.Message}");
+            _logger.LogError($"CONVERSION ERROR:\n{ex.Source}\n{ex.Message}\n{ex.StackTrace}\nMessage: {ex.InnerException?.Message}\n{ex.InnerException?.InnerException?.Message}");
             return null;
         }
     }
