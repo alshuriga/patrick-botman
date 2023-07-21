@@ -39,7 +39,7 @@ public class HandleUpdateService
         finally
         {
 
-           // await _edit.Clean();
+           await _edit.Clean();
         }
 
     }
@@ -81,7 +81,6 @@ public class HandleUpdateService
 
         try
         {
-            //if (inlineQuery.Query.Length - 1 > _maximumTextLength) throw new FormatException($"Max message length is {_maximumTextLength}");
             if (!inlineQuery.Query.EndsWith(".")) throw new FormatException("Add a dot ('.') at the end to generate");
             var gifUrl = await _gifService.RandomTrendingAsync();
             var file = await _edit.AddText(gifUrl, inlineQuery.Query);
