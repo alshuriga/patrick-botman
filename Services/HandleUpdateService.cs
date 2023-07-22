@@ -83,7 +83,7 @@ public class HandleUpdateService
         {
             if (!inlineQuery.Query.EndsWith(".")) throw new FormatException("Add a dot ('.') at the end to generate");
             var gifUrl = await _gifService.RandomTrendingAsync();
-            var file = await _edit.AddText(gifUrl, inlineQuery.Query);
+            var file = await _edit.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
             InputOnlineFile? tgFile = null;
 
             if (file != null)
