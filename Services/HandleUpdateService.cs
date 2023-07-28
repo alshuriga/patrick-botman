@@ -4,7 +4,6 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.InlineQueryResults;
 using PatrickBotman.Interfaces;
-
 namespace PatrickBotman.Services;
 
 public class HandleUpdateService
@@ -66,8 +65,7 @@ public class HandleUpdateService
                 stream.Position = 0;
                 await _botClient.SendAnimationAsync(
                             chatId: msg.Chat.Id,
-                            animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4")
-                        );
+                            animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4"));
             }
         }
 
@@ -79,42 +77,26 @@ public class HandleUpdateService
 
         if (String.IsNullOrWhiteSpace(inlineQuery.Query)) return;
 
-        try
-        {
-            if (!inlineQuery.Query.EndsWith(".")) throw new FormatException("Add a dot ('.') at the end to generate");
+            if (!inlineQuery.Query.EndsWith(".")) {
+            await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
+                    new InlineQueryResultArticle(Guid.NewGuid().ToString(), "❌Error",
+                    new InputTextMessageContent(inlineQuery.Query)) { Description = "Add a dot ('.') at the end to generate"} });
+                return;
+            }
+
             var gifUrl = await _gifService.RandomTrendingAsync();
             var file = await _edit.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
-            InputOnlineFile? tgFile = null;
 
             if (file != null)
                 await using (var stream = System.IO.File.OpenRead(file))
                 {
-                    tgFile = new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4");
+                    InputOnlineFile? tgFile = new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4");
                     var animationFileId = await UploadAnimationAsync(tgFile);
                     await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
                     new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId) }, isPersonal: true, cacheTime: 5);
                 };
-        }
 
-        catch (FormatException ex)
-        {
-            await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
-                    new InlineQueryResultArticle(Guid.NewGuid().ToString(), "❌Error", new InputTextMessageContent(ex.Message)) {Description = ex.Message}
-            });
-        }
     }
-
-
-    private async Task ReportErrorAsync(Exception ex, Update update)
-    {
-        _logger.LogError($"{ex.Message}:{ex.Source}");
-        if (update.Message is { } message)
-            await _botClient.SendTextMessageAsync(
-                                chatId: message.Chat.Id,
-                                text: $"❌ {ex.Message}\n\n{ex.StackTrace}\n\n{ex.Source}"
-                            );
-    }
-
 
     private async Task<string> UploadAnimationAsync(InputOnlineFile file)
     {

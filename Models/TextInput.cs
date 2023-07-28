@@ -16,7 +16,7 @@ public class TextInput
 
     private void PrepareText(string text)
     {
-        text = text.Trim().ToUpper().Substring(0, Math.Min(_maximumTextLength, text.Length));
+        text = text.Substring(0, Math.Min(_maximumTextLength, text.Length)).Trim().ToUpper();
         var newLineChar = text.IndexOf('\n');
         if (newLineChar != -1 && text.IndexOf('\n', newLineChar + 1) != -1)
         {
@@ -26,7 +26,7 @@ public class TextInput
         int separationIndex = 0;
         for (int i = 0; i < text.Length; i++)
         {
-            if (Char.IsSeparator(text[i]))
+            if (char.IsSeparator(text[i]))
             {
                 if (Math.Abs(text.Length / 2 - i) < Math.Abs(text.Length / 2 - separationIndex))
                     separationIndex = i;
@@ -36,8 +36,8 @@ public class TextInput
             text = text.Replace("\n", string.Empty);
         if (separationIndex > 0)
         {
-            FirstLine = text.Substring(0, separationIndex + 1);
-            SecondLine = text.Substring(separationIndex + 1, text.Length - FirstLine.Length);
+            FirstLine = text.Substring(0, separationIndex);
+            SecondLine = text.Substring(separationIndex, text.Length - FirstLine.Length);
         }
         else
         {

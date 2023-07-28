@@ -34,6 +34,8 @@ builder.Services.AddScoped<HandleUpdateService>();
 
 builder.Services.AddScoped<AnimationEditService>();
 
+builder.Services.AddScoped<FileDownloaderService>();
+
 builder.Services.AddControllers().AddNewtonsoftJson();
 
 

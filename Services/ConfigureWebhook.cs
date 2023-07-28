@@ -8,7 +8,6 @@ public class ConfigureWebhook : IHostedService
 {
     private readonly IServiceProvider _services;
     private readonly BotConfiguration _botConfig;
-
     private readonly ILogger<ConfigureWebhook> _logger;
 
     public ConfigureWebhook(IServiceProvider services, IConfiguration configuration, ILogger<ConfigureWebhook> logger)

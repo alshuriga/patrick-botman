@@ -13,11 +13,11 @@ public class AnimationEditService
     private readonly string _outputPath;
     private readonly string _ffmpegBinary;
     private readonly IConfiguration _configuration;
-
+    private readonly FileDownloaderService _fileDownloaderService;
     private readonly ILogger<AnimationEditService> _logger;
 
 
-    public AnimationEditService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<AnimationEditService> logger)
+    public AnimationEditService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<AnimationEditService> logger, FileDownloaderService fileDownloaderService)
     {
         _configuration = configuration;
         var guid = Guid.NewGuid();
@@ -26,34 +26,19 @@ public class AnimationEditService
            ? "ffmpeg"
            : configuration.GetValue<string>("FfmpegBinary");
         var workDir = configuration.GetValue<string>("TempDirectory") ?? string.Empty; ;
-
         System.IO.Directory.CreateDirectory(workDir);
         _inputPath = System.IO.Path.Combine(workDir, $"{guid}_input.mp4");
         _outputPath = System.IO.Path.Combine(workDir, $"{guid}_output.mp4");
         _logger = logger;
-
+        _fileDownloaderService = fileDownloaderService;
     }
 
-    public async Task<string?> AddText(string url, string text)
+    public async Task<string> AddText(string url, string text)
     {
-        _logger.LogInformation("Downloading GIF from Tenor...");
-        
-        var http = _httpClientFactory.CreateClient();
-        http.Timeout = TimeSpan.FromSeconds(10);
-        using (var filestream = System.IO.File.OpenWrite(_inputPath))
-        {
-            using (var httpstream = await http.GetStreamAsync(url))
-            {
-                if (httpstream.CanRead || filestream.CanWrite)
-                    await httpstream.CopyToAsync(filestream);
-            }
-        }
-
-        var input = new FileInfo(_inputPath);
+        var input = await _fileDownloaderService.DownloadFile(url, _inputPath);
 
         _logger.LogInformation($"Is INPUT file exists: {input.Exists}");
 
-        if (!input.Exists) return null;
         var textInput = new TextInput(text, _configuration);
 
         _logger.LogInformation("FFmpeg executable registering...");
