@@ -1,4 +1,4 @@
-## Patrick-Botman
+## Patrick-Botman     [![Build Status](https://jenkins.alshuriga.ink/buildStatus/icon?job=patrick-botman)](https://jenkins.alshuriga.ink/job/patrick-botman/)
 
 Patrick-Botman is a Telegram bot that adds text to a random GIF from popular public databases such as Giphy and Tenor. This project was developed as a part of my study in .NET web development.
 
