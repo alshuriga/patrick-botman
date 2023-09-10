@@ -26,7 +26,7 @@ public class GiphyService : IGifService
         
         var response = await http.GetAsync(url);
         var txt = await response.Content.ReadAsStringAsync();
-        var jobject = JObject.Parse(txt) ?? null;
+        var jobject = JObject.Parse(txt) ?? throw new Exception("Gif link parsing error");
 
         _logger.LogInformation("Successfull retrieval of gif URL");
 

@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using FFmpeg.NET;
 using FFmpeg.NET.Events;
 using PatrickBotman.Models;
@@ -33,7 +32,7 @@ public class AnimationEditService
         _fileDownloaderService = fileDownloaderService;
     }
 
-    public async Task<string> AddText(string url, string text)
+    public async Task<string?> AddText(string url, string text)
     {
         var input = await _fileDownloaderService.DownloadFile(url, _inputPath);
 
