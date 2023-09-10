@@ -7,18 +7,18 @@ https://github.com/alshuriga/patrick-botman/assets/8162224/1fa35c90-d62c-452b-b9
 
 
 
-## Features ✨
+## Features 
 
 -   Send a private message to the bot to add text to a random GIF.
 -   Use inline queries in any chat to add text to a random GIF.
 
-## Technologies Used 🛠️
+## Technologies Used 
 
 -   ASP.NET Core
 -   [Telegram.Bot](https://github.com/TelegramBots/Telegram.Bot) library for the backend
 -   FFmpeg for rendering MP4 with added text
 
-## Services 🌐
+## Services
 
 Two services were implemented for handling the GIF functionality:
 
@@ -27,6 +27,6 @@ Two services were implemented for handling the GIF functionality:
 
 By default, the GiphyService is used for fetching GIFs. If you want to use the TenorService instead, you can make the necessary changes in the code.
 
-## To Do 🚀
+## To Do
 
 -   Allow the bot to be added to group chats, where it can periodically respond to messages with GIFs (with the ability for users to set the time interval using commands).
