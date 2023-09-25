@@ -4,6 +4,9 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.InlineQueryResults;
 using PatrickBotman.Interfaces;
+using Telegram.Bot.Types.ReplyMarkups;
+using Microsoft.VisualBasic;
+using System.Collections;
 namespace PatrickBotman.Services;
 
 public class HandleUpdateService
@@ -32,6 +35,7 @@ public class HandleUpdateService
             {
                 UpdateType.Message => EchoAsync(update.Message!),
                 UpdateType.InlineQuery => InlineQueryRespondAsync(update.InlineQuery!),
+                UpdateType.CallbackQuery => HandleCallbackAsync(update.CallbackQuery),
                 _ => Task.CompletedTask
             });
         }
@@ -45,18 +49,22 @@ public class HandleUpdateService
 
     private async Task EchoAsync(Message msg)
     {
+
         _logger.LogInformation($"Recieved '{msg.Text}' message from user Id '{msg.From?.Id}.'");
         string? messageText = msg.Caption ?? msg.Text;
+
+
         if (messageText == null) return;
         var botUserName = (await _botClient.GetMeAsync()).Username;
-
         if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
         {
-            if (!(messageText.Contains($"/gif"))) return;
+            if (!messageText.Contains($"/gif")) return;
             messageText = msg.ReplyToMessage?.Caption ?? msg.ReplyToMessage?.Text;
             if (messageText == null) return;
         }
+
         var gifUrl = await _gifService.RandomTrendingAsync();
+
         var file = await _edit.AddText(gifUrl, messageText);
 
         if (file != null) {
@@ -64,6 +72,7 @@ public class HandleUpdateService
             {
                 stream.Position = 0;
                 await _botClient.SendAnimationAsync(
+                            replyMarkup: CreateVotingInlineKeyboard(),
                             chatId: msg.Chat.Id,
                             animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4"));
             }
@@ -111,5 +120,43 @@ public class HandleUpdateService
         await _botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);
         return msg.Animation.FileId;
 
+    }
+
+
+    private async Task HandleCallbackAsync(CallbackQuery callbackQuery)
+    {
+        if(callbackQuery.Data == "ignore") return;
+        var isParsed = int.TryParse(callbackQuery.Data?.Substring(1), out int rating);
+        if(isParsed && callbackQuery.Message?.MessageId != null && callbackQuery.Message?.Chat.Id != null) 
+        {
+            InlineVoteReaction voteType = InlineVoteReaction.None;
+            if(callbackQuery.Data.StartsWith('+')) voteType = InlineVoteReaction.Upvoted;
+            else if(callbackQuery.Data.StartsWith('-')) voteType = InlineVoteReaction.Downvoted;
+            await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, CreateVotingInlineKeyboard(voteType, rating: rating));
+        }
+            
+    }
+
+
+    private InlineKeyboardMarkup CreateVotingInlineKeyboard(InlineVoteReaction inlineVoteReaction = InlineVoteReaction.None, int rating = 0)
+    {
+
+        IEnumerable<InlineKeyboardButton> buttons = new[] { InlineKeyboardButton.WithCallbackData($"{rating}", "ignore") };
+
+        if(inlineVoteReaction == InlineVoteReaction.Upvoted || inlineVoteReaction == InlineVoteReaction.None) {
+            buttons = buttons.Append(InlineKeyboardButton.WithCallbackData($"👎", $"-{rating - 1}"));
+        };
+        if(inlineVoteReaction == InlineVoteReaction.Downvoted || inlineVoteReaction == InlineVoteReaction.None) {   
+            buttons = buttons.Prepend(InlineKeyboardButton.WithCallbackData($"👍", $"+{rating + 1}"));
+        }
+
+        var replyMarkup = new InlineKeyboardMarkup(buttons);
+
+        return replyMarkup;
+    }
+
+    enum InlineVoteReaction 
+    {
+        Upvoted, Downvoted, None
     }
 }

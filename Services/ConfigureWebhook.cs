@@ -28,7 +28,7 @@ public class ConfigureWebhook : IHostedService
 
         await botClient.SetWebhookAsync(
             url: webhookAdress,
-            allowedUpdates: new UpdateType[] { UpdateType.Message, UpdateType.InlineQuery, UpdateType.ChosenInlineResult },
+            allowedUpdates: new UpdateType[] { UpdateType.Message, UpdateType.InlineQuery, UpdateType.ChosenInlineResult, UpdateType.CallbackQuery },
             cancellationToken: cancellationToken,
             dropPendingUpdates: true
         );
