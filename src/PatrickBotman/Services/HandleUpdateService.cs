@@ -7,6 +7,8 @@ using PatrickBotman.Interfaces;
 using Telegram.Bot.Types.ReplyMarkups;
 using Microsoft.VisualBasic;
 using System.Collections;
+using PatrickBotman.Persistence.Entities;
+using PatrickBotman.Models;
 namespace PatrickBotman.Services;
 
 public class HandleUpdateService
@@ -16,10 +18,12 @@ public class HandleUpdateService
     private readonly AnimationEditService _edit;
     private readonly ILogger<HandleUpdateService> _logger;
     private readonly int _maximumTextLength;
+    private readonly IGifRatingRepository _gifRatingRepository;
 
 
-    public HandleUpdateService(ITelegramBotClient botClient, IGifService gifService, AnimationEditService edit, ILogger<HandleUpdateService> logger, IConfiguration configuration)
+    public HandleUpdateService(ITelegramBotClient botClient, IGifService gifService, AnimationEditService edit, ILogger<HandleUpdateService> logger, IConfiguration configuration, IGifRatingRepository gifRatingRepository)
     {
+        _gifRatingRepository = gifRatingRepository;
         _botClient = botClient;
         _gifService = gifService;
         _edit = edit;
@@ -35,7 +39,7 @@ public class HandleUpdateService
             {
                 UpdateType.Message => EchoAsync(update.Message!),
                 UpdateType.InlineQuery => InlineQueryRespondAsync(update.InlineQuery!),
-                UpdateType.CallbackQuery => HandleCallbackAsync(update.CallbackQuery),
+                UpdateType.CallbackQuery => HandleCallbackAsync(update.CallbackQuery!),
                 _ => Task.CompletedTask
             });
         }
@@ -49,13 +53,15 @@ public class HandleUpdateService
 
     private async Task EchoAsync(Message msg)
     {
-
+        
         _logger.LogInformation($"Recieved '{msg.Text}' message from user Id '{msg.From?.Id}.'");
         string? messageText = msg.Caption ?? msg.Text;
 
 
         if (messageText == null) return;
+
         var botUserName = (await _botClient.GetMeAsync()).Username;
+
         if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
         {
             if (!messageText.Contains($"/gif")) return;
@@ -63,16 +69,31 @@ public class HandleUpdateService
             if (messageText == null) return;
         }
 
-        var gifUrl = await _gifService.RandomTrendingAsync();
+        var isFavoriteGif = new Random().Next(0, 100) > 30;
 
-        var file = await _edit.AddText(gifUrl, messageText);
+        GifDTO? gifDTO = null;
+
+        if(isFavoriteGif)
+        {
+            gifDTO = await _gifRatingRepository.GetRandomGifAsync(msg.Chat.Id);
+        }
+        if(!isFavoriteGif || gifDTO == null)
+        {
+            var url = await _gifService.RandomTrendingAsync();
+            var id = await _gifRatingRepository.GetGifIdAsync(url);
+            gifDTO = new GifDTO(id, url);
+        }
+
+        var rating = await _gifRatingRepository.GetGifRatingAsync(gifDTO.GifId, msg.Chat.Id);
+
+        var file = await _edit.AddText(gifDTO.GifUrl, messageText);
 
         if (file != null) {
             await using (var stream = System.IO.File.OpenRead(file))
             {
                 stream.Position = 0;
                 await _botClient.SendAnimationAsync(
-                            replyMarkup: CreateVotingInlineKeyboard(),
+                            replyMarkup: CreateVotingInlineKeyboard(rating, gifDTO.GifId),
                             chatId: msg.Chat.Id,
                             animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4"));
             }
@@ -125,38 +146,40 @@ public class HandleUpdateService
 
     private async Task HandleCallbackAsync(CallbackQuery callbackQuery)
     {
-        if(callbackQuery.Data == "ignore") return;
-        var isParsed = int.TryParse(callbackQuery.Data?.Substring(1), out int rating);
-        if(isParsed && callbackQuery.Message?.MessageId != null && callbackQuery.Message?.Chat.Id != null) 
+        if(callbackQuery.Data == null || callbackQuery.Data == "ignore") return;
+
+        if(callbackQuery.Message?.MessageId != null && callbackQuery.Message?.Chat.Id != null)
         {
-            InlineVoteReaction voteType = InlineVoteReaction.None;
-            if(callbackQuery.Data.StartsWith('+')) voteType = InlineVoteReaction.Upvoted;
-            else if(callbackQuery.Data.StartsWith('-')) voteType = InlineVoteReaction.Downvoted;
-            await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, CreateVotingInlineKeyboard(voteType, rating: rating));
-        }
+            var userId = callbackQuery.From.Id;
+            var chatId = callbackQuery.Message.Chat.Id;
+
+            if(callbackQuery.Data.StartsWith("up"))
+            {
+                var gifId = int.Parse(callbackQuery.Data.Split(' ')[1]);
+                await _gifRatingRepository.UpvoteGifAsync(gifId, userId, chatId);
+            }
+            else if(callbackQuery.Data.StartsWith("down"))
+            {
+                var gifId = int.Parse(callbackQuery.Data.Split(' ')[1]);
+                await _gifRatingRepository.DownvoteGifAsync(gifId, userId, chatId);
+            }
+
+            var rating = await _gifRatingRepository.GetGifRatingAsync(int.Parse(callbackQuery.Data.Split(' ')[1]), chatId);
             
+            await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, CreateVotingInlineKeyboard(rating, int.Parse(callbackQuery.Data.Split(' ')[1])));    
+        }
+         
     }
 
 
-    private InlineKeyboardMarkup CreateVotingInlineKeyboard(InlineVoteReaction inlineVoteReaction = InlineVoteReaction.None, int rating = 0)
+    private InlineKeyboardMarkup CreateVotingInlineKeyboard(int rating, int gifId)
     {
-
-        IEnumerable<InlineKeyboardButton> buttons = new[] { InlineKeyboardButton.WithCallbackData($"{rating}", "ignore") };
-
-        if(inlineVoteReaction == InlineVoteReaction.Upvoted || inlineVoteReaction == InlineVoteReaction.None) {
-            buttons = buttons.Append(InlineKeyboardButton.WithCallbackData($"👎", $"-{rating - 1}"));
-        };
-        if(inlineVoteReaction == InlineVoteReaction.Downvoted || inlineVoteReaction == InlineVoteReaction.None) {   
-            buttons = buttons.Prepend(InlineKeyboardButton.WithCallbackData($"👍", $"+{rating + 1}"));
-        }
+        IEnumerable<InlineKeyboardButton> buttons = new[] { InlineKeyboardButton.WithCallbackData($"👎",  $"down {gifId}"),
+            InlineKeyboardButton.WithCallbackData($"{rating}", "ignore"),
+            InlineKeyboardButton.WithCallbackData($"👍", $"up {gifId}")};
 
         var replyMarkup = new InlineKeyboardMarkup(buttons);
 
         return replyMarkup;
-    }
-
-    enum InlineVoteReaction 
-    {
-        Upvoted, Downvoted, None
     }
 }

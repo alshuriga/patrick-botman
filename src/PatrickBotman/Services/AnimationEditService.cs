@@ -25,9 +25,9 @@ public class AnimationEditService
            ? "ffmpeg"
            : configuration.GetValue<string>("FfmpegBinary");
         var workDir = configuration.GetValue<string>("TempDirectory") ?? string.Empty; ;
-        System.IO.Directory.CreateDirectory(workDir);
-        _inputPath = System.IO.Path.Combine(workDir, $"{guid}_input.mp4");
-        _outputPath = System.IO.Path.Combine(workDir, $"{guid}_output.mp4");
+        Directory.CreateDirectory(workDir);
+        _inputPath = Path.Combine(workDir, $"{guid}_input.mp4");
+        _outputPath = Path.Combine(workDir, $"{guid}_output.mp4");
         _logger = logger;
         _fileDownloaderService = fileDownloaderService;
     }
@@ -66,7 +66,7 @@ public class AnimationEditService
 
         var opts = new ConversionOptions
         {
-            ExtraArguments = $"-vf \"{String.Join(',', new string[] { firstLineArgs, secondLineArgs })}\"",
+            ExtraArguments = $"-vf \"{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\"",
             VideoFormat = FFmpeg.NET.Enums.VideoFormat.mp4,
             RemoveAudio = true,
             VideoCodec = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? FFmpeg.NET.Enums.VideoCodec.Default : FFmpeg.NET.Enums.VideoCodec.h264_nvenc,
