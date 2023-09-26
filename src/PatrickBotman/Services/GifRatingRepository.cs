@@ -14,36 +14,11 @@ public class GifRatingRepository : IGifRatingRepository
     {
         _context = context;
     }
-    public async Task DownvoteGifAsync(int gifId, long userId, long chatId)
-    {
-        var rating = await _context.GifRatings.Where(r => r.GifId == gifId && r.UserId == userId && r.ChatId == chatId).SingleOrDefaultAsync();
 
-        switch(rating?.Vote) 
-        {
-            case null:
-              await _context.GifRatings.AddAsync(new GifRating() {
-                GifId = gifId,
-                UserId = userId,
-                ChatId = chatId,
-                Vote = false});
-
-                break;
-
-            case false:
-                _context.GifRatings.Remove(rating);
-                break;
-
-            case true:
-                rating.Vote = false;
-                break;
-        }
-
-        await _context.SaveChangesAsync();
-    }
 
     public async Task<int> GetGifIdAsync(string gifUrl)
     {
-        var gif = await _context.Gifs.SingleOrDefaultAsync(x => x.GifUrl == gifUrl);
+        var gif = await _context.Gifs.AsNoTracking().SingleOrDefaultAsync(x => x.GifUrl == gifUrl);
         if(gif != null) return gif.GifId;
         
         var newGif = new Gif() { GifUrl = gifUrl};
@@ -72,6 +47,7 @@ public class GifRatingRepository : IGifRatingRepository
     {
         var gifIds = await _context.Gifs
         .Include(x => x.GifRatings)
+        .AsNoTracking()
         .SelectMany(x => x.GifRatings, (gif, rating) => new { id = gif.GifId, url = gif.GifUrl, rating = rating.Vote, chatId })
         .Where(x => x.chatId == chatId)
         .GroupBy(x => new { x.url, x.id },
@@ -93,11 +69,11 @@ public class GifRatingRepository : IGifRatingRepository
 
     public async Task<string> GetUrlById(int gifId)
     {
-        var gif = await _context.Gifs.SingleAsync(x => x.GifId == gifId);
+        var gif = await _context.Gifs.AsNoTracking().SingleAsync(x => x.GifId == gifId);
         return gif.GifUrl;
     }
-
-    public async Task UpvoteGifAsync(int gifId, long userId, long chatId)
+    
+    public async Task RateGifAsync(bool upvote, int gifId, long userId, long chatId)
     {
         var rating = await _context.GifRatings.Where(r => r.GifId == gifId && r.UserId == userId && r.ChatId == chatId).SingleOrDefaultAsync();
 
@@ -108,16 +84,22 @@ public class GifRatingRepository : IGifRatingRepository
                 GifId = gifId,
                 UserId = userId,
                 ChatId = chatId,
-                Vote = true});
+                Vote = upvote});
 
-                break;
-
-            case true:
-                _context.GifRatings.Remove(rating);
                 break;
 
             case false:
-                rating.Vote = true;
+                if(!upvote)
+                    _context.GifRatings.Remove(rating);
+                else
+                    rating.Vote = upvote;
+                break;
+
+            case true:
+                if(upvote)
+                    _context.GifRatings.Remove(rating);
+                else
+                    rating.Vote = upvote;
                 break;
         }
 

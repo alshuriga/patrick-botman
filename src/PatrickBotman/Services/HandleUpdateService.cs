@@ -146,36 +146,30 @@ public class HandleUpdateService
 
     private async Task HandleCallbackAsync(CallbackQuery callbackQuery)
     {
-        if(callbackQuery.Data == null || callbackQuery.Data == "ignore") return;
+        if(callbackQuery.Message?.MessageId == null || callbackQuery.Message?.Chat.Id == null || callbackQuery.Data == null) return;
 
-        if(callbackQuery.Message?.MessageId != null && callbackQuery.Message?.Chat.Id != null)
-        {
-            var userId = callbackQuery.From.Id;
-            var chatId = callbackQuery.Message.Chat.Id;
+        var userId = callbackQuery.From.Id;
+        var chatId = callbackQuery.Message.Chat.Id;
 
-            if(callbackQuery.Data.StartsWith("up"))
-            {
-                var gifId = int.Parse(callbackQuery.Data.Split(' ')[1]);
-                await _gifRatingRepository.UpvoteGifAsync(gifId, userId, chatId);
-            }
-            else if(callbackQuery.Data.StartsWith("down"))
-            {
-                var gifId = int.Parse(callbackQuery.Data.Split(' ')[1]);
-                await _gifRatingRepository.DownvoteGifAsync(gifId, userId, chatId);
-            }
+        if(!(callbackQuery.Data.StartsWith("up") || callbackQuery.Data.StartsWith("down"))) return;
 
-            var rating = await _gifRatingRepository.GetGifRatingAsync(int.Parse(callbackQuery.Data.Split(' ')[1]), chatId);
+        var voteMode = callbackQuery.Data.StartsWith("up") ? true : false;
             
-            await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, CreateVotingInlineKeyboard(rating, int.Parse(callbackQuery.Data.Split(' ')[1])));    
-        }
-         
+        var gifId = int.Parse(callbackQuery.Data.Split(' ')[1]);
+            
+        await _gifRatingRepository.RateGifAsync(voteMode, gifId, userId, chatId);
+
+        var rating = await _gifRatingRepository.GetGifRatingAsync(int.Parse(callbackQuery.Data.Split(' ')[1]), chatId);
+
+        await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"New rating is {rating}", false);
+       // await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, CreateVotingInlineKeyboard(rating, int.Parse(callbackQuery.Data.Split(' ')[1])));       
     }
 
 
     private InlineKeyboardMarkup CreateVotingInlineKeyboard(int rating, int gifId)
     {
         IEnumerable<InlineKeyboardButton> buttons = new[] { InlineKeyboardButton.WithCallbackData($"👎",  $"down {gifId}"),
-            InlineKeyboardButton.WithCallbackData($"{rating}", "ignore"),
+            //InlineKeyboardButton.WithCallbackData($"{rating}", "ignore"),
             InlineKeyboardButton.WithCallbackData($"👍", $"up {gifId}")};
 
         var replyMarkup = new InlineKeyboardMarkup(buttons);
