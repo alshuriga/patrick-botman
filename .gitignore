@@ -460,3 +460,5 @@ $RECYCLE.BIN/
 misc/
 assets/
 .env
+.db*
+/src/PatrickBotman/db/gifRatings.db
