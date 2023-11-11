@@ -21,8 +21,4 @@
     <PackageReference Include="xFFmpeg.NET" Version="7.1.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="db\" />
-  </ItemGroup>
-
 </Project>

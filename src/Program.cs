@@ -30,23 +30,25 @@ builder.Services.AddHttpClient("giphyclient", giphyclient => {
     giphyclient.BaseAddress = new Uri($"{giphyConfiguration.HostAddress}?api_key={giphyConfiguration.ApiToken}");
 });
 
-builder.Services.AddDbContext<GifRatingsContext>(opts => opts.UseSqlite("Data Source=db/gifRatings.db;"));
+builder.Services.AddDbContext<GifRatingsContext>(opts => opts.UseSqlite("Data Source=gifRatings.db;"));
 builder.Services.AddHostedService<ConfigureWebhook>();
 builder.Services.AddScoped<IGifService, GiphyService>();
 builder.Services.AddScoped<IGifRatingService, GifRatingService>();
 builder.Services.AddScoped<HandleUpdateService>();
-builder.Services.AddScoped<AnimationEditService, AnimationEditService>();
+builder.Services.AddScoped<AnimationEditService>();
+builder.Services.AddScoped<FileDownloaderService>();
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddScoped<UpdateHandlersFactory>();
 
 
 var app = builder.Build();
 
-//database auto migration at initialization
+//database automatic migration at initialization
 using var scope = app.Services.CreateScope();
-scope.ServiceProvider.GetRequiredService<GifRatingsContext>().Database.Migrate();
+scope.ServiceProvider.GetRequiredService<GifRatingsContext>().Database.EnsureCreated();
 
 app.UseRouting();
+
 app.UseEndpoints(endpoints => {
     var token = botConfig.BotToken;
     endpoints.MapControllerRoute(name: "tgwebhook",
