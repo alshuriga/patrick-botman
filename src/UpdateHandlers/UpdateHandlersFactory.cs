@@ -18,7 +18,8 @@ namespace patrick_botman.UpdateHandlers
             {
                 UpdateType.Message => ActivatorUtilities.CreateInstance<MessageUpdateHandler>(_serviceProvider),
                 UpdateType.InlineQuery => ActivatorUtilities.CreateInstance<InlineUpdateHandler>(_serviceProvider),
-                UpdateType.CallbackQuery => ActivatorUtilities.CreateInstance<CallbackUpdateHandler>(_serviceProvider)
+                UpdateType.CallbackQuery => ActivatorUtilities.CreateInstance<CallbackUpdateHandler>(_serviceProvider),
+                UpdateType.Unknown => throw new ArgumentException("Update type not recognized")
             };
         }
     }

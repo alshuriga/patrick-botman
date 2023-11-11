@@ -35,9 +35,8 @@ public class GifRatingService : IGifRatingService
     {
         var rating = await _context.Gifs
         .Include(x => x.GifRatings).AsNoTracking()
-        .SelectMany(x => x.GifRatings, (gif, rating) => new {id = gif.GifId, rating = rating.Vote, chatId })
-        .Where(x => x.chatId == chatId)
-        .GroupBy(x => x.id,
+        .SelectMany(x => x.GifRatings, (gif, rating) => new { id = gif.GifId, rating = rating.Vote, chatId = rating.ChatId })
+        .Where(x => x.chatId == chatId).GroupBy(x => x.id,
             x => x.rating,
             (id, vote) => new { gifId = id, rating = vote.Count(v => v) - vote.Count(v => !v)})
             .FirstOrDefaultAsync(x => x.gifId == gifId);
