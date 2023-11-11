@@ -36,7 +36,6 @@ builder.Services.AddScoped<IGifService, GiphyService>();
 builder.Services.AddScoped<IGifRatingService, GifRatingService>();
 builder.Services.AddScoped<HandleUpdateService>();
 builder.Services.AddScoped<AnimationEditService, AnimationEditService>();
-builder.Services.AddScoped<FileDownloaderService>();
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddScoped<UpdateHandlersFactory>();
 
@@ -56,8 +55,6 @@ app.UseEndpoints(endpoints => {
     );
     endpoints.MapControllers();
 });
-
-
 
 
 app.Run();
