@@ -51,7 +51,7 @@ public class AnimationEditService
         var outputFile = new OutputFile(_outputPath);
 
         var maxLineLength = Math.Max(textInput.FirstLine.Length, textInput.SecondLine.Length);
-        int fontSize = Math.Min(35, (295 / maxLineLength) * 2);
+        int fontSize = Math.Min(45, (295 / maxLineLength) * 2);
         _logger.LogInformation($"Font Size: {fontSize}");
 
         
@@ -79,13 +79,16 @@ public class AnimationEditService
         try
         {
             var output = await engine.ConvertAsync(inputFile, outputFile, options: opts, cancellationTokenSource.Token);
+
             _logger.LogInformation($"Is OUTPUT file exists: {output.FileInfo.Exists}");
+            
             if (!output.FileInfo.Exists) return null;
             return output.FileInfo.FullName;
         }
         catch (Exception ex)
         {
             _logger.LogError($"CONVERSION ERROR:\n{ex.Source}\n{ex.Message}\n{ex.StackTrace}\nMessage: {ex.InnerException?.Message}\n{ex.InnerException?.InnerException?.Message}");
+            
             return null;
         }
     }
@@ -117,6 +120,7 @@ public class AnimationEditService
     {
         _logger.LogCritical("[{0} => {1}]: Error: {2}\n{3}\n{4}", e.Input.Name, e.Output.Name,
         e.Exception.ExitCode, e.Exception.Message, e.Exception.InnerException?.Message);
+        
         throw new ApplicationException("Error while converting file");
     }
 }
