@@ -461,4 +461,4 @@ misc/
 assets/
 .env
 .db*
-/src/PatrickBotman/db/gifRatings.db
+/src/PatrickBotman/db/
