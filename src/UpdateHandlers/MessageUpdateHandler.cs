@@ -50,7 +50,7 @@ namespace patrick_botman.UpdateHandlers
                 if (messageText == null) return;
             }
 
-            var isFavoriteGif = new Random().Next(0, 100) > 30;
+            var isFavoriteGif = new Random().Next(0, 100) > 50;
             GifDTO? gifDTO = null;
 
             if (isFavoriteGif)
