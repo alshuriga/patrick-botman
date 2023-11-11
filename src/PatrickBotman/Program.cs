@@ -5,6 +5,7 @@ using Telegram.Bot;
 using PatrickBotman.Persistence;
 using Microsoft.EntityFrameworkCore;
 using patrick_botman.UpdateHandlers;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,10 @@ builder.Services.AddScoped<UpdateHandlersFactory>();
 
 
 var app = builder.Build();
+
+//database auto migration at initialization
+using var scope = app.Services.CreateScope();
+scope.ServiceProvider.GetRequiredService<GifRatingsContext>().Database.Migrate();
 
 app.UseRouting();
 app.UseEndpoints(endpoints => {
