@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace patrick_botman.Migrations
+namespace PatrickBotman.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration

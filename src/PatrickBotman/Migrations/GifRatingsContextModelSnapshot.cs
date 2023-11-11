@@ -6,7 +6,7 @@ using PatrickBotman.Persistence;
 
 #nullable disable
 
-namespace patrick_botman.Migrations
+namespace PatrickBotman.Migrations
 {
     [DbContext(typeof(GifRatingsContext))]
     partial class GifRatingsContextModelSnapshot : ModelSnapshot

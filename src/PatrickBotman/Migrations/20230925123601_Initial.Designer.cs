@@ -7,7 +7,7 @@ using PatrickBotman.Persistence;
 
 #nullable disable
 
-namespace patrick_botman.Migrations
+namespace PatrickBotman.Migrations
 {
     [DbContext(typeof(GifRatingsContext))]
     [Migration("20230925123601_Initial")]
