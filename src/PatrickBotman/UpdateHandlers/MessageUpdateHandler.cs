@@ -15,14 +15,14 @@ namespace patrick_botman.UpdateHandlers
         private readonly ILogger<MessageUpdateHandler> _logger;
         private readonly ITelegramBotClient _botClient;
         private readonly AnimationEditService _edit;
-        private readonly IGifRatingRepository _gifRatingRepository;
+        private readonly IGifRatingService _gifRatingRepository;
         private readonly IGifService _gifService;
 
 
         public MessageUpdateHandler(ILogger<MessageUpdateHandler> logger,
             ITelegramBotClient botClient,
             AnimationEditService edit,
-            IGifRatingRepository gifRatingRepository,
+            IGifRatingService gifRatingRepository,
             IGifService gifService)
         {
             _botClient = botClient;
@@ -60,11 +60,11 @@ namespace patrick_botman.UpdateHandlers
             if (!isFavoriteGif || gifDTO == null)
             {
                 var url = await _gifService.RandomTrendingAsync();
-                var id = await _gifRatingRepository.GetGifIdAsync(url);
+                var id = await _gifRatingRepository.GetOrCreateIdForGifUrlAsync(url);
                 gifDTO = new GifDTO(id, url);
             }
 
-            var rating = await _gifRatingRepository.GetGifRatingAsync(gifDTO.GifId, msg.Chat.Id);
+            var rating = await _gifRatingRepository.GetGifRatingByIdAsync(gifDTO.GifId, msg.Chat.Id);
 
             var file = await _edit.AddText(gifDTO.GifUrl, messageText);
 

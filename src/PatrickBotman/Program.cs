@@ -32,7 +32,7 @@ builder.Services.AddHttpClient("giphyclient", giphyclient => {
 builder.Services.AddDbContext<GifRatingsContext>(opts => opts.UseSqlite("Data Source=db/gifRatings.db;"));
 builder.Services.AddHostedService<ConfigureWebhook>();
 builder.Services.AddScoped<IGifService, GiphyService>();
-builder.Services.AddScoped<IGifRatingRepository, GifRatingRepository>();
+builder.Services.AddScoped<IGifRatingService, GifRatingService>();
 builder.Services.AddScoped<HandleUpdateService>();
 builder.Services.AddScoped<AnimationEditService, AnimationEditService>();
 builder.Services.AddScoped<FileDownloaderService>();

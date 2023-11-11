@@ -6,22 +6,24 @@ using PatrickBotman.Persistence.Entities;
 
 namespace PatrickBotman.Services;
 
-public class GifRatingRepository : IGifRatingRepository
+public class GifRatingService : IGifRatingService
 {
     private readonly GifRatingsContext _context;
 
-    public GifRatingRepository(GifRatingsContext context)
+    public GifRatingService(GifRatingsContext context)
     {
         _context = context;
     }
 
 
-    public async Task<int> GetGifIdAsync(string gifUrl)
+    public async Task<int> GetOrCreateIdForGifUrlAsync(string gifUrl)
     {
         var gif = await _context.Gifs.AsNoTracking().SingleOrDefaultAsync(x => x.GifUrl == gifUrl);
+
         if(gif != null) return gif.GifId;
         
         var newGif = new Gif() { GifUrl = gifUrl};
+
         await _context.Gifs.AddAsync(newGif);
 
         await _context.SaveChangesAsync();
@@ -29,7 +31,7 @@ public class GifRatingRepository : IGifRatingRepository
         return newGif.GifId;
     }
 
-    public async Task<int> GetGifRatingAsync(int gifId, long chatId)
+    public async Task<int> GetGifRatingByIdAsync(int gifId, long chatId)
     {
         var rating = await _context.Gifs
         .Include(x => x.GifRatings).AsNoTracking()
@@ -46,6 +48,7 @@ public class GifRatingRepository : IGifRatingRepository
     public async Task<GifDTO?> GetRandomGifAsync(long chatId)
     {
         var gifIds = await _context.Gifs
+
         .Include(x => x.GifRatings)
         .AsNoTracking()
         .SelectMany(x => x.GifRatings, (gif, rating) => new { id = gif.GifId, url = gif.GifUrl, rating = rating.Vote, chatId })
@@ -58,6 +61,7 @@ public class GifRatingRepository : IGifRatingRepository
                 .ToListAsync();
         
         var rnd = new Random();
+
         if(gifIds.Count <= 0) return null;
 
         var gif =  gifIds.ElementAtOrDefault(new Random().Next(0, gifIds.Count - 1));

@@ -10,11 +10,11 @@ namespace patrick_botman.UpdateHandlers
     {
         private readonly ITelegramBotClient _botClient;
         private readonly ILogger<HandleUpdateService> _logger;
-        private readonly IGifRatingRepository _gifRatingRepository;
+        private readonly IGifRatingService _gifRatingRepository;
 
 
         public CallbackUpdateHandler(ITelegramBotClient botClient,
-            IGifRatingRepository gifRatingRepository,
+            IGifRatingService gifRatingRepository,
             ILogger<HandleUpdateService> logger)
         {
             _botClient = botClient;
@@ -39,7 +39,7 @@ namespace patrick_botman.UpdateHandlers
 
             await _gifRatingRepository.RateGifAsync(voteMode, gifId, userId, chatId);
 
-            var rating = await _gifRatingRepository.GetGifRatingAsync(int.Parse(callbackQuery.Data.Split(' ')[1]), chatId);
+            var rating = await _gifRatingRepository.GetGifRatingByIdAsync(int.Parse(callbackQuery.Data.Split(' ')[1]), chatId);
 
             await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"New rating is {rating}");
             // await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, CreateVotingInlineKeyboard(rating, int.Parse(callbackQuery.Data.Split(' ')[1])));       
