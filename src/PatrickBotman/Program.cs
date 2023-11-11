@@ -2,10 +2,14 @@ using PatrickBotman.Interfaces;
 using PatrickBotman.Services;
 using PatrickBotman.Models;
 using Telegram.Bot;
+using PatrickBotman.Persistence;
+using Microsoft.EntityFrameworkCore;
+using patrick_botman.UpdateHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var botConfig = builder.Configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
+
 
 
 builder.Services.AddHttpClient("tgwebhook").
@@ -25,18 +29,15 @@ builder.Services.AddHttpClient("giphyclient", giphyclient => {
     giphyclient.BaseAddress = new Uri($"{giphyConfiguration.HostAddress}?api_key={giphyConfiguration.ApiToken}");
 });
 
-
+builder.Services.AddDbContext<GifRatingsContext>(opts => opts.UseSqlite("Data Source=db/gifRatings.db;"));
 builder.Services.AddHostedService<ConfigureWebhook>();
-
 builder.Services.AddScoped<IGifService, GiphyService>();
-
+builder.Services.AddScoped<IGifRatingService, GifRatingService>();
 builder.Services.AddScoped<HandleUpdateService>();
-
-builder.Services.AddScoped<AnimationEditService>();
-
+builder.Services.AddScoped<AnimationEditService, AnimationEditService>();
 builder.Services.AddScoped<FileDownloaderService>();
-
 builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddScoped<UpdateHandlersFactory>();
 
 
 var app = builder.Build();

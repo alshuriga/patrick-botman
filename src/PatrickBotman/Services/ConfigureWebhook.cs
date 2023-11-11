@@ -22,13 +22,13 @@ public class ConfigureWebhook : IHostedService
         using var scope = _services.CreateScope();
         var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
 
-
         var webhookAdress = @$"{_botConfig.HostAddress}/bot/{_botConfig.BotToken}";
+
         _logger.LogInformation($"Address: {webhookAdress}");
 
         await botClient.SetWebhookAsync(
             url: webhookAdress,
-            allowedUpdates: new UpdateType[] { UpdateType.Message, UpdateType.InlineQuery, UpdateType.ChosenInlineResult },
+            allowedUpdates: new UpdateType[] { UpdateType.Message, UpdateType.InlineQuery, UpdateType.ChosenInlineResult, UpdateType.CallbackQuery },
             cancellationToken: cancellationToken,
             dropPendingUpdates: true
         );
@@ -41,6 +41,7 @@ public class ConfigureWebhook : IHostedService
         using var scope = _services.CreateScope();
         var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
         await botClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
+
         _logger.LogInformation("Webhook Removed");
     }
 }
