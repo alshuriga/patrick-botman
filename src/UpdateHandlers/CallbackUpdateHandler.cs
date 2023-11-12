@@ -40,7 +40,7 @@ namespace patrick_botman.UpdateHandlers
                 var gifId = int.Parse(callbackQuery.Data.Split(' ')[1]);
                 await _gifRatingRepository.RateGifAsync(voteMode, gifId, userId, chatId);
                 var rating = await _gifRatingRepository.GetGifRatingByIdAsync(int.Parse(callbackQuery.Data.Split(' ')[1]), chatId);
-                await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"New rating is {rating}");
+                await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"New rating is {rating}", cacheTime: 10);
                 await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, InlineKeyboard.CreateVotingInlineKeyboard(gifId, rating));
             }
             else if(callbackQuery.Data.StartsWith("get-votes"))

@@ -44,6 +44,7 @@ builder.Services.AddScoped<UpdateHandlersFactory>();
 var app = builder.Build();
 
 //database automatic migration at initialization
+Directory.CreateDirectory("/db/");
 using var scope = app.Services.CreateScope();
 scope.ServiceProvider.GetRequiredService<GifRatingsContext>().Database.EnsureCreated();
 
