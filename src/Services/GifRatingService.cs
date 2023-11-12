@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using PatrickBotman.Interfaces;
 using PatrickBotman.Models;
+using PatrickBotman.Models.DTOs;
 using PatrickBotman.Persistence;
 using PatrickBotman.Persistence.Entities;
+using Telegram.Bot.Types;
 
 namespace PatrickBotman.Services;
 
@@ -15,6 +17,18 @@ public class GifRatingService : IGifRatingService
         _context = context;
     }
 
+    public async Task<GifVotesDTO> GetVotesAsync(int gifId, long chatId)
+    {
+        var votes = await _context.Gifs
+        .Include(x => x.GifRatings).AsNoTracking()
+        .SelectMany(x => x.GifRatings, (gif, rating) => new { id = gif.GifId, rating = rating.Vote, chatId = rating.ChatId })
+        .Where(x => x.chatId == chatId).GroupBy(x => x.id,
+            x => x.rating,
+            (id, vote) => new { gifId = id, votes = new GifVotesDTO(vote.Count(v => v), vote.Count(v => !v)) })
+            .SingleOrDefaultAsync(x => x.gifId == gifId);
+
+        return votes?.votes ?? new GifVotesDTO(0, 0);
+    }
 
     public async Task<int> GetOrCreateIdForGifUrlAsync(string gifUrl)
     {
@@ -50,7 +64,7 @@ public class GifRatingService : IGifRatingService
 
         .Include(x => x.GifRatings)
         .AsNoTracking()
-        .SelectMany(x => x.GifRatings, (gif, rating) => new { id = gif.GifId, url = gif.GifUrl, rating = rating.Vote, chatId })
+        .SelectMany(x => x.GifRatings, (gif, rating) => new { id = gif.GifId, url = gif.GifUrl, rating = rating.Vote, chatId = rating.ChatId })
         .Where(x => x.chatId == chatId)
         .GroupBy(x => new { x.url, x.id },
             x => x.rating,
@@ -108,4 +122,5 @@ public class GifRatingService : IGifRatingService
 
         await _context.SaveChangesAsync();
     }
+
 }

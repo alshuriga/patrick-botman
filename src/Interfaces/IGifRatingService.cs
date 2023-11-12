@@ -1,4 +1,5 @@
 using PatrickBotman.Models;
+using PatrickBotman.Models.DTOs;
 using PatrickBotman.Persistence.Entities;
 
 namespace PatrickBotman.Interfaces;
@@ -6,6 +7,7 @@ namespace PatrickBotman.Interfaces;
 public interface IGifRatingService
 {
     Task<GifDTO?> GetRandomGifAsync(long chatId);
+    Task<GifVotesDTO> GetVotesAsync(int gifId, long chatId);
     Task<int> GetGifRatingByIdAsync(int gifId, long chatId);
     Task<string> GetUrlById(int gifId);
     Task<int> GetOrCreateIdForGifUrlAsync(string gifUrl);

@@ -1,5 +1,7 @@
-﻿using PatrickBotman.Interfaces;
+﻿using patrick_botman.Helpers;
+using PatrickBotman.Interfaces;
 using PatrickBotman.Models;
+using PatrickBotman.Models.DTOs;
 using PatrickBotman.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -33,7 +35,7 @@ namespace patrick_botman.UpdateHandlers
         }
         public async Task HandleAsync(Update update)
         {
-            var msg = update.Message;
+            var msg = update.Message!;
 
             _logger.LogInformation($"Recieved '{msg.Text}' message from user Id '{msg.From?.Id}.'");
             string? messageText = msg.Caption ?? msg.Text;
@@ -50,7 +52,8 @@ namespace patrick_botman.UpdateHandlers
                 if (messageText == null) return;
             }
 
-            var isFavoriteGif = new Random().Next(0, 100) > 50;
+            var isFavoriteGif = new Random().Next(0, 100) >= 70;
+
             GifDTO? gifDTO = null;
 
             if (isFavoriteGif)
@@ -74,7 +77,7 @@ namespace patrick_botman.UpdateHandlers
                 {
                     stream.Position = 0;
                     await _botClient.SendAnimationAsync(
-                                replyMarkup: CreateVotingInlineKeyboard(gifDTO.GifId),
+                                replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gifDTO.GifId, rating),
                                 chatId: msg.Chat.Id,
                                 animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4"));
                 }
@@ -82,14 +85,5 @@ namespace patrick_botman.UpdateHandlers
 
         }
 
-        private InlineKeyboardMarkup CreateVotingInlineKeyboard(int gifId)
-        {
-            IEnumerable<InlineKeyboardButton> buttons = new[] { InlineKeyboardButton.WithCallbackData($"👎",  $"down {gifId}"),
-            InlineKeyboardButton.WithCallbackData($"👍", $"up {gifId}")};
-
-            var replyMarkup = new InlineKeyboardMarkup(buttons);
-
-            return replyMarkup;
-        }
     }
 }
