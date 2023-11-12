@@ -30,7 +30,7 @@ builder.Services.AddHttpClient("giphyclient", giphyclient => {
     giphyclient.BaseAddress = new Uri($"{giphyConfiguration.HostAddress}?api_key={giphyConfiguration.ApiToken}");
 });
 
-builder.Services.AddDbContext<GifRatingsContext>(opts => opts.UseSqlite("Data Source=gifRatings.db;"));
+builder.Services.AddDbContext<GifRatingsContext>(opts => opts.UseSqlite("Data Source=/db/gifRatings.db;"));
 builder.Services.AddHostedService<ConfigureWebhook>();
 builder.Services.AddScoped<IGifService, GiphyService>();
 builder.Services.AddScoped<IGifRatingService, GifRatingService>();
