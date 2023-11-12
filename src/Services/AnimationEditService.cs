@@ -54,9 +54,10 @@ public class AnimationEditService
         int fontSize = Math.Min(45, (295 / maxLineLength) * 2);
         _logger.LogInformation($"Font Size: {fontSize}");
 
-        
-        string firstLineArgs = $"drawtext=fontsize=min(((w*0.98)/20)*2\\,((w*0.98)/{maxLineLength})*2):line_spacing=4:font='Impact':text='{textInput.FirstLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
-        string secondLineArgs = $"drawtext=fontsize=min(((w*0.98)/20)*2\\,((w*0.98)/{maxLineLength})*2):line_spacing=4:font='Impact':text='{textInput.SecondLine}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.9-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+        string argsTemplate = "scale=320:-1,drawtext=fontsize=min(((w*0.98)/20)*2\\,((w*0.98)/{0})*2):line_spacing=4:font='Impact':text='{1}':fix_bounds=true:x=(w-text_w)/2:y=(h*0.1-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+
+        string firstLineArgs = string.Format(argsTemplate, maxLineLength, textInput.FirstLine);
+        string secondLineArgs = string.Format(argsTemplate, maxLineLength, textInput.SecondLine);
 
 
         _logger.LogInformation($"firstLineArgs: {firstLineArgs}\nsecondLineArgs: {secondLineArgs}");
