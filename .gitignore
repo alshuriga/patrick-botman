@@ -462,3 +462,4 @@ assets/
 .env
 .db*
 /src/PatrickBotman/db/
+/src/gifRatings.db
