@@ -51,7 +51,7 @@ public class TextInput
             SecondLine = string.Empty;
         }
 
-        FirstLine = Regex.Escape(FirstLine);
-        SecondLine = Regex.Escape(SecondLine);
+        FirstLine = Regex.Escape(FirstLine).Replace(":", "\\:");
+        SecondLine = Regex.Escape(SecondLine).Replace(":", "\\:");
     }
 }
