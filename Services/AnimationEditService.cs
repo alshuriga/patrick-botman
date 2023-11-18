@@ -66,7 +66,7 @@ public class AnimationEditService
 
         var opts = new ConversionOptions
         {
-            ExtraArguments = $"-vf \"scale=320:-1, {String.Join(',', new string[] { firstLineArgs, secondLineArgs })}\"",
+            ExtraArguments = $"-vf \"scale=320:ih/iw*320, {String.Join(',', new string[] { firstLineArgs, secondLineArgs })}\"",
             VideoFormat = FFmpeg.NET.Enums.VideoFormat.mp4,
             RemoveAudio = true,
             VideoCodec = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? FFmpeg.NET.Enums.VideoCodec.Default : FFmpeg.NET.Enums.VideoCodec.h264_nvenc,
@@ -77,22 +77,13 @@ public class AnimationEditService
 
         _logger.LogInformation("Conversion starting...");
 
-        try
-        {
-            var scaledOriginal = await engine.ConvertAsync(inputFile, outputFile, options: opts, cancellationTokenSource.Token);
-            var output = await engine.ConvertAsync(inputFile, outputFile, options: opts, cancellationTokenSource.Token);
+        var scaledOriginal = await engine.ConvertAsync(inputFile, outputFile, options: opts, cancellationTokenSource.Token);
+        var output = await engine.ConvertAsync(inputFile, outputFile, options: opts, cancellationTokenSource.Token);
 
-            _logger.LogInformation($"Is OUTPUT file exists: {output.FileInfo.Exists}");
-            
-            if (!output.FileInfo.Exists) return null;
-            return output.FileInfo.FullName;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"CONVERSION ERROR:\n{ex.Source}\n{ex.Message}\n{ex.StackTrace}\nMessage: {ex.InnerException?.Message}\n{ex.InnerException?.InnerException?.Message}");
-            
-            return null;
-        }
+        _logger.LogInformation($"Is OUTPUT file exists: {output.FileInfo.Exists}");
+
+        if (!output.FileInfo.Exists) return null;
+        return output.FileInfo.FullName;
     }
 
 
@@ -106,11 +97,11 @@ public class AnimationEditService
 
     private void OnProgress(object sender, ConversionProgressEventArgs e)
     {
-         _logger.LogDebug($"Data {e.Input.Argument}");
+        _logger.LogDebug($"Data {e.Input.Argument}");
     }
     private void OnData(object sender, ConversionDataEventArgs e)
     {
-       _logger.LogDebug($"Data {e.Data}");
+        _logger.LogDebug($"Data {e.Data}");
     }
 
     private void OnComplete(object sender, ConversionCompleteEventArgs e)
@@ -120,9 +111,9 @@ public class AnimationEditService
 
     private void OnError(object sender, ConversionErrorEventArgs e)
     {
-        _logger.LogCritical("[{0} => {1}]: Error: {2}\n{3}\n{4}", e.Input.Name, e.Output.Name,
-        e.Exception.ExitCode, e.Exception.Message, e.Exception.InnerException?.Message);
-        
-        throw new ApplicationException("Error while converting file");
+        _logger.LogCritical("[{0} => {1}]: Error: {2}\n{3}\n{4}\n{5}\n{6}", e.Input.Name, e.Output.Name,
+        e.Exception.ExitCode, e.Exception.Message, e.Exception.InnerException?.Message, e.Input.Argument, e.Output.Argument);
+
+        throw new ApplicationException("\nError while converting file");
     }
 }
