@@ -51,8 +51,6 @@ public class TextInput
             SecondLine = string.Empty;
         }
 
-        var regex = new Regex("[}{:;\"'`]");
-
         FirstLine = Regex.Escape(FirstLine);
         SecondLine = Regex.Escape(SecondLine);
     }
