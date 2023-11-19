@@ -3,6 +3,7 @@ using PatrickBotman.Interfaces;
 using PatrickBotman.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace patrick_botman.UpdateHandlers
 {
@@ -11,16 +12,16 @@ namespace patrick_botman.UpdateHandlers
     {
         private readonly ITelegramBotClient _botClient;
         private readonly ILogger<HandleUpdateService> _logger;
-        private readonly IGifRatingService _gifRatingRepository;
+        private readonly IGifRepository _gifRepository;
 
 
         public CallbackUpdateHandler(ITelegramBotClient botClient,
-            IGifRatingService gifRatingRepository,
+            IGifRepository gifRepository,
             ILogger<HandleUpdateService> logger)
         {
             _botClient = botClient;
             _logger = logger;
-            _gifRatingRepository = gifRatingRepository;
+            _gifRepository = gifRepository;
         }
 
         public async Task HandleAsync(Update update)
@@ -29,25 +30,17 @@ namespace patrick_botman.UpdateHandlers
 
             if (callbackQuery.Message?.MessageId == null || callbackQuery.Message?.Chat.Id == null || callbackQuery.Data == null) return;
 
-            var userId = callbackQuery.From.Id;
             var chatId = callbackQuery.Message.Chat.Id;
 
-                
+            if ((callbackQuery.Data.StartsWith("blacklist")))
+            {
+                var gifId = int.Parse(callbackQuery.Data.Split(' ')[1]);
 
-            if ((callbackQuery.Data.StartsWith("up") || callbackQuery.Data.StartsWith("down")))
-            {
-                var voteMode = callbackQuery.Data.StartsWith("up");
-                var gifId = int.Parse(callbackQuery.Data.Split(' ')[1]);
-                await _gifRatingRepository.RateGifAsync(voteMode, gifId, userId, chatId);
-                var rating = await _gifRatingRepository.GetGifRatingByIdAsync(int.Parse(callbackQuery.Data.Split(' ')[1]), chatId);
-                await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"New rating is {rating}", cacheTime: 10);
-                await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, InlineKeyboard.CreateVotingInlineKeyboard(gifId, rating));
-            }
-            else if(callbackQuery.Data.StartsWith("get-votes"))
-            {
-                var gifId = int.Parse(callbackQuery.Data.Split(' ')[1]);
-                var votes = await _gifRatingRepository.GetVotesAsync(gifId, chatId);
-                await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"{votes.ups} 👍     {votes.downs} 👎");
+                await _gifRepository.BlacklistAsync(gifId, chatId);
+
+                await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"The GIF has been blacklisted 🚮", cacheTime: 1);
+                await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, new InlineKeyboardMarkup(Enumerable.Empty<InlineKeyboardButton>()));
+                await _botClient.EditMessageCaptionAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "blacklisted 🚮");
             }
         }
     }

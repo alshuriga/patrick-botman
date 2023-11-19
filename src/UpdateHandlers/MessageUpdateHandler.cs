@@ -17,19 +17,19 @@ namespace patrick_botman.UpdateHandlers
         private readonly ILogger<MessageUpdateHandler> _logger;
         private readonly ITelegramBotClient _botClient;
         private readonly AnimationEditService _edit;
-        private readonly IGifRatingService _gifRatingRepository;
+        private readonly IGifRepository _gifRepository;
         private readonly IGifService _gifService;
 
 
         public MessageUpdateHandler(ILogger<MessageUpdateHandler> logger,
             ITelegramBotClient botClient,
             AnimationEditService edit,
-            IGifRatingService gifRatingRepository,
+            IGifRepository gifRepository,
             IGifService gifService)
         {
             _botClient = botClient;
             _edit = edit;
-            _gifRatingRepository = gifRatingRepository;
+            _gifRepository = gifRepository;
             _gifService = gifService;
             _logger = logger;
         }
@@ -40,10 +40,7 @@ namespace patrick_botman.UpdateHandlers
             _logger.LogInformation($"Recieved '{msg.Text}' message from user Id '{msg.From?.Id}.'");
             string? messageText = msg.Caption ?? msg.Text;
 
-
             if (messageText == null) return;
-
-            //var botUserName = (await _botClient.GetMeAsync()).Username;
 
             if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
             {
@@ -52,24 +49,18 @@ namespace patrick_botman.UpdateHandlers
                 if (messageText == null) return;
             }
 
-            var isFavoriteGif = new Random().Next(0, 100) >= 70;
+            string url;
 
-            GifDTO? gifDTO = null;
-
-            if (isFavoriteGif)
+            while (true)
             {
-                gifDTO = await _gifRatingRepository.GetRandomGifAsync(msg.Chat.Id);
-            }
-            if (!isFavoriteGif || gifDTO == null)
-            {
-                var url = await _gifService.RandomTrendingAsync();
-                var id = await _gifRatingRepository.GetOrCreateIdForGifUrlAsync(url);
-                gifDTO = new GifDTO(id, url);
+                url = await _gifService.RandomTrendingAsync();
+                var isBlacklisted = await _gifRepository.IsBlacklistedAsync(url, msg.Chat.Id);
+                if (!isBlacklisted) break;
             }
 
-            var rating = await _gifRatingRepository.GetGifRatingByIdAsync(gifDTO.GifId, msg.Chat.Id);
+            var gifId = await _gifRepository.GetIdOrCreateAsync(url);
 
-            var file = await _edit.AddText(gifDTO.GifUrl, messageText);
+            var file = await _edit.AddText(url, messageText);
 
             if (file != null)
             {
@@ -77,7 +68,7 @@ namespace patrick_botman.UpdateHandlers
                 {
                     stream.Position = 0;
                     await _botClient.SendAnimationAsync(
-                                replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gifDTO.GifId, rating),
+                                replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gifId),
                                 chatId: msg.Chat.Id,
                                 animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4"));
                 }

@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace PatrickBotman.Migrations
+namespace patrick_botman.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,40 +14,38 @@ namespace PatrickBotman.Migrations
                 name: "Gifs",
                 columns: table => new
                 {
-                    GifId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     GifUrl = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Gifs", x => x.GifId);
+                    table.PrimaryKey("PK_Gifs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "GifRatings",
+                name: "Blacklists",
                 columns: table => new
                 {
-                    GifRatingId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    GifId = table.Column<int>(type: "INTEGER", nullable: false),
                     ChatId = table.Column<long>(type: "INTEGER", nullable: false),
-                    UserId = table.Column<long>(type: "INTEGER", nullable: false),
-                    Vote = table.Column<bool>(type: "INTEGER", nullable: false)
+                    GifId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GifRatings", x => x.GifRatingId);
+                    table.PrimaryKey("PK_Blacklists", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GifRatings_Gifs_GifId",
+                        name: "FK_Blacklists_Gifs_GifId",
                         column: x => x.GifId,
                         principalTable: "Gifs",
-                        principalColumn: "GifId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_GifRatings_GifId",
-                table: "GifRatings",
+                name: "IX_Blacklists_GifId",
+                table: "Blacklists",
                 column: "GifId");
         }
 
@@ -55,7 +53,7 @@ namespace PatrickBotman.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "GifRatings");
+                name: "Blacklists");
 
             migrationBuilder.DropTable(
                 name: "Gifs");

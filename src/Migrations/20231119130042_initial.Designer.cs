@@ -7,11 +7,11 @@ using PatrickBotman.Persistence;
 
 #nullable disable
 
-namespace PatrickBotman.Migrations
+namespace patrick_botman.Migrations
 {
     [DbContext(typeof(GifRatingsContext))]
-    [Migration("20230925123601_Initial")]
-    partial class Initial
+    [Migration("20231119130042_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,7 +21,7 @@ namespace PatrickBotman.Migrations
 
             modelBuilder.Entity("PatrickBotman.Persistence.Entities.Gif", b =>
                 {
-                    b.Property<int>("GifId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -29,14 +29,14 @@ namespace PatrickBotman.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.HasKey("GifId");
+                    b.HasKey("Id");
 
                     b.ToTable("Gifs");
                 });
 
-            modelBuilder.Entity("PatrickBotman.Persistence.Entities.GifRating", b =>
+            modelBuilder.Entity("patrick_botman.Persistence.Entities.Blacklist", b =>
                 {
-                    b.Property<int>("GifRatingId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
@@ -46,31 +46,27 @@ namespace PatrickBotman.Migrations
                     b.Property<int>("GifId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("Vote")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("GifRatingId");
+                    b.HasKey("Id");
 
                     b.HasIndex("GifId");
 
-                    b.ToTable("GifRatings");
+                    b.ToTable("Blacklists");
                 });
 
-            modelBuilder.Entity("PatrickBotman.Persistence.Entities.GifRating", b =>
+            modelBuilder.Entity("patrick_botman.Persistence.Entities.Blacklist", b =>
                 {
-                    b.HasOne("PatrickBotman.Persistence.Entities.Gif", null)
-                        .WithMany("GifRatings")
+                    b.HasOne("PatrickBotman.Persistence.Entities.Gif", "Gif")
+                        .WithMany("Blacklist")
                         .HasForeignKey("GifId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Gif");
                 });
 
             modelBuilder.Entity("PatrickBotman.Persistence.Entities.Gif", b =>
                 {
-                    b.Navigation("GifRatings");
+                    b.Navigation("Blacklist");
                 });
 #pragma warning restore 612, 618
         }
