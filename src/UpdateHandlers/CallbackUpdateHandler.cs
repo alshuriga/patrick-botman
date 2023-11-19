@@ -38,9 +38,12 @@ namespace patrick_botman.UpdateHandlers
 
                 await _gifRepository.BlacklistAsync(gifId, chatId);
 
-                await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"The GIF has been blacklisted 🚮", cacheTime: 1);
+                //await _botClient.AnswerCallbackQueryAsync(callbackQuery.Id, $"The GIF has been blacklisted 🚮", cacheTime: 1);
+              
                 await _botClient.EditMessageReplyMarkupAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, new InlineKeyboardMarkup(Enumerable.Empty<InlineKeyboardButton>()));
-                await _botClient.EditMessageCaptionAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, "blacklisted 🚮");
+                
+                var whoBlacklisted = callbackQuery.From.Username != null ? $"@{callbackQuery.From.Username}" : callbackQuery.From.FirstName;
+                await _botClient.EditMessageCaptionAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId, $"🚮 blacklisted by {whoBlacklisted}");
             }
         }
     }
