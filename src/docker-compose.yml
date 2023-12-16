@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  bot:
+    container_name: patrick-botman
+
+    build:
+      context: .
+    ports:
+      - "5323:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Docker"     
+      ConnectionStrings__PostgreConn: ${POSTGRE_CONN}
+      GiphyConfiguration__ApiToken: ${GIPHY_API_TOKEN}
+      BotConfiguration__BotToken: ${TG_BOT_TOKEN}
+      BotConfiguration__HostAddress: ${TG_BOT_HOSTADDRESS}
+
+    restart: always

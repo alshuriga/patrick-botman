@@ -30,7 +30,7 @@ builder.Services.AddHttpClient("giphyclient", giphyclient => {
     giphyclient.BaseAddress = new Uri($"{giphyConfiguration.HostAddress}?api_key={giphyConfiguration.ApiToken}");
 });
 
-builder.Services.AddDbContext<GifRatingsContext>(opts => opts.UseSqlite("Data Source=/db/gifRatings.db;"));
+builder.Services.AddDbContext<GifRatingsContext>(opts => opts.UseNpgsql(builder.Configuration.GetConnectionString("PostgreConn")!));
 builder.Services.AddHostedService<ConfigureWebhook>();
 builder.Services.AddScoped<IGifService, GiphyService>();
 builder.Services.AddScoped<IGifRepository, GifRepository>();
@@ -42,11 +42,6 @@ builder.Services.AddScoped<UpdateHandlersFactory>();
 
 
 var app = builder.Build();
-
-//database automatic migration at initialization
-Directory.CreateDirectory("/db/");
-using var scope = app.Services.CreateScope();
-scope.ServiceProvider.GetRequiredService<GifRatingsContext>().Database.EnsureCreated();
 
 app.UseRouting();
 
