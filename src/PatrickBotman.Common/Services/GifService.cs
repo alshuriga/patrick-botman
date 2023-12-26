@@ -10,9 +10,9 @@ namespace PatrickBotman.Services;
 
 public class GifService : IGifService
 {
-    private readonly GifRatingsContext _context;
+    private readonly PatrickBotmanContext _context;
 
-    public GifService(GifRatingsContext context)
+    public GifService(PatrickBotmanContext context)
     {
         _context = context;
     }
@@ -67,5 +67,41 @@ public class GifService : IGifService
                 .Where(b => b.ChatId == chatId)
                 .CountAsync()
         };
+    }
+
+    public async Task<Page<ChatDTO>> GetChatsPageAsync(int pageNumber)
+    {
+        return new Page<ChatDTO>()
+        {
+            Items = await _context.Blacklists
+            .OrderBy(b => b.Id)
+            .GroupBy(b => b.ChatId)
+            .Select(c => c.First().ChatId)
+            .Skip(pageNumber * Constants.PAGE_SIZE).Take(Constants.PAGE_SIZE)
+            .Select(c => new ChatDTO(c))
+            .ToListAsync(),
+
+            CollectionSize = await _context.Blacklists
+                .GroupBy(b => b.ChatId)
+                .CountAsync()
+        };
+    }
+
+    public async Task AddNewGifFileAsync(GifFileDTO gifFile)
+    {
+        await _context.GifFiles.AddAsync(new GifFile()
+        {
+            Name = gifFile.fileName,
+            Data = gifFile.data
+        });
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<GifFileDTO> GetGifFileAsync(int id)
+    {
+        var file = await _context.GifFiles.FirstAsync(f => f.Id == id);
+
+        return new GifFileDTO(file.Name, file.Data);
     }
 }

@@ -1,0 +1,5 @@
+<div class="flex flex-col box-border bg-slate-50 hover:bg-slate-100 content-center h-full rounded-lg p-3 group ">
+    <div class="mb-4 font-light text-slate-600">#{{ gif.id }}</div>
+    <div class="flex-auto" (mouseenter)="onMouseEnter(videoElement)" (mouseout)="onMouseOut(videoElement)"><video #videoElement class="w-full rounded-lg" loop src="{{ gif.url }}" alt=""></video></div>
+    <div class="self-end mt-2 cursor-pointer" title="Remove from black list"><ng-icon class="text-neutral-500 group-hover:text-black" name="heroTrash"></ng-icon></div>
+</div>

@@ -12,7 +12,7 @@ namespace PatrickBotman.Common.Helpers
     {
         public static IServiceCollection ConfigurePersistence(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<GifRatingsContext>(opts => opts.UseNpgsql(configuration.GetConnectionString("PostgreConn")!));
+            services.AddDbContext<PatrickBotmanContext>(opts => opts.UseNpgsql(configuration.GetConnectionString("PostgreConn")!));
             services.AddScoped<IGifService, GifService>();
             return services;
         }

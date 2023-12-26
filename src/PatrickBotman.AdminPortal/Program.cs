@@ -20,6 +20,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(cfg =>
+{
+    cfg.AllowAnyHeader()
+        .AllowAnyOrigin()
+        .AllowAnyMethod();
+});
+
 app.UseAuthorization();
 
 app.MapControllers();
