@@ -60,7 +60,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             var file = await _edit.AddText(url, messageText);
 
-            if (file != null)
+            if (file.Content != null && file.Content.Length > 0)
             {
 
                 await _botClient.SendAnimationAsync(

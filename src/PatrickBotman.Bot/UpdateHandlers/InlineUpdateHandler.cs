@@ -43,15 +43,19 @@ namespace PatrickBotman.Bot.UpdateHandlers
             }
 
             var gifUrl = await _gifProvider.RandomTrendingAsync();
-            var file = await _animationCompose.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
-            var animationFileId = await UploadAnimationAsync(file);
 
-            await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
+            var file = await _animationCompose.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
+
+            if(file.Content != null && file.Content.Length > 0)
+            {
+                var animationFileId = await UploadAnimationAsync(file);
+
+                await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
                     new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId)
                 },
-                isPersonal: true,
-                cacheTime: 5);
-
+                    isPersonal: true,
+                    cacheTime: 5);
+            }
         }
 
         private async Task<string> UploadAnimationAsync(InputOnlineFile file)
