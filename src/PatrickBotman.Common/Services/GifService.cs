@@ -26,15 +26,15 @@ public class GifService : IGifService
 
     public async Task BlacklistAsync(int gifId, long chatId)
     {
-        var gif = await _context.Gifs.Include(g => g.Blacklist).SingleAsync(g => g.Id == gifId);   
+        var gif = await _context.Gifs.Include(g => g.Blacklist).SingleAsync(g => g.Id == gifId);
 
-        if(!gif.Blacklist.Any(b => b.ChatId == chatId))
+        if (!gif.Blacklist.Any(b => b.ChatId == chatId))
         {
             gif.Blacklist.Add(new Blacklist()
             {
                 ChatId = chatId
             });
-            await _context.SaveChangesAsync();  
+            await _context.SaveChangesAsync();
         }
 
         await _context.SaveChangesAsync();
@@ -55,12 +55,13 @@ public class GifService : IGifService
 
     public async Task<Page<GifDTO>> GetBlacklistedGifsPageAsync(int pageNumber, long chatId)
     {
-        return new Page<GifDTO>() { 
+        return new Page<GifDTO>()
+        {
             Items = await _context.Blacklists
                 .Include(b => b.Gif)
                 .Where(b => b.ChatId == chatId)
                 .OrderBy(b => b.Id)
-                .Skip(pageNumber * Constants.PAGE_SIZE).Take(Constants.PAGE_SIZE)  
+                .Skip(pageNumber * Constants.PAGE_SIZE).Take(Constants.PAGE_SIZE)
                 .Select(b => new GifDTO(b.Gif.Id, b.Gif.GifUrl))
                 .ToListAsync(),
             CollectionSize = await _context.Blacklists
@@ -104,4 +105,5 @@ public class GifService : IGifService
 
         return new GifFileDTO(file.Name, file.Data);
     }
+
 }

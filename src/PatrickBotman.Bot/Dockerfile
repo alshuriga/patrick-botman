@@ -1,19 +1,19 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
-
 WORKDIR /App
 
-# Copy everything
-COPY . ./
-# Restore as distinct layers
-RUN dotnet restore
-# Build and publish a release
-RUN dotnet publish -c Release -o out
+COPY *.sln .
+COPY ./PatrickBotman.Common/*.csproj ./PatrickBotman.Common/
+COPY ./PatrickBotman.Bot/*.csproj ./PatrickBotman.Bot/
 
-# Build runtime image
+RUN dotnet restore PatrickBotman.Bot
+
+COPY . .
+RUN dotnet publish PatrickBotman.Bot -c Release -o out
+
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 
 #FFMPEG Install
-RUN apt-get update && apt update && apt install -y ffmpeg
+RUN apt update && apt install -y ffmpeg
 
 #Font install
 COPY ./impact.ttf ./
@@ -21,8 +21,7 @@ RUN mkdir -p /usr/share/fonts/truetype/
 RUN install -m644 impact.ttf /usr/share/fonts/truetype/
 RUN rm ./impact.ttf
 
+# Build runtime image
 WORKDIR /App
 COPY --from=build-env /App/out .
-EXPOSE 80
-ENTRYPOINT ["dotnet", "patrick-botman.dll"]
-
+ENTRYPOINT ["dotnet", "PatrickBotman.Bot.dll"]

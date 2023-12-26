@@ -12,17 +12,17 @@ namespace PatrickBotman.Bot.UpdateHandlers
     {
         private readonly ITelegramBotClient _botClient;
         private readonly IGifProvider _gifProvider;
-        private readonly AnimationEditService _edit;
+        private readonly AnimationComposeService _animationCompose;
         private readonly ILogger<HandleUpdateService> _logger;
 
         public InlineUpdateHandler(ITelegramBotClient botClient,
             IGifProvider gifService,
-            AnimationEditService edit,
+            AnimationComposeService animationCompose,
             ILogger<HandleUpdateService> logger)
         {
             _botClient = botClient;
             _gifProvider = gifService;
-            _edit = edit;
+            _animationCompose = animationCompose;
             _logger = logger;
         }
 
@@ -43,16 +43,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
             }
 
             var gifUrl = await _gifProvider.RandomTrendingAsync();
-            var file = await _edit.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
+            var file = await _animationCompose.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
+            var animationFileId = await UploadAnimationAsync(file);
 
-            if (file != null)
-                await using (var stream = System.IO.File.OpenRead(file))
-                {
-                    InputOnlineFile? tgFile = new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4");
-                    var animationFileId = await UploadAnimationAsync(tgFile);
-                    await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
-                    new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId) }, isPersonal: true, cacheTime: 5);
-                };
+            await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
+                    new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId)
+                },
+                isPersonal: true,
+                cacheTime: 5);
 
         }
 

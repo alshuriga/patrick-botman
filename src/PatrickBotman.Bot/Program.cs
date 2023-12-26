@@ -33,11 +33,9 @@ builder.Services.ConfigurePersistence(builder.Configuration);
 builder.Services.AddHostedService<ConfigureWebhook>();
 builder.Services.AddScoped<IGifProvider, GiphyGIfProvider>();
 builder.Services.AddScoped<HandleUpdateService>();
-builder.Services.AddScoped<AnimationEditService>();
-builder.Services.AddScoped<FileDownloaderService>();
+builder.Services.AddScoped<AnimationComposeService>();
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddScoped<UpdateHandlersFactory>();
-
 
 var app = builder.Build();
 

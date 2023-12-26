@@ -14,14 +14,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
     {
         private readonly ILogger<MessageUpdateHandler> _logger;
         private readonly ITelegramBotClient _botClient;
-        private readonly AnimationEditService _edit;
+        private readonly AnimationComposeService _edit;
         private readonly IGifService _gifService;
         private readonly IGifProvider _gifProvider;
 
 
         public MessageUpdateHandler(ILogger<MessageUpdateHandler> logger,
             ITelegramBotClient botClient,
-            AnimationEditService edit,
+            AnimationComposeService edit,
             IGifService gifService,
             IGifProvider gifProvider)
         {
@@ -62,14 +62,11 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             if (file != null)
             {
-                await using (var stream = System.IO.File.OpenRead(file))
-                {
-                    stream.Position = 0;
-                    await _botClient.SendAnimationAsync(
-                                replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gifId),
-                                chatId: msg.Chat.Id,
-                                animation: new InputOnlineFile(stream, Guid.NewGuid().ToString() + ".mp4"));
-                }
+
+                await _botClient.SendAnimationAsync(
+                            replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gifId),
+                            chatId: msg.Chat.Id,
+                            animation: file);
             }
 
         }
