@@ -53,7 +53,7 @@ public class AnimationComposeService
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            Arguments = isNewYear ? $"-i pipe: -i assets/snow.mov -f ismv  -filter_complex \"scale=350:-1,pad=ceil(iw/2)*2:ceil(ih/2)*2,overlay=shortest=1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:"
+            Arguments = isNewYear ? $"-i pipe: -i assets/snow.mov -f gif  -filter_complex \"scale=350:-1,pad=ceil(iw/2)*2:ceil(ih/2)*2,overlay=shortest=1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:"
                 : $"-i pipe: -f gif -vf \"scale=300:-1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
             FileName = _ffmpegBinary
         };
