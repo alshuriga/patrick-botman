@@ -32,7 +32,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             _logger.LogInformation($"Recieved '{inlineQuery.Query}' inline query from user Id '{inlineQuery.From.Id}.'");
 
-            if (String.IsNullOrWhiteSpace(inlineQuery.Query)) return;
+            if (string.IsNullOrWhiteSpace(inlineQuery.Query)) return;
 
             if (!inlineQuery.Query.EndsWith("."))
             {
@@ -42,9 +42,9 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 return;
             }
 
-            var gifUrl = await _gifProvider.RandomTrendingAsync();
+            var gif = await _gifProvider.RandomGifAsync(inlineQuery.From.Id);
 
-            var file = await _animationCompose.AddText(gifUrl, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
+            var file = await _animationCompose.ComposeGifAsync(gif, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
 
             if(file.Content != null && file.Content.Length > 0)
             {

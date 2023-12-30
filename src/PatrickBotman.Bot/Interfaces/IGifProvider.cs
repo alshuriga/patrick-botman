@@ -1,6 +1,8 @@
+using PatrickBotman.Bot.Models;
+
 namespace PatrickBotman.Bot.Interfaces;
 
 public interface IGifProvider
 {
-    public Task<string> RandomTrendingAsync();
+    public Task<Gif> RandomGifAsync(long chatId);
 }

@@ -10,8 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 var botConfig = builder.Configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
 
-
-
 builder.Services.AddHttpClient("tgwebhook").
     AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
     {
@@ -19,10 +17,6 @@ builder.Services.AddHttpClient("tgwebhook").
         return new TelegramBotClient(opts, httpClient);
     } );
 
-// builder.Services.AddHttpClient("tenorclient", tenorclient => {
-//     var tenorConfiguration = builder.Configuration.GetSection("TenorConfiguration").Get<TenorConfiguration>();
-//     tenorclient.BaseAddress = new Uri($"{tenorConfiguration.HostAddress}?key={tenorConfiguration.ApiToken}");
-// });
 
 builder.Services.AddHttpClient("giphyclient", giphyclient => {
     var giphyConfiguration = builder.Configuration.GetSection("giphyConfiguration").Get<GiphyConfiguration>();
@@ -31,7 +25,7 @@ builder.Services.AddHttpClient("giphyclient", giphyclient => {
 
 builder.Services.ConfigurePersistence(builder.Configuration);
 builder.Services.AddHostedService<ConfigureWebhook>();
-builder.Services.AddScoped<IGifProvider, GiphyGIfProvider>();
+builder.Services.AddScoped<IGifProvider, GIfProvider>();
 builder.Services.AddScoped<HandleUpdateService>();
 builder.Services.AddScoped<AnimationComposeService>();
 builder.Services.AddControllers().AddNewtonsoftJson();

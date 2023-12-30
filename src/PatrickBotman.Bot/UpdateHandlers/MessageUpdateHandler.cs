@@ -47,27 +47,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 if (messageText == null) return;
             }
 
-            string url;
+            var gif = await _gifProvider.RandomGifAsync(msg.Chat.Id);
 
-            while (true)
-            {
-                url = await _gifProvider.RandomTrendingAsync();
-                var isBlacklisted = await _gifService.IsBlacklistedAsync(url, msg.Chat.Id);
-                if (!isBlacklisted) break;
-            }
-
-            var gifId = await _gifService.GetIdOrCreateAsync(url);
-
-            var file = await _edit.AddText(url, messageText);
-
-            if (file.Content != null && file.Content.Length > 0)
-            {
+            var tgFile = await _edit.ComposeGifAsync(gif, messageText);
 
                 await _botClient.SendAnimationAsync(
-                            replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gifId),
+                            replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gif.Id),
                             chatId: msg.Chat.Id,
-                            animation: file);
-            }
+                            animation: tgFile);
 
         }
 

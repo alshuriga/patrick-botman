@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using FFmpeg.NET.Enums;
 using PatrickBotman.Bot.Models;
 using Telegram.Bot.Types.InputFiles;
 
@@ -27,7 +28,7 @@ public class AnimationComposeService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<InputOnlineFile> AddText(string url, string text)
+    public async Task<InputOnlineFile> ComposeGifAsync(Gif gif, string text)
     {
         //set ffmpeg arguments
         var textInput = new TextInput(text, _configuration);
@@ -44,7 +45,7 @@ public class AnimationComposeService
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            Arguments = $"-i pipe: -f gif -vf \"scale=480:-1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
+            Arguments = $"-i pipe: -f gif -vf \"scale=300:-1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
             FileName = _ffmpegBinary
         };
 
@@ -54,12 +55,15 @@ public class AnimationComposeService
             EnableRaisingEvents = true
         };
 
-        process.ErrorDataReceived += (e, d) => _logger.LogError(d.Data);
-        process.OutputDataReceived += (e, d) =>  _logger.LogInformation(d.Data);
+        //process.ErrorDataReceived += (e, d) => _logger.LogError(d.Data);
+        //process.OutputDataReceived += (e, d) =>  _logger.LogInformation(d.Data);
 
         process.Start();
+       // process.BeginErrorReadLine();
+        //process.BeginOutputReadLine();
 
-        await using var inputStream = await GetFileStreamAsync(url);
+        //using var inputStream = new MemoryStream(gif.File);
+        using var inputStream = await GetFileStreamAsync("https://media3.giphy.com/media/1lBI2ro8ZmSpWJPAPK/giphy-preview.mp4?cid=587ded4dbfyx3dpwdlosu7r7qaid5e6l0tc7pwrd15e9loi0&ep=v1_gifs_random&rid=giphy-preview.mp4&ct=g");
 
         await inputStream.CopyToAsync(process.StandardInput.BaseStream);
 
@@ -70,7 +74,12 @@ public class AnimationComposeService
 
         outputStream.Position = 0;
 
-        return new InputOnlineFile(outputStream, $"{Guid.NewGuid()}.gif");
+        var file =  new InputOnlineFile(outputStream, $"{Guid.NewGuid()}.gif");
+
+        if (file.Content == null || file.Content.Length > 0)
+            throw new Exception("Composed file is null or empty");
+
+        return file;
     }
 
 
