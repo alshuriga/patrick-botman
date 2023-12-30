@@ -30,6 +30,8 @@ public class GIfProvider : IGifProvider
     private async Task<Gif> RandomOnlineAsync(long chatId)
     {
         var http = _httpClientFactory.CreateClient("Giphyclient");
+        http.Timeout = TimeSpan.FromSeconds(5);
+
         var url = new Uri($"{_giphyConfiguration.HostAddress}?api_key={_giphyConfiguration.ApiToken}");
 
         string gifUrl;
@@ -49,12 +51,13 @@ public class GIfProvider : IGifProvider
         while ((await _gifService.IsBlacklistedAsync(gifUrl, chatId)));
 
         var id = await _gifService.GetIdOrCreateAsync(gifUrl);
-        var fileBytes =  await http.GetByteArrayAsync(url);
+
+        var gifBytes = await http.GetByteArrayAsync(gifUrl);
 
         return new Gif()
         {
             Id = id,
-            File = fileBytes,
+            File = gifBytes,
             Type = GifType.Online
         };
     }

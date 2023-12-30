@@ -15,13 +15,18 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 #FFMPEG Install
 RUN apt update && apt install -y ffmpeg
 
+
+
+
+
+WORKDIR /App
+
 #Font install
-COPY ./impact.ttf ./
-RUN mkdir -p /usr/share/fonts/truetype/
-RUN install -m644 impact.ttf /usr/share/fonts/truetype/
-RUN rm ./impact.ttf
+COPY ./PatrickBotman.Bot/assets ./assets
+#RUN mkdir -p /usr/share/fonts/truetype/
+#RUN install -m644 impact.ttf /usr/share/fonts/truetype/
+#RUN rm ./impact.ttf
 
 # Build runtime image
-WORKDIR /App
 COPY --from=build-env /App/out .
 ENTRYPOINT ["dotnet", "PatrickBotman.Bot.dll"]
