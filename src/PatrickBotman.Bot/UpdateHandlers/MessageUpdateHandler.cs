@@ -4,6 +4,7 @@ using PatrickBotman.Bot.Interfaces;
 using PatrickBotman.Bot.Models;
 using PatrickBotman.Bot.Services;
 using PatrickBotman.Common.Interfaces;
+using PatrickBotman.Common.Persistence.Entities;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -59,13 +60,10 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
                 var tgFile = await _edit.ComposeGifAsync(gif, messageText);
 
-                if (gif.Type != GifType.Local)
-                {
-                    await _botClient.SendAnimationAsync(
-              replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gif.Id),
-              chatId: msg.Chat.Id,
-              animation: tgFile);
-                }
+                await _botClient.SendAnimationAsync(
+                replyMarkup: gif.Type != GifType.Local ? InlineKeyboard.CreateVotingInlineKeyboard(gif.Id) : null,
+                chatId: msg.Chat.Id,
+                animation: tgFile);
 
             }
 
