@@ -70,7 +70,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
             {
                 if (msg.ReplyToMessage?.Animation == null) throw new Exception("⚠️ No animation found, unable to add a gif");
 
-                if (!_options.AdminID.Contains(msg.From!.Id))
+                if (!_options.AdminID.Split(' ').ToList().Contains(msg.From!.Id.ToString()))
                 {
                     await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
                         replyToMessageId: msg.MessageId,

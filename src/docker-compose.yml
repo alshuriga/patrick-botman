@@ -16,5 +16,6 @@ services:
       GiphyConfiguration__ApiToken: ${GIPHY_API_TOKEN}
       BotConfiguration__BotToken: ${TG_BOT_TOKEN}
       BotConfiguration__HostAddress: ${TG_BOT_HOSTADDRESS}
-
+      BotConfiguration__AdminId: ${TG_BOT_ADMINID}
+      
     restart: always

@@ -22,7 +22,7 @@ public class GIfProvider : IGifProvider
 
     public async Task<Gif> RandomGifAsync(long chatId)
     {
-        var isLocal = (new Random().Next(0, 100) > 50);
+        var isLocal = (new Random().Next(0, 100) > 40);
 
         if(isLocal)
         {
