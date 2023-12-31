@@ -59,10 +59,13 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
                 var tgFile = await _edit.ComposeGifAsync(gif, messageText);
 
-                await _botClient.SendAnimationAsync(
-                              replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gif.Id),
-                              chatId: msg.Chat.Id,
-                              animation: tgFile);
+                if (gif.Type != GifType.Local)
+                {
+                    await _botClient.SendAnimationAsync(
+              replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gif.Id),
+              chatId: msg.Chat.Id,
+              animation: tgFile);
+                }
 
             }
 
@@ -80,7 +83,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                     return;
                 }
                 //else if(msg.ReplyToMessage.Animation.FileSize > 500_000 || msg.ReplyToMessage.Animation.Duration > 3)
-                else if(false)
+                else if (false)
                 {
                     await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
                         replyToMessageId: msg.MessageId,
