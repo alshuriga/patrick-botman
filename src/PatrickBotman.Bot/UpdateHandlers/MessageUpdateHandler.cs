@@ -46,7 +46,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             var entityValues = msg.EntityValues ?? Enumerable.Empty<string>();
 
-            if (entityValues.Contains("/gif") || (msg.Chat.Type == ChatType.Private && !entityValues.Contains("/add")))
+            if (entityValues.Any(ev => ev.Contains("/gif")) || (msg.Chat.Type == ChatType.Private && !entityValues.Any(ev => ev.Contains("/add"))))
             {
 
                 var txtSource = msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup ?
