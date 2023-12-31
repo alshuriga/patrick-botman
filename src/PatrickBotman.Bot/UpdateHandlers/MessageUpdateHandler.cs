@@ -76,7 +76,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                     await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
                         replyToMessageId: msg.MessageId,
                         allowSendingWithoutReply: true,
-                        text: "🚫 You dont have a rights to add new gifs");
+                        text: "🚫 You dont have rights to add new gifs");
 
                     return;
                 }
