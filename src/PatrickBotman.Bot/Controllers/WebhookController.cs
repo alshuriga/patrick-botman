@@ -16,7 +16,7 @@ public class WebhookController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post([FromServices] HandleUpdateService handleUpdateService, [FromBody] Update update)
     {
-        _logger.LogInformation("Received callback");
+        _logger.LogInformation($"Received update: {update.Type}");
         await handleUpdateService.HandleUpdateAsync(update);
         return Ok();
     }

@@ -46,9 +46,9 @@ namespace PatrickBotman.AdminPortal.Controllers
         {
             var file = await _gifService.GetGifFileAsync(id);
 
-            var contentType = file.fileName.EndsWith("mp4") ? "video/mp4" : "image/gif";
+            var contentType = file.FileName.EndsWith("mp4") ? "video/mp4" : "image/gif";
 
-            return File(file.data, contentType, file.fileName);
+            return File(file.Data, contentType, file.FileName);
         }
 
     }

@@ -23,6 +23,7 @@ builder.Services.AddHttpClient("giphyclient", giphyclient => {
     giphyclient.BaseAddress = new Uri($"{giphyConfiguration.HostAddress}?api_key={giphyConfiguration.ApiToken}");
 });
 
+builder.Services.Configure<BotConfiguration>(builder.Configuration.GetSection(nameof(BotConfiguration)));
 builder.Services.ConfigurePersistence(builder.Configuration);
 builder.Services.AddHostedService<ConfigureWebhook>();
 builder.Services.AddScoped<IGifProvider, GIfProvider>();

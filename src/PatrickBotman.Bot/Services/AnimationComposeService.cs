@@ -37,6 +37,8 @@ public class AnimationComposeService
 
         var workDir = _configuration.GetValue<string>("AssetsDirectory")!;
 
+
+
         //set ffmpeg arguments
         var textInput = new TextInput(text, _configuration);
         var maxLineLength = Math.Max(textInput.FirstLine.Length, textInput.SecondLine.Length);
@@ -44,7 +46,11 @@ public class AnimationComposeService
         string firstLineArgs = string.Format(argsTemplate, maxLineLength, textInput.FirstLine, 0.1);
         string secondLineArgs = string.Format(argsTemplate, maxLineLength, textInput.SecondLine, 0.9);
 
-        var outputStream = new MemoryStream();
+        //prepare temporary input file
+        var tempInputFilename = $"assets/{Guid.NewGuid()}";
+        using var tempInputFile = new FileStream(tempInputFilename, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite | FileShare.Delete, 4096, FileOptions.Asynchronous);
+        await tempInputFile.WriteAsync(gif.File);
+
 
         ProcessStartInfo processInfo = new ProcessStartInfo
         {
@@ -53,7 +59,7 @@ public class AnimationComposeService
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            Arguments = isNewYear ? $"-i pipe: -i assets/snow.mov -f gif  -filter_complex \"scale=350:-1,pad=ceil(iw/2)*2:ceil(ih/2)*2,overlay=shortest=1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:"
+            Arguments = isNewYear ? $"-i {tempInputFilename} -i assets/snow.mov -movflags frag_keyframe+empty_moov -f mp4 -filter_complex \"scale=350:-1,pad=ceil(iw/2)*2:ceil(ih/2)*2,overlay=shortest=1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:"
                 : $"-i pipe: -f gif -vf \"scale=300:-1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
             FileName = _ffmpegBinary
         };
@@ -66,40 +72,33 @@ public class AnimationComposeService
             EnableRaisingEvents = true
         };
 
-        process.ErrorDataReceived += (e, d) => _logger.LogError(d.Data);
-        //process.OutputDataReceived += (e, d) =>  _logger.LogInformation(d.Data);
+        try
+        {
+            process.ErrorDataReceived += (e, d) => _logger.LogError(d.Data);
 
-        process.Start();
-        process.BeginErrorReadLine();
-        //process.BeginOutputReadLine();
+            process.Start();
+            process.BeginErrorReadLine();
+            process.StandardInput.Close();
 
-        using var inputStream = new MemoryStream(gif.File);
-        //using var inputStream = await GetFileStreamAsync("https://media3.giphy.com/media/1lBI2ro8ZmSpWJPAPK/giphy-preview.mp4?cid=587ded4dbfyx3dpwdlosu7r7qaid5e6l0tc7pwrd15e9loi0&ep=v1_gifs_random&rid=giphy-preview.mp4&ct=g");
+            var outputStream = new MemoryStream();
 
-        await inputStream.CopyToAsync(process.StandardInput.BaseStream);
+            await process.StandardOutput.BaseStream.CopyToAsync(outputStream);
+            await process.WaitForExitAsync();
 
-        process.StandardInput.Close();
+            outputStream.Position = 0;
 
-        await process.StandardOutput.BaseStream.CopyToAsync(outputStream);
-        await process.WaitForExitAsync();
+            var file = new InputOnlineFile(outputStream, $"{Guid.NewGuid()}.gif");
 
-        outputStream.Position = 0;
+            if (file.Content == null || file.Content.Length <= 0)
+                throw new Exception("Composed file is null or empty");
 
-        var file =  new InputOnlineFile(outputStream, $"{Guid.NewGuid()}.gif");
+            return file;
+        }
 
-        if (file.Content == null || file.Content.Length <= 0)
-            throw new Exception("Composed file is null or empty");
-
-        return file;
-    }
-
-
-
-    private Task<Stream> GetFileStreamAsync(string url)
-    {
-        //download file to stream
-        var http = _httpClientFactory.CreateClient();
-        http.Timeout = TimeSpan.FromSeconds(10);
-        return http.GetStreamAsync(url);
+        finally
+        {
+            File.Delete(tempInputFilename);
+        }
+      
     }
 }

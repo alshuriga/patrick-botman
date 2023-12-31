@@ -1,5 +1,7 @@
-﻿using PatrickBotman.Bot.Helpers;
+﻿using Microsoft.Extensions.Options;
+using PatrickBotman.Bot.Helpers;
 using PatrickBotman.Bot.Interfaces;
+using PatrickBotman.Bot.Models;
 using PatrickBotman.Bot.Services;
 using PatrickBotman.Common.Interfaces;
 using Telegram.Bot;
@@ -17,46 +19,89 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private readonly AnimationComposeService _edit;
         private readonly IGifService _gifService;
         private readonly IGifProvider _gifProvider;
+        private readonly BotConfiguration _options;
 
 
         public MessageUpdateHandler(ILogger<MessageUpdateHandler> logger,
             ITelegramBotClient botClient,
             AnimationComposeService edit,
             IGifService gifService,
-            IGifProvider gifProvider)
+            IGifProvider gifProvider,
+            IOptions<BotConfiguration> options
+            )
         {
             _botClient = botClient;
             _edit = edit;
             _gifService = gifService;
             _gifProvider = gifProvider;
             _logger = logger;
+            _options = options.Value;
         }
         public async Task HandleAsync(Update update)
         {
             var msg = update.Message!;
 
-            _logger.LogInformation($"Recieved '{msg.Text}' message from user Id '{msg.From?.Id}.'");
-            string? messageText = msg.Caption ?? msg.Text;
+            _logger.LogInformation($"Recieved a message from user {msg.From?.Id}");
 
-            if (messageText == null) return;
+            var entityValues = msg.EntityValues ?? Enumerable.Empty<string>();
 
-            if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
+            if (entityValues.Contains("/gif") || (msg.Chat.Type == ChatType.Private && !entityValues.Contains("/add")))
             {
-                if (!messageText.Contains($"/gif")) return;
-                messageText = msg.ReplyToMessage?.Caption ?? msg.ReplyToMessage?.Text;
-                if (messageText == null) return;
-            }
 
-            var gif = await _gifProvider.RandomGifAsync(msg.Chat.Id);
+                var txtSource = msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup ?
+               msg.ReplyToMessage : msg;
 
-            var tgFile = await _edit.ComposeGifAsync(gif, messageText);
+                var messageText = txtSource?.Caption ?? txtSource?.Text;
+
+                if (messageText == null) throw new Exception("text is null");
+
+                var gif = await _gifProvider.RandomGifAsync(msg.Chat.Id);
+
+                var tgFile = await _edit.ComposeGifAsync(gif, messageText);
 
                 await _botClient.SendAnimationAsync(
-                            replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gif.Id),
-                            chatId: msg.Chat.Id,
-                            animation: tgFile);
+                              replyMarkup: InlineKeyboard.CreateVotingInlineKeyboard(gif.Id),
+                              chatId: msg.Chat.Id,
+                              animation: tgFile);
 
+            }
+
+            else if (entityValues.Any(ev => ev.Contains("/add")))
+            {
+                if (msg.ReplyToMessage?.Animation == null) throw new Exception("⚠️ No animation found, unable to add a gif");
+
+                if (!_options.AdminID.Contains(msg.From!.Id))
+                {
+                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
+                        replyToMessageId: msg.MessageId,
+                        allowSendingWithoutReply: true,
+                        text: "🚫 You dont have a rights to add new gifs");
+
+                    return;
+                }
+                //else if(msg.ReplyToMessage.Animation.FileSize > 500_000 || msg.ReplyToMessage.Animation.Duration > 3)
+                else if(false)
+                {
+                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
+                        replyToMessageId: msg.MessageId,
+                        allowSendingWithoutReply: true,
+                        text: "⚠️ The file is too large or too long.  Maximum size is 500KB and maximum length is 3s");
+                    return;
+                }
+
+                using var stream = new MemoryStream();
+                var animFile = await _botClient.GetFileAsync(msg.ReplyToMessage.Animation.FileId);
+                await _botClient.DownloadFileAsync(animFile.FilePath!, stream);
+                var bytes = stream.ToArray();
+
+                await _gifService.AddNewGifFileAsync(new Common.DTO.GifFileDTO(animFile.FileUniqueId, bytes));
+
+                await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyToMessageId: msg.MessageId, allowSendingWithoutReply: true, text: "✅ Gif was successfully added to the collection.");
+            }
         }
 
+
     }
+
 }
+

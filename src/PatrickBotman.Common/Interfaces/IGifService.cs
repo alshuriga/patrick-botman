@@ -15,4 +15,6 @@ public interface IGifService
     Task AddNewGifFileAsync(GifFileDTO gifFile);
 
     Task<GifFileDTO> GetGifFileAsync(int id);
+
+    Task<RandomGifFileDTO> GetRandomGifFileAsync();
 }

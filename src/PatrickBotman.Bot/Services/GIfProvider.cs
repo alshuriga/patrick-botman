@@ -22,7 +22,18 @@ public class GIfProvider : IGifProvider
 
     public async Task<Gif> RandomGifAsync(long chatId)
     {
-        return await RandomOnlineAsync(chatId);
+        var isLocal = (new Random().Next(0, 100) > 50);
+
+        if(isLocal)
+        {
+            _logger.LogInformation("Using gif from local collection");
+            return await RandomLocalAsync(chatId);
+        }
+        else
+        {
+            _logger.LogInformation("Using gif from online");
+            return await RandomOnlineAsync(chatId);
+        }
     }
 
 
@@ -59,6 +70,18 @@ public class GIfProvider : IGifProvider
             Id = id,
             File = gifBytes,
             Type = GifType.Online
+        };
+    }
+
+    private async Task<Gif> RandomLocalAsync(long chatId)
+    {
+        var gif = await _gifService.GetRandomGifFileAsync();
+
+        return new Gif()
+        {
+            Id = gif.Id,
+            File = gif.Data,
+            Type = GifType.Local
         };
     }
 

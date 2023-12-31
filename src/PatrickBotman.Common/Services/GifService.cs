@@ -92,8 +92,8 @@ public class GifService : IGifService
     {
         await _context.GifFiles.AddAsync(new GifFile()
         {
-            Name = gifFile.fileName,
-            Data = gifFile.data
+            Name = gifFile.FileName,
+            Data = gifFile.Data
         });
 
         await _context.SaveChangesAsync();
@@ -104,6 +104,15 @@ public class GifService : IGifService
         var file = await _context.GifFiles.FirstAsync(f => f.Id == id);
 
         return new GifFileDTO(file.Name, file.Data);
+    }
+
+    public async Task<RandomGifFileDTO> GetRandomGifFileAsync()
+    {
+        var count = await _context.GifFiles.CountAsync();  
+        var randNum = new Random().Next(0, count);
+        var randGif = await _context.GifFiles.OrderBy(g => g.Id).Skip(randNum).Take(1).FirstAsync();
+
+        return new RandomGifFileDTO(randGif.Id, randGif.Name, randGif.Data);
     }
 
 }

@@ -24,7 +24,7 @@ public class ConfigureWebhook : IHostedService
 
         var webhookAdress = @$"{_botConfig.HostAddress}/bot/{_botConfig.BotToken}";
 
-        _logger.LogInformation($"Address: {webhookAdress}");
+        _logger.LogDebug($"Address: {webhookAdress}");
 
         await botClient.SetWebhookAsync(
             url: webhookAdress,
