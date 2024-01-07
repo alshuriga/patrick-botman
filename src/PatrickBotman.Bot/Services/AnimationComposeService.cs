@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using FFmpeg.NET.Enums;
 using PatrickBotman.Bot.Models;
 using PatrickBotman.Common.Helpers;
@@ -60,7 +61,7 @@ public class AnimationComposeService
             UseShellExecute = false,
             CreateNoWindow = true,
             Arguments = isNewYear ? $"-i {tempInputFilename} -i assets/snow.mov -f gif -filter_complex \"scale=350:-1,pad=ceil(iw/2)*2:ceil(ih/2)*2,overlay=shortest=1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:"
-                : $"-i pipe: -f gif -vf \"scale=300:-1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
+                : $"-i {tempInputFilename} -f gif -vf \"scale=350:-1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
             FileName = _ffmpegBinary
         };
 
@@ -69,16 +70,21 @@ public class AnimationComposeService
         using Process process = new Process()
         {
             StartInfo = processInfo,
-            EnableRaisingEvents = true
+            EnableRaisingEvents = true,
         };
 
         try
         {
-            process.ErrorDataReceived += (e, d) => _logger.LogError(d.Data);
+            process.ErrorDataReceived += (e, d) =>
+            {
+               if (d.Data != null && d.Data.ToLower().Contains("error"))
+                {
+                    throw new FormatException($"ffmpeg Error: {d.Data}");
+                }
+            };
 
             process.Start();
             process.BeginErrorReadLine();
-            process.StandardInput.Close();
 
             var outputStream = new MemoryStream();
 

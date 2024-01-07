@@ -1,6 +1,8 @@
 ﻿namespace PatrickBotman.Common.DTO;
 
-public record GifDTO(int Id, string Url);
+public record OnlineGifDTO(int Id, string Url);
+
+public record LocalGifDTO(int Id);
 
 public record ChatDTO(long Id);
 

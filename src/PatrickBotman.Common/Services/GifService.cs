@@ -53,16 +53,16 @@ public class GifService : IGifService
         return gif.Id;
     }
 
-    public async Task<Page<GifDTO>> GetBlacklistedGifsPageAsync(int pageNumber, long chatId)
+    public async Task<Page<OnlineGifDTO>> GetBlacklistedGifsPageAsync(int pageNumber, long chatId)
     {
-        return new Page<GifDTO>()
+        return new Page<OnlineGifDTO>()
         {
             Items = await _context.Blacklists
                 .Include(b => b.Gif)
                 .Where(b => b.ChatId == chatId)
                 .OrderBy(b => b.Id)
                 .Skip(pageNumber * Constants.PAGE_SIZE).Take(Constants.PAGE_SIZE)
-                .Select(b => new GifDTO(b.Gif.Id, b.Gif.GifUrl))
+                .Select(b => new OnlineGifDTO(b.Gif.Id, b.Gif.GifUrl))
                 .ToListAsync(),
             CollectionSize = await _context.Blacklists
                 .Where(b => b.ChatId == chatId)
@@ -115,4 +115,16 @@ public class GifService : IGifService
         return new RandomGifFileDTO(randGif.Id, randGif.Name, randGif.Data);
     }
 
+    public async Task<Page<LocalGifDTO>> GetLocalGifsPageAsync(int pageNumber)
+    {
+        return new Page<LocalGifDTO>()
+        {
+            Items = await _context.GifFiles.OrderBy(g => g.Id)
+            .Skip(Constants.PAGE_SIZE * pageNumber).Take(Constants.PAGE_SIZE)
+            .Select(g => new LocalGifDTO(g.Id))
+            .ToListAsync(),
+
+            CollectionSize = await _context.GifFiles.CountAsync()
+        };
+    }
 }

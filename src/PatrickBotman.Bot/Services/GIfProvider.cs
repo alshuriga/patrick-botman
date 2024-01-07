@@ -41,7 +41,6 @@ public class GIfProvider : IGifProvider
     private async Task<Gif> RandomOnlineAsync(long chatId)
     {
         var http = _httpClientFactory.CreateClient("Giphyclient");
-        http.Timeout = TimeSpan.FromSeconds(5);
 
         var url = new Uri($"{_giphyConfiguration.HostAddress}?api_key={_giphyConfiguration.ApiToken}");
 

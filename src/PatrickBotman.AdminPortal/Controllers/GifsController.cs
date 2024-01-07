@@ -16,10 +16,16 @@ namespace PatrickBotman.AdminPortal.Controllers
             _gifService = gifService;
         }
 
-        [HttpGet("{chatId}/gif")]
-        public async Task<IActionResult> GetGifsPaginated(long chatId, int page)
+        [HttpGet("{chatId}/blacklist")]
+        public async Task<IActionResult> GetBlacklistedGifsPaginated(long chatId, int page)
         {
             return Ok(await _gifService.GetBlacklistedGifsPageAsync(page, chatId));
+        }
+
+        [HttpGet("local")]
+        public async Task<IActionResult> GetLocalGifsPaginated(int page)
+        {
+            return Ok(await _gifService.GetLocalGifsPageAsync(page));
         }
 
         [HttpGet]

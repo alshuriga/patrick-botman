@@ -8,7 +8,9 @@ public interface IGifService
     Task BlacklistAsync(int id, long chatId);
     Task<int> GetIdOrCreateAsync(string gifUrl);
 
-    Task<Page<GifDTO>> GetBlacklistedGifsPageAsync(int pageNumber, long chatId);
+    Task<Page<OnlineGifDTO>> GetBlacklistedGifsPageAsync(int pageNumber, long chatId);
+    
+    Task<Page<LocalGifDTO>> GetLocalGifsPageAsync(int pageNumber);
 
     Task<Page<ChatDTO>> GetChatsPageAsync(int pageNumber);
 

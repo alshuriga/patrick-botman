@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BlacklistTableComponent } from './blacklist-table.component';
+import { ModalComponent } from './modal.component';
 
-describe('BlacklistTableComponent', () => {
-  let component: BlacklistTableComponent;
-  let fixture: ComponentFixture<BlacklistTableComponent>;
+describe('ModalComponent', () => {
+  let component: ModalComponent;
+  let fixture: ComponentFixture<ModalComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BlacklistTableComponent]
+      imports: [ModalComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(BlacklistTableComponent);
+    fixture = TestBed.createComponent(ModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

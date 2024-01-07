@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { HttpService } from './http.service';
+import { GifService } from './gif.service';
 
 describe('HttpService', () => {
-  let service: HttpService;
+  let service: GifService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(HttpService);
+    service = TestBed.inject(GifService);
   });
 
   it('should be created', () => {

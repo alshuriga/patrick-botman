@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { GifDTO } from '../../../shared/DTO';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { HttpService } from '../../../services/http.service';
+import { GifService } from '../../../services/gif.service';
 import { heroTrash } from '@ng-icons/heroicons/outline';
 import { CommonModule } from '@angular/common';
 
@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
     NgIconComponent,
     CommonModule
   ],
-  providers: [HttpService, provideIcons({
+  providers: [GifService, provideIcons({
     heroTrash
   })],
   templateUrl: './gif-card.component.html',
@@ -20,6 +20,7 @@ import { CommonModule } from '@angular/common';
 })
 export class GifCardComponent {
   @Input() gif: GifDTO = undefined!;
+  @Output() onClickDelete = new EventEmitter<number>();
 
   autoPlay: boolean = false;
 
@@ -30,5 +31,6 @@ export class GifCardComponent {
   onMouseOut(video: HTMLVideoElement) {
     video.pause()
   }
+
 }
 

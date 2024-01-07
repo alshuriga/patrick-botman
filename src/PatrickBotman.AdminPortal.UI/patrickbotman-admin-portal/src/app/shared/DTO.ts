@@ -8,6 +8,7 @@ export interface GifDTO {
     url: string
 }
 
+
 export interface ChatDTO {
     id: number
 }
