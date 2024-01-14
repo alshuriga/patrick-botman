@@ -13,7 +13,7 @@ COPY ./patrickbotman-admin-portal/ /usr/local/app/
 RUN npm install 
 
 # Generate the build of the application
-RUN npm run build --   --configuration=production
+RUN npm run build --   --configuration=production --base-href /admin/
 
 
 # Stage 2: Serve app with nginx server

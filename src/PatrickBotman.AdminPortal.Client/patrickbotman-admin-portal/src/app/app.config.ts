@@ -12,10 +12,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(
       withInterceptors([googleAuthInterceptor])),
-    provideRouter(routes, withComponentInputBinding()),
-
-    {
-      provide: APP_BASE_HREF, 
-      useValue: environment.APP_BASE_HREF
-    }]
+    provideRouter(routes, withComponentInputBinding())
+  ]
 };
