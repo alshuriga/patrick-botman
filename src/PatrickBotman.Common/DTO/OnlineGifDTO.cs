@@ -2,7 +2,7 @@
 
 public record OnlineGifDTO(int Id, string Url);
 
-public record LocalGifDTO(int Id);
+public record LocalGifDTO(int Id, long SizeKb);
 
 public record ChatDTO(long Id);
 

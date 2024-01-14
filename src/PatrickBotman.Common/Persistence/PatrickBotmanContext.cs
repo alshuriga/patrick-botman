@@ -11,6 +11,8 @@ public class PatrickBotmanContext : DbContext
 
     public DbSet<GifFile> GifFiles { get; set; } = null!;
 
+    public DbSet<User> Users { get; set; } = null!;
+
     public PatrickBotmanContext(DbContextOptions<PatrickBotmanContext> dbContextOptions) : base(dbContextOptions)
     {}
 }

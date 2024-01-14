@@ -1,0 +1,8 @@
+<div class="mb-5">Custom gifs</div>
+<div class="grid auto-cols-max grid-cols-2 md:grid-cols-5 gap-2" *ngIf="localGifsPage">
+    <app-gif-card *ngFor="let gif of localGifsPage.items" [gif]="gif" (onClickDelete)="deleteGif($event)"></app-gif-card>
+</div>
+<div class="flex justify-center mt-4">
+    <app-simple-pagination [(page)]="page" (pageChange)="loadPage()" [collectionSize]="this.localGifsPage.collectionSize"></app-simple-pagination>
+</div>
+

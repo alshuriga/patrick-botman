@@ -99,6 +99,7 @@ public class GifService : IGifService
         await _context.SaveChangesAsync();
     }
 
+ 
     public async Task<GifFileDTO> GetGifFileAsync(int id)
     {
         var file = await _context.GifFiles.FirstAsync(f => f.Id == id);
@@ -121,10 +122,19 @@ public class GifService : IGifService
         {
             Items = await _context.GifFiles.OrderBy(g => g.Id)
             .Skip(Constants.PAGE_SIZE * pageNumber).Take(Constants.PAGE_SIZE)
-            .Select(g => new LocalGifDTO(g.Id))
+            .Select(g => new LocalGifDTO(g.Id, g.Data.LongLength / 1024))
             .ToListAsync(),
 
             CollectionSize = await _context.GifFiles.CountAsync()
         };
+    }
+
+    public async Task DeleteGifFileAsync(int id)
+    {
+        var gif = await _context.GifFiles.FirstAsync(g => g.Id == id);
+
+        _context.GifFiles.Remove(gif);
+
+        await _context.SaveChangesAsync();  
     }
 }
