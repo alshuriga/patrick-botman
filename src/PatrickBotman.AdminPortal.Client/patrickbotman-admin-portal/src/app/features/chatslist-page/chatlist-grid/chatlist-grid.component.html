@@ -1,4 +1,6 @@
-<div class="mb-5">Chats</div>
-<div class="grid auto-cols-max grid-cols-2 gap-2" *ngIf="chatsPage">
-    <app-chatlist-card *ngFor="let chat of chatsPage.items" [chat]="chat">{{ chat.id }}</app-chatlist-card>
+<div *ngIf="chatsPage">
+    <div class="mb-5">Chats</div>
+    <div class="grid auto-cols-max grid-cols-2 gap-2" *ngIf="chatsPage">
+        <app-chatlist-card *ngFor="let chat of chatsPage.items" [chat]="chat">{{ chat.id }}</app-chatlist-card>
+    </div>  
 </div>

@@ -19,3 +19,31 @@ services:
       BotConfiguration__AdminId: ${TG_BOT_ADMINID}
       
     restart: always
+  
+  admin-api:
+    container_name: admin-api
+
+    build:
+      context: .
+      dockerfile: ./PatrickBotman.AdminPortal/Dockerfile
+    ports:
+      - "5030:80"
+    environment:
+      COMPOSE_PROJECT_NAME: patrick_botman
+      ASPNETCORE_ENVIRONMENT: "Docker"     
+      ConnectionStrings__PostgreConn: ${POSTGRE_CONN}
+      
+    restart: always
+
+  ui:
+    container_name: the-blog_ui
+
+    build:
+      context: ./PatrickBotman.AdminPortal.Client
+      dockerfile: Dockerfile
+    ports: 
+      - "5033:80"
+    depends_on:
+       - admin-api
+    restart: always
+

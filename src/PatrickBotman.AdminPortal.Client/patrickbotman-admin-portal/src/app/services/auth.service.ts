@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Profile, User, UserManager, UserManagerSettings } from 'oidc-client';
-import { API_BASE_URL, CLIENT_BASE_URL } from '../shared/Constants';
 import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +19,8 @@ export class AuthService {
       scope: 'openid email profile',
       client_id: '678092915142-sbh7tmh3demtir4b4tupig8gl47fsfh6.apps.googleusercontent.com',
       client_secret: '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',
-      redirect_uri: `${CLIENT_BASE_URL}/signin-callback`,
-      post_logout_redirect_uri: `${CLIENT_BASE_URL}/signout-callback`,
+      redirect_uri: `${environment.CLIENT_BASE_URL}/signin-callback`,
+      post_logout_redirect_uri: `${environment.CLIENT_BASE_URL}/signout-callback`,
     }
     console.log(JSON.stringify(settings));
     this._userManager = new UserManager(settings);

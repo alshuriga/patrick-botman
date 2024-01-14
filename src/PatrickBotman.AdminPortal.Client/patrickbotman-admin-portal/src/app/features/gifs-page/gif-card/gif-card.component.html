@@ -3,6 +3,6 @@
         <div>#{{ gif.id }}</div>
         <div *ngIf="gif.sizeKb">Size: {{ gif.sizeKb / 1000 }} mb</div>
     </div>
-    <div class="flex-auto" (mouseenter)="onMouseEnter(videoElement)" (mouseout)="onMouseOut(videoElement)"><video #videoElement class="w-full rounded-lg" loop src="{{ gif.url }}" alt=""></video></div>
+    <div class="flex-auto" (mouseenter)="onMouseEnter(videoElement)" (mouseout)="onMouseOut(videoElement)"><video #videoElement class="w-full rounded-lg" loop src="{{ gif.url }}" alt="" playsinline></video></div>
     <div class="self-end mt-2 cursor-pointer" title="Remove from black list" (click)="openModal()"><ng-icon class="text-neutral-500 group-hover:text-black" name="heroTrash"></ng-icon></div>
 </div>
