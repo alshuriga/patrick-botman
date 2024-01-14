@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace PatrickBotman.Bot.Models;
@@ -51,7 +52,22 @@ public class TextInput
             SecondLine = string.Empty;
         }
 
-        FirstLine = Regex.Escape(FirstLine);
-        SecondLine = Regex.Escape(SecondLine);
+        FirstLine = EscapeSpecial(FirstLine);
+        SecondLine = EscapeSpecial(SecondLine);
+
+    }
+
+    private string EscapeSpecial(string inputText)
+    {
+        var str = new StringBuilder(inputText);
+
+        str = str
+            .Replace("\\", "\\\\\\\\")
+            .Replace("'", "'\\\\\\\''")
+            .Replace("%", "\\\\\\%")
+            .Replace(":", "\\\\\\:")
+            .Replace("\"", "\\\\\\\"");
+
+        return str.ToString();
     }
 }

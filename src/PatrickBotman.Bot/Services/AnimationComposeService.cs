@@ -79,7 +79,8 @@ public class AnimationComposeService
             {
                if (d.Data != null && d.Data.ToLower().Contains("error"))
                 {
-                    throw new FormatException($"ffmpeg Error: {d.Data}");
+                    _logger.LogCritical(d.Data);
+                    //throw new FormatException($"ffmpeg Error: {d.Data}");
                 }
             };
 
