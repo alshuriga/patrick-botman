@@ -12,22 +12,22 @@ export class GifService {
   constructor(private http: HttpClient) { }
 
   getBlacklistsPage(page: number, chatId: number): Observable<Page<GifDTO>> {
-    return this.http.get<Page<GifDTO>>(`${environment.API_BASE_URL}/${chatId}/blacklist?page=${page}`);
+    return this.http.get<Page<GifDTO>>(`${environment.API_BASE_URL}${chatId}/blacklist?page=${page}`);
   }
 
   getLocalGifsPage(page: number): Observable<Page<GifDTO>> {
     return this.http
-    .get<Page<GifDTO>>(`${environment.API_BASE_URL}/local?page=${page}`)
+    .get<Page<GifDTO>>(`${environment.API_BASE_URL}local?page=${page}`)
     .pipe(map(g => {
       g.items.forEach(i => {
-        i.url = `${environment.API_BASE_URL}/file?id=${i.id}`
+        i.url = `${environment.API_BASE_URL}file?id=${i.id}`
       });
       return g;
     }));
   }
 
   deleteLocalGif(id: number) {
-    return this.http.delete(`${environment.API_BASE_URL}/local?id=${id}`);
+    return this.http.delete(`${environment.API_BASE_URL}local?id=${id}`);
   }
 
   getChatsPage(page: number): Observable<Page<ChatDTO>> {
