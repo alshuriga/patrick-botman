@@ -61,7 +61,7 @@ public class AnimationComposeService
             UseShellExecute = false,
             CreateNoWindow = true,
             Arguments = isNewYear ? $"-i {tempInputFilename} -i assets/snow.mov -f gif -filter_complex \"scale=350:-1,pad=ceil(iw/2)*2:ceil(ih/2)*2,overlay=shortest=1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:"
-                : $"-i {tempInputFilename} -f gif -vf \"scale=350:-1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
+                : $"-i {tempInputFilename} -f mp4 -c:v libx264 -movflags frag_keyframe+empty_moov -vf \"scale=350:-2,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
             FileName = _ffmpegBinary
         };
 
@@ -94,7 +94,7 @@ public class AnimationComposeService
 
             outputStream.Position = 0;
 
-            var file = new InputOnlineFile(outputStream, $"{Guid.NewGuid()}.gif");
+            var file = new InputOnlineFile(outputStream, $"{Guid.NewGuid()}.mp4");
 
             if (file.Content == null || file.Content.Length <= 0)
                 throw new Exception("Composed file is null or empty");
