@@ -1,6 +1,6 @@
 <div class="mb-5">Chat {{chatId}} - blacklist</div>
 <div *ngIf="blacklistPage">
-    <div class="grid auto-cols-max grid-cols-2 md:grid-cols-5 gap-2" >
+    <div class="grid auto-cols-max grid-cols-1 md:grid-cols-5 gap-2" >
         <app-gif-card *ngFor="let gif of blacklistPage.items" [gif]="gif"></app-gif-card>
     </div>
     <div class="flex justify-center mt-4">

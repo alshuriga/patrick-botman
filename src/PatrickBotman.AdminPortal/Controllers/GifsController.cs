@@ -6,7 +6,7 @@ using System.Net.Mime;
 
 namespace PatrickBotman.AdminPortal.Controllers
 {
-    [Authorize(policy: "UserIsAdmin")]
+    //[Authorize(policy: "UserIsAdmin")]
     [ApiController]
     [Route("/")]
     public class GifsController : ControllerBase

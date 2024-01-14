@@ -1,18 +1,16 @@
-<div class="p-5 mx-auto flex justify-start items-center bg-gradient-to-b from-slate-100 to-slate-200">
-  <div class="mr-8 text-slate-600 self-auto">
-    <span class="text-2xl font-bold">Patrick Botman</span><br>Management Portal
+<div class="p-5 mx-auto flex flex-col md:flex-row justify-start items-center bg-gradient-to-b from-slate-100 to-slate-200">
+  <div class="md:mr-8 md:mb-0 mb-5 text-slate-600 self-auto text-center md:text-left">
+    <div class="text-2xl font-bold">Patrick Botman</div>
+    <div>Management Portal</div>
   </div>
-  <div class="flex">
     <app-nav-bar-link title="Chats" path="/chats"></app-nav-bar-link>
     <app-nav-bar-link title="Custom Gifs" path="/custom-gifs"></app-nav-bar-link>
+  <div class=" flex-grow hidden md:flex"></div>
+  <div *ngIf="!this.user" class="flex px-4 pt-4 md:pt-0">
+    <button title="Sign In" class="font-medium hover:underline hover:cursor-pointer text-slate-900" (click)="login()">Sign In</button>
   </div>
-  <div class="flex flex-grow"></div>
-  <div *ngIf="!this.user" class="flex px-4">
-    <app-nav-bar-link title="Login" (onClick)="login()"></app-nav-bar-link>
-  </div>
-  <div *ngIf="this.user" class="flex px-4 items-center">
+  <div *ngIf="this.user" class="flex-col md:flex-row text-center pt-4 md:pt-0">
     <div *ngIf="this.user.name">{{ this.user.name }}</div>
-    <!-- <div><img class="rounded-full size-10" src="{{this.user.picture}}"></div> -->
-    <app-nav-bar-link title="Logout" (onClick)="logout()"></app-nav-bar-link>
+    <button title="Sign Out" class="font-medium hover:underline hover:cursor-pointer text-slate-900" (click)="logout()">Log out</button>
   </div>
 </div>
