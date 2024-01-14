@@ -1,0 +1,16 @@
+
+<div id="normal-modal" data-modal-target="normal-modal"
+class="p-5 bg-white m-auto max-w-xl w-fit h-fit shadow-lg rounded-lg fixed inset-0 justify-between z-20">
+<div class="text-xl font-semibold mb-2">
+    {{options.header}}
+</div>
+<div class="mb-2">
+        {{options.message }}
+</div>
+<div class="flex justify-end">
+    <button class="bg-red-500 py-1 px-4 rounded-md text-white mr-2" data-modal-hide="normal-modal" (click)="reject()">No</button>
+    <button class="bg-green-600 py-1 px-4 rounded-md text-white" data-modal-hide="normal-modal" (click)="submit()">Yes</button>
+</div>
+</div>
+
+<div class="absolute inset-0 bg-opacity-50 bg-slate-400 z-10"></div>

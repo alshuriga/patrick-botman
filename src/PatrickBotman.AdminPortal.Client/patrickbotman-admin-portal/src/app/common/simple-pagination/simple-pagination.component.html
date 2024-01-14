@@ -1,0 +1,11 @@
+<div class="flex flex-row w-24">
+    <button [disabled]="!this.prevActive" class="w-16 h-12 rounded-lg flex align-middle bg-slate-50 enabled:hover:bg-slate-100 cursor-pointer disabled:cursor-default me-1 group" (click)="prevPage()">
+        <ng-icon name="heroChevronLeft" class=" text-slate-700 mx-auto self-center group-disabled:text-slate-400">
+        </ng-icon>
+    </button>
+    <button [disabled]="!this.nextActive" class="w-16 h-12 rounded-lg flex align-middle bg-slate-50 enabled:hover:bg-slate-100 cursor-pointer disabled:cursor-default me-1 group" (click)="nextPage()">
+        <ng-icon name="heroChevronRight" class=" text-slate-700 mx-auto self-center group-disabled:text-slate-400">
+        </ng-icon>
+    </button>
+</div>
+
