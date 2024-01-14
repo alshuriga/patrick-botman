@@ -61,7 +61,7 @@ public class AnimationComposeService
             UseShellExecute = false,
             CreateNoWindow = true,
             Arguments = isNewYear ? $"-i {tempInputFilename} -i assets/snow.mov -f gif -filter_complex \"scale=350:-1,pad=ceil(iw/2)*2:ceil(ih/2)*2,overlay=shortest=1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:"
-                : $"-i {tempInputFilename} -f mp4 -c:v libx264 -movflags frag_keyframe+empty_moov -vf \"scale=350:-2,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
+                : $"-i {tempInputFilename} -f mp4 -c:v libx264 -an -movflags frag_keyframe+empty_moov -vf \"scale=350:-2,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
             FileName = _ffmpegBinary
         };
 
