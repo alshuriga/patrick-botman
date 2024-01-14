@@ -12,10 +12,7 @@ import { environment } from '../environments/environment';
   imports: [CommonModule, RouterOutlet, NavBarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
-  providers: [AuthService, 
-  {
-    provide: APP_BASE_HREF, useValue: environment.API_BASE_URL
-  }]
+  providers: [AuthService]
 })
 export class AppComponent implements OnInit {
   user: Profile | undefined;
