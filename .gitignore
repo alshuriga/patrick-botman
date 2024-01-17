@@ -462,4 +462,5 @@ misc/
 assets/
 .env
 *.db*
-db/
+/src/db/
+/src/db/gifRatings.db

@@ -58,14 +58,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             var animationFileId = "CgACAgIAAxkBAAIGr2Wne6AI03NaYcukW6d2WYxOUXM6AAIhOwAC0UBBSbQ9IaknNr6DNAQ";
 
-            await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
+                await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
                     new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId)
                     {
                         Title = "Tap to roll",
                         ReplyMarkup = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardButton("LOADING") { CallbackData = "."})
                     }
                 },
-                isPersonal: true,
+                    isPersonal: true,
                 cacheTime: 5); ;
 
             //CgACAgIAAxkBAAIGr2Wne6AI03NaYcukW6d2WYxOUXM6AAIhOwAC0UBBSbQ9IaknNr6DNAQ
