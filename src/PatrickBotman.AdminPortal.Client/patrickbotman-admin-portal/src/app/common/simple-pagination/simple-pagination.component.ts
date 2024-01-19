@@ -35,12 +35,18 @@ export class SimplePaginationComponent implements OnInit {
     this.page++;
     this.pageChange.emit(this.page);
     this.calculateButtons();
+    this.scrollUp();
   }
 
   prevPage() {
     this.page--;
     this.pageChange.emit(this.page);
     this.calculateButtons();
+    this.scrollUp();
   }
 
+  scrollUp() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+   }
+  
 }

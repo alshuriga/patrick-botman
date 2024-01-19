@@ -4,19 +4,21 @@ import { GifDTO, Page } from '../../../shared/DTO';
 import { CommonModule } from '@angular/common';
 import { GifCardComponent } from '../gif-card/gif-card.component';
 import { GifService } from '../../../services/gif.service';
+import { AlertService } from '../../../services/alert.service';
+import { AlertComponent } from '../../../common/alert/alert.component';
 
 @Component({
     selector: 'app-local-gifs-page',
     standalone: true,
     templateUrl: './local-gifs-page.component.html',
     styleUrl: './local-gifs-page.component.scss',
-    imports: [CommonModule, GifCardComponent, SimplePaginationComponent],
-    providers: [GifService]
+    imports: [CommonModule, GifCardComponent, SimplePaginationComponent, AlertComponent],
+    providers: []
 })
 export class LocalGifsPageComponent {
     localGifsPage: Page<GifDTO> = undefined!;
     page = 0;
-    constructor(private http: GifService) {
+    constructor(private http: GifService, private alert: AlertService) {
       this.loadPage();
     }
   
@@ -30,6 +32,7 @@ export class LocalGifsPageComponent {
     deleteGif(id: number) {
       this.http.deleteLocalGif(id).subscribe(() => {
         this.loadPage();
+        this.alert.showAlert({ text: 'GIF was successfully deleted from the database.', mode: 'success', lifetimeSeconds: 3})
       })
     }
 }

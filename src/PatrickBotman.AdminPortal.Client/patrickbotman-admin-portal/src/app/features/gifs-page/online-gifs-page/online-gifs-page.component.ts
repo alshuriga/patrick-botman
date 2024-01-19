@@ -6,6 +6,7 @@ import { GifCardComponent } from "../gif-card/gif-card.component";
 import { SimplePaginationComponent } from "../../../common/simple-pagination/simple-pagination.component";
 import { CommonModule } from '@angular/common';
 import { ModalComponent } from "../../../common/modal/modal.component";
+import { AlertComponent } from '../../../common/alert/alert.component';
 
 @Component({
     selector: 'app-online-gifs-page',
@@ -13,7 +14,7 @@ import { ModalComponent } from "../../../common/modal/modal.component";
     templateUrl: './online-gifs-page.component.html',
     styleUrl: './online-gifs-page.component.scss',
     providers: [GifService],
-    imports: [CommonModule, GifCardComponent, SimplePaginationComponent, ModalComponent]
+    imports: [CommonModule, GifCardComponent, SimplePaginationComponent, ModalComponent, AlertComponent]
 })
 export class OnlineGifsPageComponent {
   chatId: number;
@@ -30,4 +31,5 @@ export class OnlineGifsPageComponent {
       this.blacklistPage = res;
     });
   }
+
 }
