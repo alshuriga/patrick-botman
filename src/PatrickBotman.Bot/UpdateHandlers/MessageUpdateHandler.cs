@@ -18,7 +18,8 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private readonly ILogger<MessageUpdateHandler> _logger;
         private readonly ITelegramBotClient _botClient;
         private readonly AnimationComposeService _edit;
-        private readonly IGifService _gifService;
+        private readonly IOnlineGifRepository _onlineGifRepo;
+        private readonly ILocalGifRepository _localGifRepo;
         private readonly IGifProvider _gifProvider;
         private readonly BotConfiguration _options;
 
@@ -26,17 +27,19 @@ namespace PatrickBotman.Bot.UpdateHandlers
         public MessageUpdateHandler(ILogger<MessageUpdateHandler> logger,
             ITelegramBotClient botClient,
             AnimationComposeService edit,
-            IGifService gifService,
+            IOnlineGifRepository gifService,
             IGifProvider gifProvider,
             IOptions<BotConfiguration> options
-            )
+,
+            ILocalGifRepository localGifRepo)
         {
             _botClient = botClient;
             _edit = edit;
-            _gifService = gifService;
+            _onlineGifRepo = gifService;
             _gifProvider = gifProvider;
             _logger = logger;
             _options = options.Value;
+            _localGifRepo = localGifRepo;
         }
         public async Task HandleAsync(Update update)
         {
@@ -81,21 +84,24 @@ namespace PatrickBotman.Bot.UpdateHandlers
                     return;
                 }
                 //else if(msg.ReplyToMessage.Animation.FileSize > 500_000 || msg.ReplyToMessage.Animation.Duration > 3)
-                else if (false)
-                {
-                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
-                        replyToMessageId: msg.MessageId,
-                        allowSendingWithoutReply: true,
-                        text: "⚠️ The file is too large or too long.  Maximum size is 500KB and maximum length is 3s");
-                    return;
-                }
+                //{
+                //    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
+                //        replyToMessageId: msg.MessageId,
+                //        allowSendingWithoutReply: true,
+                //        text: "⚠️ The file is too large or too long.  Maximum size is 500KB and maximum length is 3s");
+                //    return;
+                //}
 
                 using var stream = new MemoryStream();
                 var animFile = await _botClient.GetFileAsync(msg.ReplyToMessage.Animation.FileId);
                 await _botClient.DownloadFileAsync(animFile.FilePath!, stream);
                 var bytes = stream.ToArray();
 
-                await _gifService.AddNewGifFileAsync(new Common.DTO.GifFileDTO(animFile.FileUniqueId, bytes));
+                await _localGifRepo.CreateGifFileAsync(new GifFile()
+                {
+                    Name = animFile.FileId,
+                    Data = bytes
+                });
 
                 await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyToMessageId: msg.MessageId, allowSendingWithoutReply: true, text: "✅ Gif was successfully added to the collection.");
             }

@@ -1,4 +1,6 @@
-﻿using PatrickBotman.Bot.Interfaces;
+﻿using Microsoft.Extensions.Options;
+using PatrickBotman.Bot.Interfaces;
+using PatrickBotman.Bot.Models;
 using PatrickBotman.Bot.Services;
 using PatrickBotman.Services;
 using Telegram.Bot;
@@ -14,16 +16,19 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private readonly IGifProvider _gifProvider;
         private readonly AnimationComposeService _animationCompose;
         private readonly ILogger<HandleUpdateService> _logger;
+        private readonly BotConfiguration _botConfig;
 
         public InlineUpdateHandler(ITelegramBotClient botClient,
             IGifProvider gifService,
             AnimationComposeService animationCompose,
-            ILogger<HandleUpdateService> logger)
+            ILogger<HandleUpdateService> logger,
+            IOptions<BotConfiguration> botConfig)
         {
             _botClient = botClient;
             _gifProvider = gifService;
             _animationCompose = animationCompose;
             _logger = logger;
+            _botConfig = botConfig.Value;
         }
 
         public async Task HandleAsync(Update update)
@@ -56,19 +61,31 @@ namespace PatrickBotman.Bot.UpdateHandlers
             //        cacheTime: 5);
             //}
 
-            var animationFileId = "CgACAgIAAxkBAAIGr2Wne6AI03NaYcukW6d2WYxOUXM6AAIhOwAC0UBBSbQ9IaknNr6DNAQ";
+            var gifFiles = await _gifProvider.RandomPreviewsAsync(3);
+            var keyboard = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardButton("LOADING") { CallbackData = "." });
+            var inlineResults = await Task.WhenAll(gifFiles!.Select(async g =>
+            {
+                string id = null!;
 
-                await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
-                    new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId)
-                    {
-                        Title = "Tap to roll",
-                        ReplyMarkup = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardButton("LOADING") { CallbackData = "."})
-                    }
-                },
-                    isPersonal: true,
-                cacheTime: 5); ;
 
-            //CgACAgIAAxkBAAIGr2Wne6AI03NaYcukW6d2WYxOUXM6AAIhOwAC0UBBSbQ9IaknNr6DNAQ
+                if (g.Type == GifType.Local)
+                {
+                    id = g.Link!;
+                }
+                else
+                {
+                    id = await UploadAnimationAsync(new InputOnlineFile(g.Link!));
+                }
+
+                return new InlineQueryResultCachedMpeg4Gif($"{g.Type} {g.Id}", id)
+                {
+                    ReplyMarkup = keyboard
+                };
+
+            }));
+                await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, inlineResults,
+                isPersonal: false,
+                cacheTime: 10); ;
         }
 
         private async Task<string> UploadAnimationAsync(InputOnlineFile file)

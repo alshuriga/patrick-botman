@@ -1,5 +1,7 @@
 ﻿using PatrickBotman.Bot.Interfaces;
+using PatrickBotman.Bot.Models;
 using PatrickBotman.Bot.Services;
+using PatrickBotman.Common.Interfaces;
 using PatrickBotman.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -36,9 +38,11 @@ namespace PatrickBotman.Bot.UpdateHandlers
             }
 
             _logger.LogInformation($"User {chosenInline.From} chose inline result.'");
-    
 
-            var gif = await _gifProvider.RandomGifAsync(chosenInline.From.Id);
+            var gifType = (GifType)Enum.Parse(typeof(GifType), chosenInline.ResultId.Split(' ')[0]);
+            var gifId = int.Parse(chosenInline.ResultId.Split(' ')[1]);
+
+            var gif = await _gifProvider.GetByIdAsync(gifId, gifType);
 
             var file = await _animationCompose.ComposeGifAsync(gif, chosenInline.Query);
 

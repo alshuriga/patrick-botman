@@ -13,11 +13,11 @@ namespace PatrickBotman.Bot.UpdateHandlers
     {
         private readonly ITelegramBotClient _botClient;
         private readonly ILogger<HandleUpdateService> _logger;
-        private readonly IGifService _gifRepository;
+        private readonly IOnlineGifRepository _gifRepository;
 
 
         public CallbackUpdateHandler(ITelegramBotClient botClient,
-            IGifService gifRepository,
+            IOnlineGifRepository gifRepository,
             ILogger<HandleUpdateService> logger)
         {
             _botClient = botClient;

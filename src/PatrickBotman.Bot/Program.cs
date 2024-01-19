@@ -5,18 +5,9 @@ using PatrickBotman.Bot.UpdateHandlers;
 using PatrickBotman.Bot.Interfaces;
 using PatrickBotman.Common.Helpers;
 using PatrickBotman.Bot.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
-
-var botConfig = builder.Configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
-
-builder.Services.AddHttpClient("tgwebhook").
-    AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
-    {
-        TelegramBotClientOptions opts = new(botConfig.BotToken);
-        return new TelegramBotClient(opts, httpClient);
-    } );
-
 
 builder.Services.AddHttpClient("giphyclient", giphyclient => {
     var giphyConfiguration = builder.Configuration.GetSection("giphyConfiguration").Get<GiphyConfiguration>();
@@ -32,12 +23,22 @@ builder.Services.AddScoped<AnimationComposeService>();
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddScoped<UpdateHandlersFactory>();
 
+builder.Services.AddHttpClient("tgwebhook").
+    AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
+    {
+        var botToken = builder.Configuration.GetSection("BotConfiguration:BotToken").Value;
+
+        TelegramBotClientOptions opts = new(botToken);
+        return new TelegramBotClient(opts, httpClient);
+    });
+
 var app = builder.Build();
+
 
 app.UseRouting();
 
 app.UseEndpoints(endpoints => {
-    var token = botConfig.BotToken;
+    var token = builder.Configuration.GetSection("BotConfiguration:BotToken").Value;
     endpoints.MapControllerRoute(name: "tgwebhook",
     pattern: $"bot/{token}",
     new { controller = "WebHook", action = "Post" }
