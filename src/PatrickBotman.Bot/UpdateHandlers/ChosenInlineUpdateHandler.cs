@@ -1,11 +1,9 @@
 ﻿using PatrickBotman.Bot.Interfaces;
 using PatrickBotman.Bot.Models;
 using PatrickBotman.Bot.Services;
-using PatrickBotman.Common.Interfaces;
 using PatrickBotman.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.InputFiles;
 
 namespace PatrickBotman.Bot.UpdateHandlers
@@ -37,7 +35,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 throw new ArgumentException(nameof(chosenInline));
             }
 
-            _logger.LogInformation($"User {chosenInline.From} chose inline result.'");
+            _logger.LogInformation($"User {chosenInline.From} chose inline result.");
 
             var gifType = (GifType)Enum.Parse(typeof(GifType), chosenInline.ResultId.Split(' ')[0]);
             var gifId = int.Parse(chosenInline.ResultId.Split(' ')[1]);

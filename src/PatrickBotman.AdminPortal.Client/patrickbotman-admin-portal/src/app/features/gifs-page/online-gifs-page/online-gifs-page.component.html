@@ -2,7 +2,7 @@
 <app-alert></app-alert>
 <div *ngIf="blacklistPage">
     <div class="grid auto-cols-max grid-cols-1 md:grid-cols-5 gap-2" >
-        <app-gif-card *ngFor="let gif of blacklistPage.items" [gif]="gif"></app-gif-card>
+        <app-gif-card *ngFor="let gif of blacklistPage.items" [gif]="gif" (onClickDelete)="unblacklist($event)"></app-gif-card>
     </div>
     <div class="flex justify-center mt-4">
         <app-simple-pagination [(page)]="page" (pageChange)="loadPage()" [collectionSize]="this.blacklistPage.collectionSize"></app-simple-pagination>

@@ -39,6 +39,17 @@ public class OnlineGifRepository : IOnlineGifRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task UnblacklistAsync(int gifId, long chatId)
+    {
+        var entry = await _context.Blacklists
+            .Include(b => b.Gif)
+            .SingleAsync(b => b.ChatId == chatId && b.Gif.Id == gifId);
+
+        _context.Blacklists.Remove(entry);
+
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<int> GetIdOrCreateAsync(string gifUrl)
     {
         var gif = await _context.Gifs.SingleOrDefaultAsync(g => g.GifUrl == gifUrl);

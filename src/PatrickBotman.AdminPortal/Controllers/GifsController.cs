@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing.Constraints;
 using PatrickBotman.Common.Interfaces;
-using System.Net.Mime;
 
 namespace PatrickBotman.AdminPortal.Controllers
 {
@@ -24,31 +22,31 @@ namespace PatrickBotman.AdminPortal.Controllers
 
         #region GET
 
-        [HttpGet("{chatId}/blacklist")]
+        [HttpGet("gifs/online/{chatId}")]
         public async Task<IActionResult> GetBlacklistedGifsPaginated(long chatId, int page)
         {
             return Ok(await _onlineGifRepo.GetBlacklistedGifsPageAsync(page, chatId));
         }
 
-        [HttpGet("local")]
+        [HttpGet("gifs/local")]
         public async Task<IActionResult> GetLocalGifsPaginated(int page)
         {
             return Ok(await _localGifRepo.GetGifFilesPageAsync(page));
         }
 
-        [HttpGet]
+        [HttpGet("chats")]
         public async Task<IActionResult> GetChatsPaginated(int page)
         {
             return Ok(await _chatsRepo.GetChatsPageAsync(page));
         }  
 
-        [HttpGet("file")]
+        [HttpGet("gifs/local/{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> DownloadGif(int id)
         {
             var file = await _localGifRepo.GetGifFileAsync(id);
 
-            var contentType = file.Name.EndsWith("mp4") ? "video/mp4" : "image/gif";
+            var contentType = "video/mp4";//file.Name.EndsWith("mp4") ? "video/mp4" : "image/gif";
 
             return File(file.Data, contentType, file.Name);
         }
@@ -82,12 +80,22 @@ namespace PatrickBotman.AdminPortal.Controllers
 
         #region DELETE
 
-        [HttpDelete("local")]
+        [HttpDelete("gifs/local")]
         public async Task<IActionResult> DeleteLocalGif(int id)
         {
             await _localGifRepo.DeleteGifFileAsync(id);
             return NoContent();
         }
+
+
+        [HttpDelete("gifs/online")]
+        public async Task<IActionResult> Unblacklist(int gifId, long chatId)
+        {
+            await _onlineGifRepo.UnblacklistAsync(gifId, chatId);
+
+            return NoContent();
+        }
+
 
         #endregion
 
