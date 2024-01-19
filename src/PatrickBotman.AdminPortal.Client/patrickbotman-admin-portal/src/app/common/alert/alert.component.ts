@@ -30,10 +30,8 @@ export class AlertComponent implements OnDestroy, OnInit {
   ngOnInit(): void {
     this.sub = this.alert.alert.subscribe(val => {
       this.params = val;
-      console.log(this.alertElement);
       if(this.params) {
         setTimeout(() => {
-          console.log('setting opacity to 0');
           this.alertElement!.nativeElement.style['opacity'] = '0';
           this.alertElement!.nativeElement.style['transform'] = 'scale(1, 0)';
         }, (this.params?.lifetimeSeconds * 1000) - 150)
