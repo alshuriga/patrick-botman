@@ -1,11 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using PatrickBotman.Common.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PatrickBotman.Common.Services
 {
@@ -15,6 +9,6 @@ namespace PatrickBotman.Common.Services
 
         public DatabaseConfigurationSource(Action<DbContextOptionsBuilder> optionsAction) => _optionsAction = optionsAction;
 
-        public IConfigurationProvider Build(IConfigurationBuilder builder) => new DatabaseConfigurationProvider(_optionsAction, TimeSpan.FromMinutes(5));
+        public IConfigurationProvider Build(IConfigurationBuilder builder) => new DatabaseConfigurationProvider(_optionsAction, TimeSpan.FromMinutes(1));
     }
 }

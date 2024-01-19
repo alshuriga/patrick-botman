@@ -29,7 +29,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
             AnimationComposeService edit,
             IOnlineGifRepository gifService,
             IGifProvider gifProvider,
-            IOptions<BotConfiguration> options
+            IOptionsSnapshot<BotConfiguration> options
 ,
             ILocalGifRepository localGifRepo)
         {

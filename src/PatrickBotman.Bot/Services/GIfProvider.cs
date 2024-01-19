@@ -23,7 +23,7 @@ public class GIfProvider : IGifProvider
         ILogger<GIfProvider> logger,
         IOnlineGifRepository gifService,
         ILocalGifRepository localRepo,
-        IOptions<BotConfiguration> botConfiguration)
+        IOptionsSnapshot<BotConfiguration> botConfiguration)
     {
         _giphyConfiguration = configuration.GetSection("GiphyConfiguration").Get<GiphyConfiguration>();
         _httpClientFactory = httpClientFactory;
@@ -35,6 +35,10 @@ public class GIfProvider : IGifProvider
 
     public async Task<GifFileWithType> RandomGifAsync(long chatId)
     {
+        var random = new Random().Next(0, 100);
+
+        _logger.LogDebug($"random num: {random}, probability: {_botConfiguration.LocalGifsProbability}");
+
         var isLocal = (new Random().Next(0, 100) <= _botConfiguration.LocalGifsProbability);
 
         if(isLocal)

@@ -22,7 +22,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
             IGifProvider gifService,
             AnimationComposeService animationCompose,
             ILogger<HandleUpdateService> logger,
-            IOptions<BotConfiguration> botConfig)
+            IOptionsSnapshot<BotConfiguration> botConfig)
         {
             _botClient = botClient;
             _gifProvider = gifService;
