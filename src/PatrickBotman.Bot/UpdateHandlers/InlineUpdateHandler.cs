@@ -84,8 +84,8 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             }));
                 await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, inlineResults,
-                isPersonal: false,
-                cacheTime: 10); ;
+                isPersonal: true,
+                cacheTime: 1); ;
         }
 
         private async Task<string> UploadAnimationAsync(InputOnlineFile file)
