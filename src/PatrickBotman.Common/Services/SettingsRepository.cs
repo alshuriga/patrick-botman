@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PatrickBotman.Common.DTO;
 using PatrickBotman.Common.Interfaces;
 using PatrickBotman.Common.Models;
 using PatrickBotman.Common.Persistence;

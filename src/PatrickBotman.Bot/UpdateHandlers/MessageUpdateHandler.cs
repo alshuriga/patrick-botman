@@ -121,10 +121,11 @@ namespace PatrickBotman.Bot.UpdateHandlers
             }
             else if (entityValues.Any(ev => ev.Contains("/voteban")))
             {
+                var botId = (await _botClient.GetMeAsync()).Id;
+
                 if (msg.ReplyToMessage?.Animation == null
-                    || msg.ReplyToMessage.From == null
-                    || !msg.ReplyToMessage.From.IsBot
-                    || msg.ReplyToMessage.From.Id != (await _botClient.GetMeAsync()).Id)
+                    || ((msg.ReplyToMessage.From == null || !msg.ReplyToMessage.From.IsBot || msg.ReplyToMessage.From?.Id != botId)
+                    && (msg.ReplyToMessage.ViaBot == null || !msg.ReplyToMessage.ViaBot.IsBot || msg.ReplyToMessage.ViaBot.Id != botId)))
                 {
                     throw new Exception("Wrong message to create a poll");
                 }

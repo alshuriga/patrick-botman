@@ -43,13 +43,17 @@ namespace PatrickBotman.Bot.UpdateHandlers
             }
 
             var chatMembersCount = await _botClient.GetChatMemberCountAsync(pollData.PollChatId);
+            var gifFileId = await _gifRepository.GetGifFileId(pollData.GifFileId);
 
-            if (!poll.IsClosed && poll.TotalVoterCount < Math.Ceiling(chatMembersCount / 2.0))
+            if (poll.TotalVoterCount < Math.Ceiling(chatMembersCount / 2.0))
             {
+                if(poll.IsClosed)
+                {
+                    await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"Not enough votes.");
+                }
                 return;
             }
 
-            var gifFileId = await _gifRepository.GetGifFileId(pollData.GifFileId);
 
             if (poll.Options[0].VoterCount > poll.Options[1].VoterCount)
             {
