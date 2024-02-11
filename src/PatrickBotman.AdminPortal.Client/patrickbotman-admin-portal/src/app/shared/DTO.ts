@@ -9,9 +9,12 @@ export interface GifDTO {
     sizeKb: number
 }
 
-
-
-
 export interface ChatDTO {
     id: number
+}
+
+export interface SettingsDTO {
+    localGifProbability: number,
+    maximumTextLength: number,
+    adminID: string[]
 }

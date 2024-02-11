@@ -22,7 +22,6 @@ export class AuthService {
       redirect_uri: `${environment.CLIENT_BASE_URL}signin-callback`,
       post_logout_redirect_uri: `${environment.CLIENT_BASE_URL}signout-callback`,
     }
-    console.log(JSON.stringify(settings));
     this._userManager = new UserManager(settings);
   }
 
@@ -34,7 +33,6 @@ export class AuthService {
   logout()
   {
     return this._userManager.removeUser().then(() => {
-      console.log('logout() pushes new user: ' + null)
       this._userInfoChanged.next(undefined);
       this._userManager.signinRedirect();
     })
@@ -43,7 +41,6 @@ export class AuthService {
   completeLogin()
   {
     return this._userManager.signinRedirectCallback().then(u => {
-      console.log('completeLogin() pushes new user: ' + u.profile.email)
       this._userInfoChanged.next(u.profile);
       return u;
     })

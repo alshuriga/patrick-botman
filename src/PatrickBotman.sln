@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PatrickBotman.Bot", "Patric
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PatrickBotman.Common", "PatrickBotman.Common\PatrickBotman.Common.csproj", "{3813CDAE-665F-454B-B934-A0C324E7F581}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatrickBotman.AdminPortal", "PatrickBotman.AdminPortal\PatrickBotman.AdminPortal.csproj", "{68C02833-BE4E-4112-88C7-27149EE6F842}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PatrickBotman.AdminPortal", "PatrickBotman.AdminPortal\PatrickBotman.AdminPortal.csproj", "{68C02833-BE4E-4112-88C7-27149EE6F842}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

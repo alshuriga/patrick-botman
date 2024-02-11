@@ -30,7 +30,7 @@ public class ConfigureWebhook : IHostedService
             url: webhookAdress,
             allowedUpdates: new UpdateType[] { UpdateType.Message, UpdateType.InlineQuery, UpdateType.ChosenInlineResult, UpdateType.CallbackQuery, UpdateType.Poll, UpdateType.PollAnswer, UpdateType.Unknown},
             cancellationToken: cancellationToken,
-            dropPendingUpdates: true
+            dropPendingUpdates: false
         );
 
 

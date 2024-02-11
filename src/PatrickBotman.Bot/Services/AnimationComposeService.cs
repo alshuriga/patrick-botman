@@ -32,7 +32,7 @@ public class AnimationComposeService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<InputOnlineFile> ComposeGifAsync(Gif gif, string text)
+    public async Task<InputOnlineFile> ComposeGifAsync(GifFileWithType gif, string text)
     {
         var isNewYear = DateTime.Now >= new DateTime(day: 23, month: 12, year: DateTime.Now.Year) || DateTime.Now < new DateTime(day: 7, month: 1, year: DateTime.Now.Year);
 
