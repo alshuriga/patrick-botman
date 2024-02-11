@@ -23,21 +23,16 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private readonly IGifProvider _gifProvider;
         private readonly IPollDataRepository _pollDataRepository;
         private readonly BotConfiguration _options;
-
+        private readonly ILocalGifRepository _localGifRepo;
 
         public MessageUpdateHandler(ILogger<MessageUpdateHandler> logger,
             ITelegramBotClient botClient,
             AnimationComposeService edit,
             IGifService gifService,
             IGifProvider gifProvider,
-<<<<<<< Updated upstream
-            IOptions<BotConfiguration> options
-            )
-=======
             IOptionsSnapshot<BotConfiguration> options,
             ILocalGifRepository localGifRepo,
             IPollDataRepository pollDataRepository)
->>>>>>> Stashed changes
         {
             _botClient = botClient;
             _edit = edit;
@@ -45,11 +40,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
             _gifProvider = gifProvider;
             _logger = logger;
             _options = options.Value;
-<<<<<<< Updated upstream
-=======
             _localGifRepo = localGifRepo;
-            _pollDataRepository = pollDataRepository;
->>>>>>> Stashed changes
         }
         public async Task HandleAsync(Update update)
         {
@@ -187,7 +178,6 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
 
             }
-
         }
 
 

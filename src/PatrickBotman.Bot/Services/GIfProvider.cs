@@ -84,4 +84,28 @@ public class GIfProvider : IGifProvider
         };
     }
 
+    public async Task<bool> IsLocalExistsAsync(string fileId)
+    {
+        return await _localRepo.IsGifExistsAsync(fileId);
+    }
+
+    public async Task<IEnumerable<GifFileWithType>> RandomPreviewsAsync(int count)
+    {
+        //currently provides local gifs only
+        var res = (await _localRepo.GetRandomGifFilesAsync(count))
+            .Select((GifFile gif) => new GifFileWithType()
+            {
+                Id = gif.Id,
+                File = gif.Data,
+                Type = GifType.Local,
+                Link = gif.Name
+            });
+
+        //var gif = await RandomOnlineAsync(0, urlOnly: true);
+
+        //res = res.Append(gif);
+
+        return res;
+    }
+
 }
