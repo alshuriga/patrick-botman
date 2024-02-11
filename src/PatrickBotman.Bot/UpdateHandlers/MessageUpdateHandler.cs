@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
 using PatrickBotman.Bot.Helpers;
 using PatrickBotman.Bot.Interfaces;
 using PatrickBotman.Bot.Models;
@@ -20,6 +21,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private readonly AnimationComposeService _edit;
         private readonly IGifService _gifService;
         private readonly IGifProvider _gifProvider;
+        private readonly IPollDataRepository _pollDataRepository;
         private readonly BotConfiguration _options;
 
 
@@ -28,8 +30,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
             AnimationComposeService edit,
             IGifService gifService,
             IGifProvider gifProvider,
+<<<<<<< Updated upstream
             IOptions<BotConfiguration> options
             )
+=======
+            IOptionsSnapshot<BotConfiguration> options,
+            ILocalGifRepository localGifRepo,
+            IPollDataRepository pollDataRepository)
+>>>>>>> Stashed changes
         {
             _botClient = botClient;
             _edit = edit;
@@ -37,6 +45,11 @@ namespace PatrickBotman.Bot.UpdateHandlers
             _gifProvider = gifProvider;
             _logger = logger;
             _options = options.Value;
+<<<<<<< Updated upstream
+=======
+            _localGifRepo = localGifRepo;
+            _pollDataRepository = pollDataRepository;
+>>>>>>> Stashed changes
         }
         public async Task HandleAsync(Update update)
         {
@@ -46,7 +59,9 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             var entityValues = msg.EntityValues ?? Enumerable.Empty<string>();
 
-            if (entityValues.Any(ev => ev.Contains("/gif")) || (msg.Chat.Type == ChatType.Private && !entityValues.Any(ev => ev.Contains("/add"))))
+            if (entityValues.Any(ev => ev.Contains("/gif")) || (msg.Chat.Type == ChatType.Private
+                && !entityValues.Any(ev => ev.Contains("/add"))
+                 && !entityValues.Any(ev => ev.Contains("/voteban"))))
             {
 
                 var txtSource = msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup ?
@@ -63,7 +78,8 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 await _botClient.SendAnimationAsync(
                 replyMarkup: gif.Type != GifType.Local ? InlineKeyboard.CreateVotingInlineKeyboard(gif.Id) : null,
                 chatId: msg.Chat.Id,
-                animation: tgFile);
+                animation: tgFile,
+                replyToMessageId: msg.MessageId);
 
             }
 
@@ -77,6 +93,15 @@ namespace PatrickBotman.Bot.UpdateHandlers
                         replyToMessageId: msg.MessageId,
                         allowSendingWithoutReply: true,
                         text: "🚫 You dont have rights to add new gifs");
+
+                    return;
+                }
+                else if (await _localGifRepo.IsGifExistsAsync(msg.ReplyToMessage.Animation.FileId))
+                {
+                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
+                        replyToMessageId: msg.MessageId,
+                        allowSendingWithoutReply: true,
+                        text: "🚫 The gif is already in the collection");
 
                     return;
                 }
@@ -99,6 +124,70 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
                 await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyToMessageId: msg.MessageId, allowSendingWithoutReply: true, text: "✅ Gif was successfully added to the collection.");
             }
+            else if (entityValues.Any(ev => ev.Contains("/voteban")))
+            {
+                if (msg.ReplyToMessage?.Animation == null
+                    || msg.ReplyToMessage.From == null
+                    || !msg.ReplyToMessage.From.IsBot
+                    || msg.ReplyToMessage.From.Id != (await _botClient.GetMeAsync()).Id)
+                {
+                    throw new Exception("Wrong message to create a poll");
+                }
+
+                var gifId = int.Parse(msg.ReplyToMessage.Animation!.FileName!.Split('_', '.')[2]);
+                var gifType = (GifType)Enum.Parse(typeof(GifType), msg.ReplyToMessage.Animation!.FileName!.Split('_', '.')[1]);
+
+
+
+                if (gifType != GifType.Local)
+                {
+                    throw new Exception("Wrong gif type to create a poll");
+                }
+
+                if (!(await _localGifRepo.IsGifExistsAsync(gifId)))
+                {
+                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyToMessageId: msg.MessageId, allowSendingWithoutReply: true, text: "This gif does not exist or has already been removed.");
+                    return;
+                }
+
+                if (await _pollDataRepository.IsPollDataExists(gifId))
+                {
+                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyToMessageId: msg.MessageId, allowSendingWithoutReply: true, text: "A poll for removing this gif already exists.");
+                    return;
+                }
+
+
+                var pollMsg = await _botClient.SendPollAsync(chatId: msg.Chat.Id,
+                    replyToMessageId: msg.MessageId,
+                    allowSendingWithoutReply: true,
+                    isAnonymous: true,
+                    type: PollType.Regular,
+                    explanationParseMode: ParseMode.Markdown,
+                    question: $"Do you want the gif to be removed?",
+                    options: new[] { "👍", "👎" });
+
+                await _pollDataRepository.AddPollDataAsync(new PollData()
+                {
+                    PollChatId = pollMsg.Chat.Id,
+                    PollId = pollMsg.Poll!.Id,
+                    GifFileId = gifId,
+                });
+
+
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                Task.Run(async () =>
+                {
+                    await Task.Delay((_options.PollLifetime * 1000) - 100);
+
+                    var poll = await _botClient.StopPollAsync(pollMsg.Chat.Id, pollMsg.MessageId);
+                });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+
+
+            }
+
         }
 
 

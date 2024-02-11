@@ -94,7 +94,7 @@ public class AnimationComposeService
 
             outputStream.Position = 0;
 
-            var file = new InputOnlineFile(outputStream, $"{Guid.NewGuid()}.mp4");
+            var file = new InputOnlineFile(outputStream, $"{Guid.NewGuid()}_{gif.Type}_{gif.Id}.mp4");
 
             if (file.Content == null || file.Content.Length <= 0)
                 throw new Exception("Composed file is null or empty");
