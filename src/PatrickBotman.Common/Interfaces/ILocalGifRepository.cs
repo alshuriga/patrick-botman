@@ -8,7 +8,7 @@ namespace PatrickBotman.Common.Interfaces
         Task CreateGifFileAsync(GifFile file);
         Task DeleteGifFileAsync(int id);
         Task<GifFile> GetGifFileAsync(int id);
-        Task<Page<GifFileInfo>> GetGifFilesPageAsync(int pageNumber);
+        Task<Page<Gif.FileInfo>> GetGifFilesPageAsync(int pageNumber);
         Task<GifFile> GetRandomGifFileAsync();
         Task<IEnumerable<GifFile>> GetRandomGifFilesAsync(int count);
         Task<bool> IsGifExistsAsync(string name);

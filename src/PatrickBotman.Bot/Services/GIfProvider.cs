@@ -2,6 +2,7 @@ using Newtonsoft.Json.Linq;
 using PatrickBotman.Bot.Interfaces;
 using PatrickBotman.Bot.Models;
 using PatrickBotman.Common.Interfaces;
+using PatrickBotman.Common.Persistence.Entities;
 
 namespace PatrickBotman.Services;
 
