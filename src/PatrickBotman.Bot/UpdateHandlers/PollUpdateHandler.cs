@@ -62,7 +62,6 @@ namespace PatrickBotman.Bot.UpdateHandlers
             {
                 await _pollDataRepository.RemovePollDataAsync(poll.Id);
             }
-        }        
-        }
+       }
     }
 }
