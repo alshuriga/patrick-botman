@@ -45,20 +45,24 @@ namespace PatrickBotman.Bot.UpdateHandlers
             var chatMembersCount = await _botClient.GetChatMemberCountAsync(pollData.PollChatId);
             var gifFileId = await _gifRepository.GetGifFileId(pollData.GifFileId);
 
-            if (poll.IsClosed)
+            if(poll.IsClosed && poll.TotalVoterCount < Math.Min(3, Math.Ceiling(chatMembersCount / 2.0)))
             {
-                if (poll.TotalVoterCount < Math.Min(3, Math.Ceiling(chatMembersCount / 2.0)))
-                {
-                    await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"Not enough votes.");
-                }
-                else if (poll.Options[0].VoterCount > poll.Options[1].VoterCount)
+                await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"Not enough votes.");
+            }
+            else if((!poll.IsClosed && poll.TotalVoterCount >= Math.Min(3, Math.Ceiling(chatMembersCount / 2.0))) || poll.IsClosed)
+            {
+                if(poll.Options[0].VoterCount > poll.Options[1].VoterCount)
                 {
                     await _gifRepository.DeleteGifFileAsync(pollData.GifFileId);
                     await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"The gif has been removed.");
                 }
-
+            }
+              
+            if(poll.IsClosed)
+            {
                 await _pollDataRepository.RemovePollDataAsync(poll.Id);
-            }        
+            }
+        }        
         }
     }
 }
