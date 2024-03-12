@@ -54,7 +54,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
             }
 
             if ((poll.IsClosed && poll.Options[0].VoterCount > poll.Options[1].VoterCount)
-                || (!poll.IsClosed && poll.Options[0].VoterCount > Math.Floor((chatMembersCount - 1) / 2.0) + 1))
+                || (!poll.IsClosed && poll.Options[0].VoterCount >= Math.Floor((chatMembersCount - 1) / 2.0) + 1))
             {
                 await _gifRepository.DeleteGifFileAsync(pollData.GifFileId);
                 await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"The gif has been removed.");
