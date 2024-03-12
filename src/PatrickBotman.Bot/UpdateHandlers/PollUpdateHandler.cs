@@ -30,6 +30,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
         public async Task HandleAsync(Update update)
         {
             var poll = update.Poll;
+
             if (poll == null)
             {
                 return;
@@ -48,19 +49,17 @@ namespace PatrickBotman.Bot.UpdateHandlers
             if(poll.IsClosed && poll.TotalVoterCount < Math.Min(3, Math.Ceiling(chatMembersCount / 2.0)))
             {
                 await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"Not enough votes.");
-            }
-            else if((!poll.IsClosed && poll.TotalVoterCount >= Math.Min(3, Math.Ceiling(chatMembersCount / 2.0))) || poll.IsClosed)
-            {
-                if(poll.Options[0].VoterCount > poll.Options[1].VoterCount)
-                {
-                    await _gifRepository.DeleteGifFileAsync(pollData.GifFileId);
-                    await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"The gif has been removed.");
-                }
-            }
-              
-            if(poll.IsClosed)
-            {
                 await _pollDataRepository.RemovePollDataAsync(poll.Id);
+                return;
+            }
+
+            if ((poll.IsClosed && poll.Options[0].VoterCount > poll.Options[1].VoterCount)
+                || (!poll.IsClosed && poll.Options[0].VoterCount > Math.Floor((chatMembersCount - 1) / 2.0) + 1))
+            {
+                await _gifRepository.DeleteGifFileAsync(pollData.GifFileId);
+                await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"The gif has been removed.");
+                await _pollDataRepository.RemovePollDataAsync(poll.Id);
+                return;
             }
        }
     }
