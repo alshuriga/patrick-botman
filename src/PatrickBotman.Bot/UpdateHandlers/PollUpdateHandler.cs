@@ -46,7 +46,8 @@ namespace PatrickBotman.Bot.UpdateHandlers
             var chatMembersCount = await _botClient.GetChatMemberCountAsync(pollData.PollChatId);
             var gifFileId = await _gifRepository.GetGifFileId(pollData.GifFileId);
 
-            if(poll.IsClosed && poll.TotalVoterCount < Math.Min(3, Math.Ceiling(chatMembersCount / 2.0)))
+            if(poll.IsClosed && poll.TotalVoterCount < Math.Min(3, Math.Ceiling(chatMembersCount / 2.0))
+                || poll.IsClosed && poll.Options[1].VoterCount >= poll.Options[0].VoterCount)
             {
                 await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"Not enough votes.");
                 await _pollDataRepository.RemovePollDataAsync(poll.Id);
