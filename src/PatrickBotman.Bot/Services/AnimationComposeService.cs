@@ -32,7 +32,7 @@ public class AnimationComposeService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<InputOnlineFile> ComposeGifAsync(Gif gif, string text)
+    public async Task<InputOnlineFile> ComposeGifAsync(GifFileWithType gif, string text)
     {
         var isNewYear = DateTime.Now >= new DateTime(day: 23, month: 12, year: DateTime.Now.Year) || DateTime.Now < new DateTime(day: 7, month: 1, year: DateTime.Now.Year);
 
@@ -94,7 +94,7 @@ public class AnimationComposeService
 
             outputStream.Position = 0;
 
-            var file = new InputOnlineFile(outputStream, $"{Guid.NewGuid()}.mp4");
+            var file = new InputOnlineFile(outputStream, $"{Guid.NewGuid()}_{gif.Type}_{gif.Id}.mp4");
 
             if (file.Content == null || file.Content.Length <= 0)
                 throw new Exception("Composed file is null or empty");

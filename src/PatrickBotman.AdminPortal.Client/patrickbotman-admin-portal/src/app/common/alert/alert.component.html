@@ -1,0 +1,17 @@
+<div *ngIf="this.params">
+<div #alert [ngClass]="{
+    'bg-blue-200': this.params.mode == 'info',
+    'bg-red-200': this.params.mode == 'error',
+    'bg-yellow-200': this.params.mode == 'warning',
+    'bg-green-300': this.params.mode == 'success'
+
+    }" class="bg-blue-200 w-full h-16 rounded-md flex items-center p-5 my-2 relative transition duration-{{transitionTime}} ease-in-out">
+
+  <p>{{ this.params.text }}</p>
+  <ng-icon class="text-neutral-60
+          group-hover:text-black cursor-pointer align-center absolute right-3 top-2"
+          name="heroXMark" (click)="close()"></ng-icon>
+
+        </div>
+</div> 
+  

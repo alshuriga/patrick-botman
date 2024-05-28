@@ -4,7 +4,6 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { GifService } from '../../../services/gif.service';
 import { heroTrash } from '@ng-icons/heroicons/outline';
 import { CommonModule } from '@angular/common';
-import { ModalService } from '../../../services/modal.service';
 
 @Component({
   selector: 'app-gif-card',
@@ -13,7 +12,7 @@ import { ModalService } from '../../../services/modal.service';
     NgIconComponent,
     CommonModule
   ],
-  providers: [GifService, ModalService, provideIcons({
+  providers: [GifService, provideIcons({
     heroTrash
   })],
   templateUrl: './gif-card.component.html',
@@ -23,7 +22,7 @@ export class GifCardComponent {
   @Input() gif: GifDTO = undefined!;
   @Output() onClickDelete = new EventEmitter<number>();
 
-  constructor(private modalService: ModalService){}
+  constructor(){}
   autoPlay: boolean = false;
 
   onMouseEnter(video: HTMLVideoElement) {
@@ -35,14 +34,7 @@ export class GifCardComponent {
   }
 
   openModal() {
-    this.modalService.open({
-      header: "Confirmal",
-      message: "Are you sure you want to remove the gif?",
-      type: "warning"
-    })
-    .subscribe(() => {
-      this.onClickDelete.emit(this.gif.id);
-    })
+    this.onClickDelete.emit(this.gif.id);
   }
 
 }

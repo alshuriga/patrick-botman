@@ -13,10 +13,6 @@ services:
       COMPOSE_PROJECT_NAME: patrick_botman
       ASPNETCORE_ENVIRONMENT: "Docker"     
       ConnectionStrings__PostgreConn: ${POSTGRE_CONN}
-      GiphyConfiguration__ApiToken: ${GIPHY_API_TOKEN}
-      BotConfiguration__BotToken: ${TG_BOT_TOKEN}
-      BotConfiguration__HostAddress: ${TG_BOT_HOSTADDRESS}
-      BotConfiguration__AdminId: ${TG_BOT_ADMINID}
       
     restart: always
   

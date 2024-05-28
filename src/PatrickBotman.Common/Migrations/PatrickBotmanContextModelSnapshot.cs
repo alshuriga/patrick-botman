@@ -43,6 +43,30 @@ namespace PatrickBotman.Common.Migrations
                     b.ToTable("Blacklists");
                 });
 
+            modelBuilder.Entity("PatrickBotman.Common.Persistence.Entities.ConfigEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ConfigEntries");
+                });
+
             modelBuilder.Entity("PatrickBotman.Common.Persistence.Entities.Gif", b =>
                 {
                     b.Property<int>("Id")
@@ -72,6 +96,9 @@ namespace PatrickBotman.Common.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -79,6 +106,31 @@ namespace PatrickBotman.Common.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GifFiles");
+                });
+
+            modelBuilder.Entity("PatrickBotman.Common.Persistence.Entities.PollData", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GifFileId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("PollChatId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PollId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GifFileId");
+
+                    b.ToTable("PollData");
                 });
 
             modelBuilder.Entity("PatrickBotman.Common.Persistence.Entities.User", b =>
@@ -107,6 +159,17 @@ namespace PatrickBotman.Common.Migrations
                         .IsRequired();
 
                     b.Navigation("Gif");
+                });
+
+            modelBuilder.Entity("PatrickBotman.Common.Persistence.Entities.PollData", b =>
+                {
+                    b.HasOne("PatrickBotman.Common.Persistence.Entities.GifFile", "GifFile")
+                        .WithMany()
+                        .HasForeignKey("GifFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GifFile");
                 });
 
             modelBuilder.Entity("PatrickBotman.Common.Persistence.Entities.Gif", b =>

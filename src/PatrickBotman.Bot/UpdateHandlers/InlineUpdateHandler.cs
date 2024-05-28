@@ -1,4 +1,6 @@
-﻿using PatrickBotman.Bot.Interfaces;
+﻿using Microsoft.Extensions.Options;
+using PatrickBotman.Bot.Interfaces;
+using PatrickBotman.Bot.Models;
 using PatrickBotman.Bot.Services;
 using PatrickBotman.Services;
 using Telegram.Bot;
@@ -14,16 +16,19 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private readonly IGifProvider _gifProvider;
         private readonly AnimationComposeService _animationCompose;
         private readonly ILogger<HandleUpdateService> _logger;
+        private readonly BotConfiguration _botConfig;
 
         public InlineUpdateHandler(ITelegramBotClient botClient,
             IGifProvider gifService,
             AnimationComposeService animationCompose,
-            ILogger<HandleUpdateService> logger)
+            ILogger<HandleUpdateService> logger,
+            IOptionsSnapshot<BotConfiguration> botConfig)
         {
             _botClient = botClient;
             _gifProvider = gifService;
             _animationCompose = animationCompose;
             _logger = logger;
+            _botConfig = botConfig.Value;
         }
 
         public async Task HandleAsync(Update update)
@@ -34,28 +39,53 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             if (string.IsNullOrWhiteSpace(inlineQuery.Query)) return;
 
-            if (!inlineQuery.Query.EndsWith("."))
+            //if (!inlineQuery.Query.EndsWith("."))
+            //{
+            //    await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
+            //        new InlineQueryResultArticle(Guid.NewGuid().ToString(), "❌Error",
+            //        new InputTextMessageContent(inlineQuery.Query)) { Description = "Add a dot ('.') at the end to generate"} });
+            //    return;
+            //}
+
+            //var gif = await _gifProvider.RandomGifAsync(inlineQuery.From.Id);
+            //var file = await _animationCompose.ComposeGifAsync(gif, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
+
+            //if (file.Content != null && file.Content.Length > 0)
+            //{
+            //    var animationFileId = await UploadAnimationAsync(file);
+
+            //    await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
+            //        new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId)
+            //    },
+            //        isPersonal: true,
+            //        cacheTime: 5);
+            //}
+
+            var gifFiles = await _gifProvider.RandomPreviewsAsync(3);
+            var keyboard = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardButton("LOADING") { CallbackData = "." });
+            var inlineResults = await Task.WhenAll(gifFiles!.Select(async g =>
             {
-                await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
-                    new InlineQueryResultArticle(Guid.NewGuid().ToString(), "❌Error",
-                    new InputTextMessageContent(inlineQuery.Query)) { Description = "Add a dot ('.') at the end to generate"} });
-                return;
-            }
+                string id = null!;
 
-            var gif = await _gifProvider.RandomGifAsync(inlineQuery.From.Id);
 
-            var file = await _animationCompose.ComposeGifAsync(gif, inlineQuery.Query.Substring(0, inlineQuery.Query.Length - 1));
+                if (g.Type == GifType.Local)
+                {
+                    id = g.Link!;
+                }
+                else
+                {
+                    id = await UploadAnimationAsync(new InputOnlineFile(g.Link!));
+                }
 
-            if(file.Content != null && file.Content.Length > 0)
-            {
-                var animationFileId = await UploadAnimationAsync(file);
+                return new InlineQueryResultCachedMpeg4Gif($"{g.Type} {g.Id}", id)
+                {
+                    ReplyMarkup = keyboard
+                };
 
-                await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, new InlineQueryResult[] {
-                    new InlineQueryResultCachedMpeg4Gif(Guid.NewGuid().ToString(), animationFileId)
-                },
-                    isPersonal: true,
-                    cacheTime: 5);
-            }
+            }));
+                await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, inlineResults,
+                isPersonal: true,
+                cacheTime: 1); ;
         }
 
         private async Task<string> UploadAnimationAsync(InputOnlineFile file)

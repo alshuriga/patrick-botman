@@ -1,5 +1,6 @@
 <div *ngIf="localGifsPage">
-    <div class="mb-5">Custom gif</div>
+    <app-alert></app-alert>
+    <div class="text-2xl mb-4 text-center md:text-left">Custom GIFs</div>
     <div class="grid auto-cols-max grid-cols-1 md:grid-cols-5 gap-2">
         <app-gif-card *ngFor="let gif of localGifsPage.items" [gif]="gif" (onClickDelete)="deleteGif($event)"></app-gif-card>
     </div>

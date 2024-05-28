@@ -19,6 +19,8 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 UpdateType.Message => ActivatorUtilities.CreateInstance<MessageUpdateHandler>(_serviceProvider),
                 UpdateType.InlineQuery => ActivatorUtilities.CreateInstance<InlineUpdateHandler>(_serviceProvider),
                 UpdateType.CallbackQuery => ActivatorUtilities.CreateInstance<CallbackUpdateHandler>(_serviceProvider),
+                UpdateType.ChosenInlineResult => ActivatorUtilities.CreateInstance<ChosenInlineUpdateHandler>(_serviceProvider),
+                UpdateType.Poll => ActivatorUtilities.CreateInstance<PollUpdateHandler>(_serviceProvider),
                 _ => throw new ArgumentException("Update type not recognized")
             };
         }

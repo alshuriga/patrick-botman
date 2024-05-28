@@ -1,0 +1,21 @@
+<div class="w-full">
+    <ul class="mt-1">
+        <li class="border py-1 ps-4 my-2 bg-slate-200 rounded-md" *ngFor="let id of list; let i = index">
+            <div class="flex flex-row justify-between items-center">
+                <p>{{ id }}</p>
+                    <ng-icon class="text-neutral-60
+                    group-hover:text-black cursor-pointer align-center me-2"
+                    name="heroXMark" (click)="remove(i)"></ng-icon>
+            </div>
+        </li>
+    </ul>
+       <form (ngSubmit)="add(); adminIdForm.reset()" #adminIdForm="ngForm" class="flex flex-row align-center">
+        <input type="text" class="border-b-2 h-8 w-full" required minlength="1"
+         name="adminIdEntry" [(ngModel)]="value">    
+        <button type="submit" [disabled]="!adminIdForm.valid"
+        class="disabled:text-gray-500 px-1">
+            <ng-icon class="text-neutral-60 
+             group-hover:text-black text-xl cursor-pointer align-center" name="heroPlus"></ng-icon>
+        </button>
+    </form>
+</div>

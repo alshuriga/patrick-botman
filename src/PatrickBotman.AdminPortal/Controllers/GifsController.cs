@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing.Constraints;
 using PatrickBotman.Common.Interfaces;
-using System.Net.Mime;
 
 namespace PatrickBotman.AdminPortal.Controllers
 {
@@ -11,43 +9,46 @@ namespace PatrickBotman.AdminPortal.Controllers
     [Route("/")]
     public class GifsController : ControllerBase
     {
-        private readonly IGifService _gifService;
+        private readonly IOnlineGifRepository _onlineGifRepo;
+        private readonly ILocalGifRepository _localGifRepo;
+        private readonly IChatsRepository _chatsRepo;
 
-        public GifsController(IGifService gifService)
+        public GifsController(IOnlineGifRepository gifService, ILocalGifRepository localGifService, IChatsRepository chatsService)
         {
-            _gifService = gifService;
+            _onlineGifRepo = gifService;
+            _localGifRepo = localGifService;
+            _chatsRepo = chatsService;
         }
 
         #region GET
 
-        
-        [HttpGet("{chatId}/blacklist")]
+        [HttpGet("gifs/online/{chatId}")]
         public async Task<IActionResult> GetBlacklistedGifsPaginated(long chatId, int page)
         {
-            return Ok(await _gifService.GetBlacklistedGifsPageAsync(page, chatId));
+            return Ok(await _onlineGifRepo.GetBlacklistedGifsPageAsync(page, chatId));
         }
 
-        [HttpGet("local")]
+        [HttpGet("gifs/local")]
         public async Task<IActionResult> GetLocalGifsPaginated(int page)
         {
-            return Ok(await _gifService.GetLocalGifsPageAsync(page));
+            return Ok(await _localGifRepo.GetGifFilesPageAsync(page));
         }
 
-        [HttpGet]
+        [HttpGet("chats")]
         public async Task<IActionResult> GetChatsPaginated(int page)
         {
-            return Ok(await _gifService.GetChatsPageAsync(page));
+            return Ok(await _chatsRepo.GetChatsPageAsync(page));
         }  
 
-        [HttpGet("file")]
+        [HttpGet("gifs/local/{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> DownloadGif(int id)
         {
-            var file = await _gifService.GetGifFileAsync(id);
+            var file = await _localGifRepo.GetGifFileAsync(id);
 
-            var contentType = file.FileName.EndsWith("mp4") ? "video/mp4" : "image/gif";
+            var contentType = "video/mp4";//file.Name.EndsWith("mp4") ? "video/mp4" : "image/gif";
 
-            return File(file.Data, contentType, file.FileName);
+            return File(file.Data, contentType, file.Name);
         }
 
         #endregion
@@ -62,7 +63,11 @@ namespace PatrickBotman.AdminPortal.Controllers
             strm.CopyTo(msyt);
             var data = msyt.ToArray();
 
-            await _gifService.AddNewGifFileAsync(new Common.DTO.GifFileDTO(file.Name, data));
+            await _localGifRepo.CreateGifFileAsync(new Common.Persistence.Entities.GifFile()
+            {
+                Data = data, 
+                Name = file.Name,
+            });
 
             return NoContent();
         }
@@ -75,12 +80,22 @@ namespace PatrickBotman.AdminPortal.Controllers
 
         #region DELETE
 
-        [HttpDelete("local")]
+        [HttpDelete("gifs/local")]
         public async Task<IActionResult> DeleteLocalGif(int id)
         {
-            await _gifService.DeleteGifFileAsync(id);
+            await _localGifRepo.DeleteGifFileAsync(id);
             return NoContent();
         }
+
+
+        [HttpDelete("gifs/online")]
+        public async Task<IActionResult> Unblacklist(int gifId, long chatId)
+        {
+            await _onlineGifRepo.UnblacklistAsync(gifId, chatId);
+
+            return NoContent();
+        }
+
 
         #endregion
 
