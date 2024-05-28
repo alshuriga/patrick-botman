@@ -2,15 +2,10 @@ using PatrickBotman.Interfaces;
 using PatrickBotman.Services;
 using PatrickBotman.Models;
 using Telegram.Bot;
-using PatrickBotman.Persistence;
-using Microsoft.EntityFrameworkCore;
-using patrick_botman.UpdateHandlers;
-using Microsoft.AspNetCore.Mvc.Routing;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var botConfig = builder.Configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
-
 
 
 builder.Services.AddHttpClient("tgwebhook").
@@ -20,31 +15,28 @@ builder.Services.AddHttpClient("tgwebhook").
         return new TelegramBotClient(opts, httpClient);
     } );
 
-// builder.Services.AddHttpClient("tenorclient", tenorclient => {
-//     var tenorConfiguration = builder.Configuration.GetSection("TenorConfiguration").Get<TenorConfiguration>();
-//     tenorclient.BaseAddress = new Uri($"{tenorConfiguration.HostAddress}?key={tenorConfiguration.ApiToken}");
-// });
-
 builder.Services.AddHttpClient("giphyclient", giphyclient => {
     var giphyConfiguration = builder.Configuration.GetSection("giphyConfiguration").Get<GiphyConfiguration>();
     giphyclient.BaseAddress = new Uri($"{giphyConfiguration.HostAddress}?api_key={giphyConfiguration.ApiToken}");
 });
 
-builder.Services.AddDbContext<GifRatingsContext>(opts => opts.UseNpgsql(builder.Configuration.GetConnectionString("PostgreConn")!));
+
 builder.Services.AddHostedService<ConfigureWebhook>();
+
 builder.Services.AddScoped<IGifService, GiphyService>();
-builder.Services.AddScoped<IGifRepository, GifRepository>();
+
 builder.Services.AddScoped<HandleUpdateService>();
+
 builder.Services.AddScoped<AnimationEditService>();
+
 builder.Services.AddScoped<FileDownloaderService>();
+
 builder.Services.AddControllers().AddNewtonsoftJson();
-builder.Services.AddScoped<UpdateHandlersFactory>();
 
 
 var app = builder.Build();
 
 app.UseRouting();
-
 app.UseEndpoints(endpoints => {
     var token = botConfig.BotToken;
     endpoints.MapControllerRoute(name: "tgwebhook",
@@ -53,6 +45,8 @@ app.UseEndpoints(endpoints => {
     );
     endpoints.MapControllers();
 });
+
+
 
 
 app.Run();

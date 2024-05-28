@@ -6,13 +6,40 @@ services:
 
     build:
       context: .
+      dockerfile: ./PatrickBotman.Bot/Dockerfile
     ports:
       - "5323:80"
     environment:
+      COMPOSE_PROJECT_NAME: patrick_botman
       ASPNETCORE_ENVIRONMENT: "Docker"     
       ConnectionStrings__PostgreConn: ${POSTGRE_CONN}
-      GiphyConfiguration__ApiToken: ${GIPHY_API_TOKEN}
-      BotConfiguration__BotToken: ${TG_BOT_TOKEN}
-      BotConfiguration__HostAddress: ${TG_BOT_HOSTADDRESS}
-
+      
     restart: always
+  
+  admin-api:
+    container_name: admin-api
+
+    build:
+      context: .
+      dockerfile: ./PatrickBotman.AdminPortal/Dockerfile
+    ports:
+      - "5030:80"
+    environment:
+      COMPOSE_PROJECT_NAME: patrick_botman
+      ASPNETCORE_ENVIRONMENT: "Docker"     
+      ConnectionStrings__PostgreConn: ${POSTGRE_CONN}
+      
+    restart: always
+
+  ui:
+    container_name: the-blog_ui
+
+    build:
+      context: ./PatrickBotman.AdminPortal.Client
+      dockerfile: Dockerfile
+    ports: 
+      - "5033:80"
+    depends_on:
+       - admin-api
+    restart: always
+
