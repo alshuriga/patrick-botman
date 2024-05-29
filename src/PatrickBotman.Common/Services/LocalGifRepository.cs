@@ -10,10 +10,12 @@ namespace PatrickBotman.Services;
 public class LocalGifRepository : ILocalGifRepository
 {
     private readonly PatrickBotmanContext _context;
+    private readonly System.Random _random;
 
     public LocalGifRepository(PatrickBotmanContext context)
     {
         _context = context;
+        _random = new Random();
     }
 
     public async Task CreateGifFileAsync(GifFile file)
@@ -33,8 +35,7 @@ public class LocalGifRepository : ILocalGifRepository
     public async Task<GifFile> GetRandomGifFileAsync()
     {
         var count = await _context.GifFiles.CountAsync();
-        var randNum = new Random().Next(0, count);
-        var randGif = await _context.GifFiles.OrderBy(g => g.Id).Skip(randNum).Take(1).FirstAsync();
+        var randGif = await _context.GifFiles.OrderBy(g => g.Id).Skip(_random.Next(0, count)).Take(1).FirstAsync();
 
         return randGif;
     }
@@ -46,13 +47,11 @@ public class LocalGifRepository : ILocalGifRepository
         if (count > gifCount || count < 1)
             throw new ArgumentOutOfRangeException(nameof(count));
 
-        var rand = new Random();
-
-        var query = _context.GifFiles.OrderBy(g => g.Id).Skip(rand.Next(0, gifCount)).Take(1);
+        var query = _context.GifFiles.OrderBy(g => g.Id).Skip(_random.Next(0, gifCount)).Take(1);
 
         for (int i = 0; i < count - 1; i++)
         {
-            query = query.Union(_context.GifFiles.OrderBy(g => g.Id).Skip(rand.Next(0, gifCount)).Take(1));
+            query = query.Union(_context.GifFiles.OrderBy(g => g.Id).Skip(_random.Next(0, gifCount)).Take(1));
         }
 
         return await query.ToListAsync();
