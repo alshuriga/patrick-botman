@@ -10,12 +10,11 @@ namespace PatrickBotman.Services;
 public class LocalGifRepository : ILocalGifRepository
 {
     private readonly PatrickBotmanContext _context;
-    private readonly System.Random _random;
+    private static System.Random _random = new System.Random();
 
     public LocalGifRepository(PatrickBotmanContext context)
     {
         _context = context;
-        _random = new Random();
     }
 
     public async Task CreateGifFileAsync(GifFile file)
