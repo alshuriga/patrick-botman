@@ -5,6 +5,7 @@ using PatrickBotman.Bot.UpdateHandlers;
 using PatrickBotman.Bot.Interfaces;
 using PatrickBotman.Common.Helpers;
 using PatrickBotman.Bot.Services;
+using PatrickBotman.Common.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddScoped<HandleUpdateService>();
 builder.Services.AddScoped<AnimationComposeService>();
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddScoped<UpdateHandlersFactory>();
+builder.Services.AddScoped<IUrlMetaService, UrlMetaService>();
 
 builder.Services.AddHttpClient("tgwebhook").
     AddTypedClient<ITelegramBotClient>((httpClient, sp) =>

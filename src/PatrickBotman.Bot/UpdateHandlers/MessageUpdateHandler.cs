@@ -6,6 +6,8 @@ using PatrickBotman.Bot.Models;
 using PatrickBotman.Bot.Services;
 using PatrickBotman.Common.Interfaces;
 using PatrickBotman.Common.Persistence.Entities;
+using PatrickBotman.Common.Services;
+using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -24,6 +26,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private readonly IGifProvider _gifProvider;
         private readonly IPollDataRepository _pollDataRepository;
         private readonly BotConfiguration _options;
+        private readonly IUrlMetaService _urlMetaService;
 
         public MessageUpdateHandler(ILogger<MessageUpdateHandler> logger,
             ITelegramBotClient botClient,
@@ -32,7 +35,8 @@ namespace PatrickBotman.Bot.UpdateHandlers
             IGifProvider gifProvider,
             IOptionsSnapshot<BotConfiguration> options,
             ILocalGifRepository localGifRepo,
-            IPollDataRepository pollDataRepository)
+            IPollDataRepository pollDataRepository,
+            IUrlMetaService urlMetaService)
         {
             _pollDataRepository = pollDataRepository;
             _botClient = botClient;
@@ -42,6 +46,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
             _logger = logger;
             _options = options.Value;
             _localGifRepo = localGifRepo;
+            _urlMetaService = urlMetaService;
         }
         public async Task HandleAsync(Update update)
         {
@@ -62,6 +67,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 var messageText = txtSource?.Caption ?? txtSource?.Text;
 
                 if (messageText == null) throw new Exception("text is null");
+
+                var urlRegex = "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)";
+                var url = Regex.Match(messageText, urlRegex)?.Value;
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    messageText = (await _urlMetaService.GetMetaForUrl(new Uri(url))) ?? messageText;
+                };
 
                 var gif = await _gifProvider.RandomGifAsync(msg.Chat.Id);
 
