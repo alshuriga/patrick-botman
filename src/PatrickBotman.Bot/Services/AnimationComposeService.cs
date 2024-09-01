@@ -5,7 +5,8 @@ using System.Text.Json;
 using FFmpeg.NET.Enums;
 using PatrickBotman.Bot.Models;
 using PatrickBotman.Common.Helpers;
-using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types;
+using File = System.IO.File;
 
 namespace PatrickBotman.Bot.Services;
 
@@ -32,7 +33,7 @@ public class AnimationComposeService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<InputOnlineFile> ComposeGifAsync(GifFileWithType gif, string text)
+    public async Task<InputFileStream> ComposeGifAsync(GifFileWithType gif, string text)
     {
         var isNewYear = DateTime.Now >= new DateTime(day: 23, month: 12, year: DateTime.Now.Year) || DateTime.Now < new DateTime(day: 7, month: 1, year: DateTime.Now.Year);
 
@@ -43,7 +44,7 @@ public class AnimationComposeService
         //set ffmpeg arguments
         var textInput = new TextInput(text, _configuration);
         var maxLineLength = Math.Max(textInput.FirstLine.Length, textInput.SecondLine.Length);
-        string argsTemplate = "drawtext=fontsize=min(((w*0.98)/20)*2\\,((w*0.98)/{0})*2):line_spacing=4:fontfile='assets/impact.ttf':text='{1}':fix_bounds=true:x=(w-text_w)/2:y=(h*{2}-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+        string argsTemplate = "drawtext=fontsize=min(((w*0.98)/20)*2\\,((w*0.98)/{0})*2):line_spacing=4:fontfile='assets/impact_emojis.ttf':text='{1}':fix_bounds=true:x=(w-text_w)/2:y=(h*{2}-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
         string firstLineArgs = string.Format(argsTemplate, maxLineLength, textInput.FirstLine, 0.1);
         string secondLineArgs = string.Format(argsTemplate, maxLineLength, textInput.SecondLine, 0.9);
 
@@ -94,7 +95,7 @@ public class AnimationComposeService
 
             outputStream.Position = 0;
 
-            var file = new InputOnlineFile(outputStream, $"{Guid.NewGuid()}_{gif.Type}_{gif.Id}.mp4");
+            var file = InputFile.FromStream(outputStream, $"{Guid.NewGuid()}_{gif.Type}_{gif.Id}.mp4");
 
             if (file.Content == null || file.Content.Length <= 0)
                 throw new Exception("Composed file is null or empty");

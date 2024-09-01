@@ -49,7 +49,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
             if(poll.IsClosed && poll.TotalVoterCount < Math.Min(3, Math.Ceiling(chatMembersCount / 2.0))
                 || poll.IsClosed && poll.Options[1].VoterCount >= poll.Options[0].VoterCount)
             {
-                await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"Not enough votes.");
+                await _botClient.SendAnimationAsync(pollData.PollChatId, InputFile.FromUri(gifFileId), caption: $"Not enough votes.");
                 await _pollDataRepository.RemovePollDataAsync(poll.Id);
                 return;
             }
@@ -58,7 +58,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 || (!poll.IsClosed && poll.Options[0].VoterCount >= Math.Floor((chatMembersCount - 1) / 2.0) + 1))
             {
                 await _gifRepository.DeleteGifFileAsync(pollData.GifFileId);
-                await _botClient.SendAnimationAsync(pollData.PollChatId, new Telegram.Bot.Types.InputFiles.InputOnlineFile(gifFileId), caption: $"The gif has been removed.");
+                await _botClient.SendAnimationAsync(pollData.PollChatId, InputFile.FromUri(gifFileId), caption: $"The gif has been removed.");
                 await _pollDataRepository.RemovePollDataAsync(poll.Id);
                 return;
             }

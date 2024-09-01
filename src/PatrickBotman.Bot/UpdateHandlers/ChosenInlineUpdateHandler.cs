@@ -4,7 +4,6 @@ using PatrickBotman.Bot.Services;
 using PatrickBotman.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.InputFiles;
 
 namespace PatrickBotman.Bot.UpdateHandlers
 {
@@ -47,12 +46,12 @@ namespace PatrickBotman.Bot.UpdateHandlers
             if(file.Content != null && file.Content.Length > 0)
             {
                 var animationFileId = await UploadAnimationAsync(file);
-                await _botClient.EditMessageMediaAsync(chosenInline.InlineMessageId!, new InputMediaAnimation(animationFileId));
+                await _botClient.EditMessageMediaAsync(chosenInline.InlineMessageId!, new InputMediaAnimation(InputFile.FromFileId(animationFileId)));
                
             }
         }
 
-        private async Task<string> UploadAnimationAsync(InputOnlineFile file)
+        private async Task<string> UploadAnimationAsync(InputFile file)
         {
             _logger.LogInformation("Animation uploading...");
             var msg = await _botClient.SendAnimationAsync(

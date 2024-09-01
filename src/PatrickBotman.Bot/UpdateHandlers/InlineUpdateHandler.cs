@@ -6,7 +6,6 @@ using PatrickBotman.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.InlineQueryResults;
-using Telegram.Bot.Types.InputFiles;
 
 namespace PatrickBotman.Bot.UpdateHandlers
 {
@@ -74,7 +73,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 }
                 else
                 {
-                    id = await UploadAnimationAsync(new InputOnlineFile(g.Link!));
+                    id = await UploadAnimationAsync(InputFile.FromUri(g.Link!));
                 }
 
                 return new InlineQueryResultCachedMpeg4Gif($"{g.Type} {g.Id}", id)
@@ -88,7 +87,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 cacheTime: 1); ;
         }
 
-        private async Task<string> UploadAnimationAsync(InputOnlineFile file)
+        private async Task<string> UploadAnimationAsync(InputFile file)
         {
             _logger.LogInformation("Animation uploading...");
             var msg = await _botClient.SendAnimationAsync(
