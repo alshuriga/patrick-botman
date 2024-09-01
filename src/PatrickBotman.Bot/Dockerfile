@@ -4,7 +4,7 @@ WORKDIR /App
 COPY *.sln .
 COPY ./PatrickBotman.Common/*.csproj ./PatrickBotman.Common/
 COPY ./PatrickBotman.Bot/*.csproj ./PatrickBotman.Bot/
-RUN dotnet nuget add source https://pkgs.dev.azure.com/tgbots/Telegram.Bot/_packaging/release/nuget/v3/index.json -n Package source
+RUN dotnet nuget add source https://pkgs.dev.azure.com/tgbots/Telegram.Bot/_packaging/release/nuget/v3/index.json -n Telegram.Bot
 RUN dotnet restore PatrickBotman.Bot
 
 COPY . .
