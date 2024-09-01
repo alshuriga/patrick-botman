@@ -44,7 +44,7 @@ public class AnimationComposeService
         //set ffmpeg arguments
         var textInput = new TextInput(text, _configuration);
         var maxLineLength = Math.Max(textInput.FirstLine.Length, textInput.SecondLine.Length);
-        string argsTemplate = "drawtext=fontsize=min(((w*0.98)/20)*2\\,((w*0.98)/{0})*2):line_spacing=4:fontfile='assets/impact_emojis.ttf':text='{1}':fix_bounds=true:x=(w-text_w)/2:y=(h*{2}-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
+        string argsTemplate = "drawtext=fontsize=min(((w*0.98)/20)*2\\,((w*0.98)/{0})*2):line_spacing=4:fontfile='assets/impact.ttf':text='{1}':fix_bounds=true:x=(w-text_w)/2:y=(h*{2}-text_h/2):fontcolor=white:bordercolor=black:borderw=3";
         string firstLineArgs = string.Format(argsTemplate, maxLineLength, textInput.FirstLine, 0.1);
         string secondLineArgs = string.Format(argsTemplate, maxLineLength, textInput.SecondLine, 0.9);
 
