@@ -14,7 +14,7 @@ public class ConfigureWebhook : IHostedService
     {
         _services = services;
         _logger = logger;
-        _botConfig = configuration.GetSection("BotConfiguration").Get<BotConfiguration>();
+        _botConfig = configuration.GetSection("BotConfiguration").Get<BotConfiguration>()!;
     }
 
     async Task IHostedService.StartAsync(CancellationToken cancellationToken)

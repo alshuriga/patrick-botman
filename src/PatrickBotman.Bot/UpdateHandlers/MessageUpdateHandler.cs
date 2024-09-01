@@ -60,10 +60,16 @@ namespace PatrickBotman.Bot.UpdateHandlers
                  && !entityValues.Any(ev => ev.Contains("/voteban"))))
             {
 
-                var txtSource = msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup ?
-               msg.ReplyToMessage : msg;
+                string? messageText;
 
-                var messageText = txtSource?.Caption ?? txtSource?.Text;
+                if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
+                {
+                    messageText = msg.Quote?.Text ?? msg.ReplyToMessage?.Text ?? msg.ReplyToMessage?.Caption;
+                }
+                else
+                {
+                    messageText = msg.Quote?.Text ?? msg.Text ?? msg.Caption;
+                }
 
                 if (messageText == null) throw new Exception("text is null");
 

@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient("giphyclient", giphyclient => {
     var giphyConfiguration = builder.Configuration.GetSection("giphyConfiguration").Get<GiphyConfiguration>();
-    giphyclient.BaseAddress = new Uri($"{giphyConfiguration.HostAddress}?api_key={giphyConfiguration.ApiToken}");
+    giphyclient.BaseAddress = new Uri($"{giphyConfiguration!.HostAddress}?api_key={giphyConfiguration!.ApiToken}");
 });
 
 builder.Services.Configure<BotConfiguration>(builder.Configuration.GetSection(nameof(BotConfiguration)));
@@ -20,14 +20,15 @@ builder.Services.AddHostedService<ConfigureWebhook>();
 builder.Services.AddScoped<IGifProvider, GIfProvider>();
 builder.Services.AddScoped<HandleUpdateService>();
 builder.Services.AddScoped<AnimationComposeService>();
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers();
+builder.Services.ConfigureTelegramBotMvc();
 builder.Services.AddScoped<UpdateHandlersFactory>();
 builder.Services.AddScoped<IUrlMetaService, UrlMetaService>();
 
 builder.Services.AddHttpClient("tgwebhook").
     AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
     {
-        var botToken = builder.Configuration.GetSection("BotConfiguration:BotToken").Value;
+        var botToken = builder.Configuration.GetSection("BotConfiguration:BotToken").Value!;
 
         TelegramBotClientOptions opts = new(botToken);
         return new TelegramBotClient(opts, httpClient);
