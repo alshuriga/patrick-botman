@@ -85,10 +85,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
                 var tgFile = await _edit.ComposeGifAsync(gif, messageText);
 
+                using var memory = new MemoryStream(tgFile.Data);
+
+                var file = InputFile.FromStream(memory, tgFile.Name);
+
                 await _botClient.SendAnimationAsync(
                 replyMarkup: gif.Type != GifType.Local ? InlineKeyboard.CreateVotingInlineKeyboard(gif.Id) : null,
                 chatId: msg.Chat.Id,
-                animation: tgFile,
+                animation: file,
                 replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true}
                 );
 

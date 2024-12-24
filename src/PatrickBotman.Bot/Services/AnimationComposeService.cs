@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.IO;
+using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
@@ -33,13 +35,13 @@ public class AnimationComposeService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<InputFileStream> ComposeGifAsync(GifFileWithType gif, string text)
+    public async Task<GeneratedGifFile> ComposeGifAsync(GifFileWithType gif, string text)
     {
         var isNewYear = DateTime.Now >= new DateTime(day: 23, month: 12, year: DateTime.Now.Year) || DateTime.Now < new DateTime(day: 7, month: 1, year: DateTime.Now.Year);
 
         var workDir = _configuration.GetValue<string>("AssetsDirectory")!;
 
-
+        var guid = Guid.NewGuid();
 
         //set ffmpeg arguments
         var textInput = new TextInput(text, _configuration);
@@ -49,7 +51,9 @@ public class AnimationComposeService
         string secondLineArgs = string.Format(argsTemplate, maxLineLength, textInput.SecondLine, 0.9);
 
         //prepare temporary input file
-        var tempInputFilename = $"assets/{Guid.NewGuid()}";
+        var tempInputFilename = $"assets/{guid}_input.mp4";
+        var tempOutputFilename = $"assets/{guid}_output.mp4";
+
         using var tempInputFile = new FileStream(tempInputFilename, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite | FileShare.Delete, 4096, FileOptions.Asynchronous);
         await tempInputFile.WriteAsync(gif.File);
 
@@ -61,8 +65,8 @@ public class AnimationComposeService
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            Arguments = isNewYear ? $"-i {tempInputFilename} -i assets/snow.mov -f gif -filter_complex \"scale=350:-1,pad=ceil(iw/2)*2:ceil(ih/2)*2,overlay=shortest=1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:"
-                : $"-i {tempInputFilename} -f mp4 -c:v libx264 -an -movflags frag_keyframe+empty_moov -vf \"scale=350:-2,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" pipe:",
+            Arguments = isNewYear ? $"-i {tempInputFilename} -i assets/snow.mov -f mp4 -c:v libx264 -filter_complex \"scale=350:-1,pad=ceil(iw/2)*2:ceil(ih/2)*2,overlay=shortest=1,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" {tempOutputFilename}"
+                : $"-i {tempInputFilename} -f mp4 -c:v libx264 -an -movflags frag_keyframe+empty_moov -vf \"scale=350:-2,{string.Join(',', new string[] { firstLineArgs, secondLineArgs })}\" {tempOutputFilename}",
             FileName = _ffmpegBinary
         };
 
@@ -73,9 +77,6 @@ public class AnimationComposeService
             StartInfo = processInfo,
             EnableRaisingEvents = true,
         };
-
-        try
-        {
             process.ErrorDataReceived += (e, d) =>
             {
                if (d.Data != null && d.Data.ToLower().Contains("error"))
@@ -87,26 +88,33 @@ public class AnimationComposeService
 
             process.Start();
             process.BeginErrorReadLine();
-
-            var outputStream = new MemoryStream();
-
-            await process.StandardOutput.BaseStream.CopyToAsync(outputStream);
             await process.WaitForExitAsync();
 
-            outputStream.Position = 0;
+            byte[] buffer = null!;
 
-            var file = InputFile.FromStream(outputStream, $"{Guid.NewGuid()}_{gif.Type}_{gif.Id}.mp4");
+            using (var outputStream = new MemoryStream())
+            {
+                using (var fileStream = new FileStream(tempOutputFilename, FileMode.Open))
+                {
+                    await fileStream.CopyToAsync(outputStream);
 
-            if (file.Content == null || file.Content.Length <= 0)
-                throw new Exception("Composed file is null or empty");
+                    buffer = outputStream.ToArray();           
+                }
+            }
+
+
+            var file = new GeneratedGifFile()
+            {
+                Name = $"{Guid.NewGuid()}_{gif.Type}_{gif.Id}.mp4",
+                Data = buffer
+            };
+
+
+            File.Delete(tempInputFilename);
+            File.Delete(tempOutputFilename);
 
             return file;
-        }
 
-        finally
-        {
-            File.Delete(tempInputFilename);
-        }
       
     }
 }

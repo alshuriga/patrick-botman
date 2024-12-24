@@ -41,9 +41,13 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             var gif = await _gifProvider.GetByIdAsync(gifId, gifType);
 
-            var file = await _animationCompose.ComposeGifAsync(gif, chosenInline.Query);
+            var tgFile = await _animationCompose.ComposeGifAsync(gif, chosenInline.Query);
 
-            if(file.Content != null && file.Content.Length > 0)
+            var memory = new MemoryStream(tgFile.Data);
+
+            var file = InputFile.FromStream(memory, tgFile.Name);
+
+            if (file.Content != null && file.Content.Length > 0)
             {
                 var animationFileId = await UploadAnimationAsync(file);
                 await _botClient.EditMessageMediaAsync(chosenInline.InlineMessageId!, new InputMediaAnimation(InputFile.FromFileId(animationFileId)));
