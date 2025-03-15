@@ -1,3 +1,17 @@
+# Install libs for Tesseract
+RUN apt-get update
+RUN apt-get install -y git cmake build-essential
+RUN mkdir leptonica
+RUN git clone https://github.com/DanBloomberg/leptonica.git /leptonica
+
+WORKDIR /leptonica
+RUN mkdir build
+WORKDIR /leptonica/build
+RUN cmake ..
+
+RUN apt-get install -y libleptonica-dev libtesseract-dev
+
+
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /App
 
