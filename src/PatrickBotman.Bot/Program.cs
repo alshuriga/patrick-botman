@@ -24,6 +24,7 @@ builder.Services.AddControllers();
 builder.Services.ConfigureTelegramBotMvc();
 builder.Services.AddScoped<UpdateHandlersFactory>();
 builder.Services.AddScoped<IUrlMetaService, UrlMetaService>();
+builder.Services.AddTransient<IImageToTextService, ImageToTextService>();
 
 builder.Services.AddHttpClient("tgwebhook").
     AddTypedClient<ITelegramBotClient>((httpClient, sp) =>

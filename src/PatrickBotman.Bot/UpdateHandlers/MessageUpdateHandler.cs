@@ -26,6 +26,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private readonly IPollDataRepository _pollDataRepository;
         private readonly BotConfiguration _options;
         private readonly IUrlMetaService _urlMetaService;
+        private readonly IImageToTextService _imageToTextService;
 
         public MessageUpdateHandler(ILogger<MessageUpdateHandler> logger,
             ITelegramBotClient botClient,
@@ -35,7 +36,8 @@ namespace PatrickBotman.Bot.UpdateHandlers
             IOptionsSnapshot<BotConfiguration> options,
             ILocalGifRepository localGifRepo,
             IPollDataRepository pollDataRepository,
-            IUrlMetaService urlMetaService)
+            IUrlMetaService urlMetaService,
+            IImageToTextService imageToTextService)
         {
             _pollDataRepository = pollDataRepository;
             _botClient = botClient;
@@ -46,6 +48,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
             _options = options.Value;
             _localGifRepo = localGifRepo;
             _urlMetaService = urlMetaService;
+            _imageToTextService = imageToTextService;
         }
         public async Task HandleAsync(Update update)
         {
@@ -65,6 +68,18 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
                 {
                     messageText = msg.Quote?.Text ?? msg.ReplyToMessage?.Text ?? msg.ReplyToMessage?.Caption;
+
+                    if(messageText == null && msg.ReplyToMessage?.Photo?.Length > 0)
+                    {
+                        var photoId = msg.ReplyToMessage?.Photo[msg.ReplyToMessage.Photo.Length - 1].FileId;
+                        var photoFile = await _botClient.GetFileAsync(photoId!);
+                            
+                        using var memStream = new MemoryStream();
+                        await _botClient.DownloadFileAsync(photoFile.FilePath!, memStream);
+                        var imageFile = memStream.ToArray();
+
+                        messageText = _imageToTextService.GetText(imageFile);
+                    }
                 }
                 else
                 {
@@ -93,7 +108,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 replyMarkup: gif.Type != GifType.Local ? InlineKeyboard.CreateVotingInlineKeyboard(gif.Id) : null,
                 chatId: msg.Chat.Id,
                 animation: file,
-                replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true}
+                replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }
                 );
 
             }
@@ -105,7 +120,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 if (!_options.AdminID.Split(' ').ToList().Contains(msg.From!.Id.ToString()))
                 {
                     await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
-                        replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true},
+                        replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
                         text: "🚫 You dont have rights to add new gifs");
 
                     return;
@@ -113,7 +128,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 else if (await _localGifRepo.IsGifExistsAsync(msg.ReplyToMessage.Animation.FileId))
                 {
                     await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
-                        replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true},
+                        replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
                         text: "🚫 The gif is already in the collection");
 
                     return;
@@ -138,7 +153,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                     Data = bytes
                 });
 
-                await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true}, text: "✅ Gif was successfully added to the collection.");
+                await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }, text: "✅ Gif was successfully added to the collection.");
             }
             else if (entityValues.Any(ev => ev.Contains("/voteban")))
             {
@@ -163,19 +178,19 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
                 if (!(await _localGifRepo.IsGifExistsAsync(gifId)))
                 {
-                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true}, text: "This gif does not exist or has already been removed.");
+                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }, text: "This gif does not exist or has already been removed.");
                     return;
                 }
 
                 if (await _pollDataRepository.IsPollDataExists(gifId))
                 {
-                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true}, text: "A poll for removing this gif already exists.");
+                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }, text: "A poll for removing this gif already exists.");
                     return;
                 }
 
 
                 var pollMsg = await _botClient.SendPollAsync(chatId: msg.Chat.Id,
-                    replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true},
+                    replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
                     isAnonymous: true,
                     type: PollType.Regular,
                     explanationParseMode: ParseMode.Markdown,
