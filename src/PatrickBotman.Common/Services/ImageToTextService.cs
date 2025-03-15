@@ -48,9 +48,9 @@ namespace PatrickBotman.Common.Services
                 }
             }
 
-            if (text.Length > 0)
+            if (text.ToString().Trim().Length > 0)
             {
-                return text.ToString();
+                return text.ToString().Trim();
             }
 
             return null;         
