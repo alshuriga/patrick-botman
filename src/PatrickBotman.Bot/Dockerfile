@@ -16,16 +16,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 RUN apt update && apt install -y ffmpeg
 
 # Hack to Allow Tesseract to work
-RUN apt-get update \
-    && apt-get install -y --allow-unauthenticated \
-        libleptonica-dev \
-        libtesseract-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN ln -s /usr/lib/x86_64-linux-gnu/libdl.so.2 /usr/lib/x86_64-linux-gnu/libdl.so
-
 WORKDIR /App/x64
 
+RUN apt-get update && apt-get install -y --allow-unauthenticated libleptonica-dev libtesseract-dev libc6-dev libgdiplus libx11-dev 
 RUN ln -s /usr/lib/x86_64-linux-gnu/liblept.so.5 /App/x64/libleptonica-1.82.0.so
 RUN ln -s /usr/lib/x86_64-linux-gnu/libtesseract.so.4 /App/x64/libtesseract50.so
 
