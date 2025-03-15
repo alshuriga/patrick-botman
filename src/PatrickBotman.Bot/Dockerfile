@@ -24,11 +24,10 @@ RUN apt-get update \
 
 RUN ln -s /usr/lib/x86_64-linux-gnu/libdl.so.2 /usr/lib/x86_64-linux-gnu/libdl.so
 
-WORKDIR /app/x64
+WORKDIR /App/x64
 
-RUN ln -s /usr/lib/x86_64-linux-gnu/liblept.so.5 /app/x64/libleptonica-1.82.0.so
-#RUN ln -s /usr/lib/x86_64-linux-gnu/libtesseract.so.5 /app/x64/libtesseract50.so
-RUN ln -s /usr/lib/x86_64-linux-gnu/libtesseract.so.4 /app/x64/libtesseract50.so
+RUN ln -s /usr/lib/x86_64-linux-gnu/liblept.so.5 /App/x64/libleptonica-1.82.0.so
+RUN ln -s /usr/lib/x86_64-linux-gnu/libtesseract.so.4 /App/x64/libtesseract50.so
 
 # Clean up to reduce image size
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*

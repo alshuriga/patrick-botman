@@ -1,4 +1,5 @@
 ﻿using PatrickBotman.Common.DTO;
+using PatrickBotman.Common.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace PatrickBotman.Common.Services
 {
     public class ImageToTextService : IImageToTextService
     {
-        public string GetText(byte[] image)
+        public string? GetText(byte[] image)
         {
 
             var text = new StringBuilder();
@@ -47,7 +48,12 @@ namespace PatrickBotman.Common.Services
                 }
             }
 
-            return text.ToString();
+            if (text.Length > 0)
+            {
+                return text.ToString();
+            }
+
+            return null;         
         }
     }
 }

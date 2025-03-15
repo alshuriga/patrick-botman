@@ -6,6 +6,7 @@ using PatrickBotman.Bot.Interfaces;
 using PatrickBotman.Common.Helpers;
 using PatrickBotman.Bot.Services;
 using PatrickBotman.Common.Services;
+using PatrickBotman.Common.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
