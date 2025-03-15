@@ -15,17 +15,24 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 #FFMPEG Install
 RUN apt update && apt install -y ffmpeg
 
-RUN apt-get update
-RUN apt-get install -y git cmake build-essential
-RUN mkdir leptonica
-RUN git clone https://github.com/DanBloomberg/leptonica.git /leptonica
+# Hack to Allow Tesseract to work
+RUN apt-get update \
+    && apt-get install -y --allow-unauthenticated \
+        libleptonica-dev \
+        libtesseract-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /leptonica
-RUN mkdir build
-WORKDIR /leptonica/build
-RUN cmake ..
+RUN ln -s /usr/lib/x86_64-linux-gnu/libdl.so.2 /usr/lib/x86_64-linux-gnu/libdl.so
 
-RUN apt-get install -y libleptonica-dev libtesseract-dev
+WORKDIR /app/x64
+
+RUN ln -s /usr/lib/x86_64-linux-gnu/liblept.so.5 /app/x64/libleptonica-1.82.0.so
+#RUN ln -s /usr/lib/x86_64-linux-gnu/libtesseract.so.5 /app/x64/libtesseract50.so
+RUN ln -s /usr/lib/x86_64-linux-gnu/libtesseract.so.4 /app/x64/libtesseract50.so
+
+# Clean up to reduce image size
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Hack to Allow Tesseract to work
 
 WORKDIR /App
 
