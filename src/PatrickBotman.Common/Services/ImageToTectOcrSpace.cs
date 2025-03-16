@@ -29,8 +29,6 @@ namespace PatrickBotman.Common.Services
         {
             using var form = new MultipartFormDataContent();
 
-            var base64String = Convert.ToBase64String(image);
-
             form.Add(new StringContent(_ocrConfiguration.ApiKey), "apikey");
             form.Add(new StringContent("auto"), "language");
             form.Add(new StringContent("2"), "OCREngine");
@@ -39,8 +37,8 @@ namespace PatrickBotman.Common.Services
             var jpgContent = new ByteArrayContent(image);
             jpgContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
             form.Add(jpgContent, "file", "file.jpg");
-
-            var res = _httpClient.PostAsync("https://api.ocr.space/parse/image", form).Result.Content.ReadFromJsonAsync<OCRSpaceResult>().Result;
+            var response = _httpClient.PostAsync("https://api.ocr.space/parse/image", form).Result;
+            var res = response.Content.ReadFromJsonAsync<OCRSpaceResult>().Result;
 
             return res!.ParsedResults[0].ParsedText.ReplaceLineEndings(" ");
         }

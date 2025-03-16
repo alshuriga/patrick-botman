@@ -62,23 +62,30 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 && !entityValues.Any(ev => ev.Contains("/add"))
                  && !entityValues.Any(ev => ev.Contains("/voteban"))))
             {
-
-                string? messageText;
+                string? messageText = null!;
 
                 if (msg.Chat.Type == ChatType.Group || msg.Chat.Type == ChatType.Supergroup)
                 {
-                    messageText = msg.Quote?.Text ?? msg.ReplyToMessage?.Text ?? msg.ReplyToMessage?.Caption;
-
-                    if(messageText == null && msg.ReplyToMessage?.Photo?.Length > 0)
+                    if (msg.ReplyToMessage?.Photo?.Length > 0 || msg.ReplyToMessage?.Animation?.Thumbnail != null || msg.ReplyToMessage?.Video?.Thumbnail != null)
                     {
-                        var photoId = msg.ReplyToMessage?.Photo[msg.ReplyToMessage.Photo.Length - 1].FileId;
-                        var photoFile = await _botClient.GetFileAsync(photoId!);
-                            
-                        using var memStream = new MemoryStream();
-                        await _botClient.DownloadFileAsync(photoFile.FilePath!, memStream);
-                        var imageFile = memStream.ToArray();
+                        var photoId = msg.ReplyToMessage?.Photo?[msg.ReplyToMessage.Photo.Length - 1].FileId
+                            ?? msg.ReplyToMessage?.Animation?.Thumbnail?.FileId ?? msg.ReplyToMessage?.Video?.Thumbnail?.FileId;
 
-                        messageText = _imageToTextService.GetText(imageFile);
+                        if(photoId != null)
+                        {
+                            var photoFile = await _botClient.GetFileAsync(photoId!);
+
+                            using var memStream = new MemoryStream();
+                            await _botClient.DownloadFileAsync(photoFile.FilePath!, memStream);
+                            var imageFile = memStream.ToArray();
+
+                            messageText = _imageToTextService.GetText(imageFile);
+                        }
+                    }
+
+                    if (messageText == null)
+                    {
+                        messageText = msg.Quote?.Text ?? msg.ReplyToMessage?.Text ?? msg.ReplyToMessage?.Caption;
                     }
                 }
                 else
