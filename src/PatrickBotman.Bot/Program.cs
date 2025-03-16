@@ -7,6 +7,7 @@ using PatrickBotman.Common.Helpers;
 using PatrickBotman.Bot.Services;
 using PatrickBotman.Common.Services;
 using PatrickBotman.Common.Interfaces;
+using PatrickBotman.Common.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddHttpClient("giphyclient", giphyclient => {
 });
 
 builder.Services.Configure<BotConfiguration>(builder.Configuration.GetSection(nameof(BotConfiguration)));
+builder.Services.Configure<OCRConfiguration>(builder.Configuration.GetSection(nameof(OCRConfiguration)));
 builder.Services.ConfigurePersistence(builder.Configuration);
 builder.Services.AddHostedService<ConfigureWebhook>();
 builder.Services.AddScoped<IGifProvider, GIfProvider>();
@@ -25,7 +27,7 @@ builder.Services.AddControllers();
 builder.Services.ConfigureTelegramBotMvc();
 builder.Services.AddScoped<UpdateHandlersFactory>();
 builder.Services.AddScoped<IUrlMetaService, UrlMetaService>();
-builder.Services.AddTransient<IImageToTextService, ImageToTextService>();
+builder.Services.AddTransient<IImageToTextService, ImageToTectOcrSpace>();
 
 builder.Services.AddHttpClient("tgwebhook").
     AddTypedClient<ITelegramBotClient>((httpClient, sp) =>

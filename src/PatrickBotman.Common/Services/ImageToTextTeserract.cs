@@ -11,7 +11,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace PatrickBotman.Common.Services
 {
-    public class ImageToTextService : IImageToTextService
+    public class ImageToTextTeserract : IImageToTextService
     {
         public string? GetText(byte[] image)
         {
