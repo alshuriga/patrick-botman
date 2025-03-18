@@ -71,7 +71,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                         var photoId = msg.ReplyToMessage?.Photo?[msg.ReplyToMessage.Photo.Length - 1].FileId
                             ?? msg.ReplyToMessage?.Animation?.Thumbnail?.FileId ?? msg.ReplyToMessage?.Video?.Thumbnail?.FileId;
 
-                        if(photoId != null)
+                        if(photoId != null && msg.Quote?.Text == null)
                         {
                             var photoFile = await _botClient.GetFileAsync(photoId!);
 
