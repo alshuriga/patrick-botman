@@ -29,6 +29,8 @@ namespace PatrickBotman.Common.Services
         {
             using var form = new MultipartFormDataContent();
 
+            _httpClient.Timeout = TimeSpan.FromSeconds(10);
+
             form.Add(new StringContent(_ocrConfiguration.ApiKey), "apikey");
             form.Add(new StringContent("auto"), "language");
             form.Add(new StringContent("2"), "OCREngine");
