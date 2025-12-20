@@ -14,9 +14,9 @@ namespace PatrickBotman.Common.Services
             _context = context;
         }
 
-        public async Task<PollData> GetPollDataAsync(string pollId)
+        public async Task<PollData> GetPollDataAsync(string gifId, string chatId)
         {
-            return await _context.PollData.SingleAsync(p => p.PollId == pollId);
+            return await _context.PollData.SingleAsync(p => p.PollChatId == chatId && p.GifFileId.ToString() == gifId);
         }
 
         public async Task AddPollDataAsync(PollData pollData)
@@ -25,17 +25,46 @@ namespace PatrickBotman.Common.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task RemovePollDataAsync(string pollId)
+        public async Task RemovePollDataAsync(string gifId, string chatId)
         {
-            var pollData = await _context.PollData.SingleAsync(p => p.PollId == pollId);
+            var pollData = await _context.PollData.SingleAsync(p => p.PollChatId == chatId && p.GifFileId.ToString() == gifId);
 
             _context.PollData.Remove(pollData);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> IsPollDataExists(int gifId)
+        public async Task<bool> IsPollDataExists(string gifId, string chatId)
         {
-            return await _context.PollData.AnyAsync(p => p.GifFileId == gifId);
+            return await _context.PollData.AnyAsync(p => p.PollChatId == chatId && p.GifFileId.ToString() == gifId);
+        }
+
+        public async Task<PollData> AddVoteToPollAsync(string gifId, string chatId, string userId, int vote)
+        {
+            var pollData = await _context.PollData.Include(pd => pd.PollVote).SingleAsync(p => p.PollChatId == chatId.ToString() && p.GifFileId.ToString() == gifId);
+
+            var existingVote = pollData.PollVote.FirstOrDefault(v => v.UserId == long.Parse(userId));
+
+            if (existingVote != null)
+            {
+                existingVote.Vote = vote;
+                _context.Update(existingVote);
+            }
+            else
+            {
+                var newVote = new PollVote()
+                {
+                    Vote = vote,
+                    PollData = pollData,
+                    UserId = long.Parse(userId),
+                };
+
+                pollData.PollVote.Add(newVote);
+                _context.PollVote.Add(newVote);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return pollData;
         }
     }
 }

@@ -18,6 +18,9 @@ public class PatrickBotmanContext : DbContext
 
     public DbSet<ConfigEntry> ConfigEntries { get; set; } = null!;
 
+    public DbSet<PollVote> PollVote { get; set; } = null!;
+
+
     public PatrickBotmanContext(DbContextOptions<PatrickBotmanContext> dbContextOptions) : base(dbContextOptions)
     {
     }

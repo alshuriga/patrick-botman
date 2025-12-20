@@ -26,7 +26,7 @@ public class ConfigureWebhook : IHostedService
 
         _logger.LogDebug($"Address: {webhookAdress}");
 
-        await botClient.SetWebhookAsync(
+        await botClient.SetWebhook(
             url: webhookAdress,
             allowedUpdates: new UpdateType[] { UpdateType.Message, UpdateType.InlineQuery, UpdateType.ChosenInlineResult, UpdateType.CallbackQuery, UpdateType.Poll, UpdateType.PollAnswer, UpdateType.Unknown, UpdateType.MessageReaction},
             cancellationToken: cancellationToken,
@@ -41,7 +41,7 @@ public class ConfigureWebhook : IHostedService
     {
         using var scope = _services.CreateScope();
         var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
-        await botClient.DeleteWebhookAsync(cancellationToken: cancellationToken);
+        await botClient.DeleteWebhook(cancellationToken: cancellationToken);
 
         _logger.LogInformation("Webhook Removed");
     }

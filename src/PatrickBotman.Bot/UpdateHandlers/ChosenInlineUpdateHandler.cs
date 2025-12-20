@@ -50,7 +50,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
             if (file.Content != null && file.Content.Length > 0)
             {
                 var animationFileId = await UploadAnimationAsync(file);
-                await _botClient.EditMessageMediaAsync(chosenInline.InlineMessageId!, new InputMediaAnimation(InputFile.FromFileId(animationFileId)));
+                await _botClient.EditMessageMedia(chosenInline.InlineMessageId!, new InputMediaAnimation(InputFile.FromFileId(animationFileId)));
                
             }
         }
@@ -58,14 +58,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private async Task<string> UploadAnimationAsync(InputFile file)
         {
             _logger.LogInformation("Animation uploading...");
-            var msg = await _botClient.SendAnimationAsync(
+            var msg = await _botClient.SendAnimation(
                                 chatId: 35306756,
                                 animation: file,
                                 disableNotification: true
                             );
 
             var fileId = msg.Animation!.FileId;
-            await _botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);
+            await _botClient.DeleteMessage(msg.Chat.Id, msg.MessageId);
             return msg.Animation.FileId;
 
         }

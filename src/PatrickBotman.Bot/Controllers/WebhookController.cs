@@ -1,22 +1,26 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PatrickBotman.Bot.Models;
 using PatrickBotman.Services;
 using Telegram.Bot.Types;
 
 
 namespace PatrickBotman.Controllers;
 
-public class WebhookController : ControllerBase
+[Authorize(AuthenticationSchemes = HeaderAuthHandler.SchemeName)]
+public class ExternalController : ControllerBase
 {
-    private readonly ILogger<WebhookController> _logger;
+    private readonly ILogger<ExternalController> _logger;
 
-    public WebhookController(ILogger<WebhookController> logger)
+    public ExternalController(ILogger<ExternalController> logger)
     {
         _logger = logger;
     }
-    [HttpPost]
-    public async Task<IActionResult> Post([FromServices] HandleUpdateService handleUpdateService, [FromBody] Update update)
+
+    [HttpPost("quote")]
+    public async Task<IActionResult> Quote([FromServices] HandleUpdateService handleUpdateService, [FromBody] Update update)
     {
-        _logger.LogInformation($"Received update: {update.Type}");
+        _logger.LogInformation($"Received external update: {update.Type}");
         await handleUpdateService.HandleUpdateAsync(update);
         return Ok();
     }

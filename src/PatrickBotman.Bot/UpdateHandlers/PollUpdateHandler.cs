@@ -29,39 +29,39 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
         public async Task HandleAsync(Update update)
         {
-            var poll = update.Poll;
+            // var poll = update.Poll;
 
-            if (poll == null)
-            {
-                return;
-            }
+            // if (poll == null)
+            // {
+            //     return;
+            // }
 
-            var pollData = await _pollDataRepository.GetPollDataAsync(poll.Id);
+            // var pollData = await _pollDataRepository.GetPollDataAsync(poll.Id);
 
-            if (pollData == null)
-            {
-                return;
-            }
+            // if (pollData == null)
+            // {
+            //     return;
+            // }
 
-            var chatMembersCount = await _botClient.GetChatMemberCountAsync(pollData.PollChatId);
-            var gifFileId = await _gifRepository.GetGifFileId(pollData.GifFileId);
+            // var chatMembersCount = await _botClient.GetChatMemberCount(pollData.PollChatId);
+            // var gifFileId = await _gifRepository.GetGifFileId(pollData.GifFileId);
 
-            if(poll.IsClosed && poll.TotalVoterCount < Math.Min(3, Math.Ceiling(chatMembersCount / 2.0))
-                || poll.IsClosed && poll.Options[1].VoterCount >= poll.Options[0].VoterCount)
-            {
-                await _botClient.SendAnimationAsync(pollData.PollChatId, InputFile.FromUri(gifFileId), caption: $"Not enough votes.");
-                await _pollDataRepository.RemovePollDataAsync(poll.Id);
-                return;
-            }
+            // if(poll.IsClosed && poll.TotalVoterCount < Math.Min(3, Math.Ceiling(chatMembersCount / 2.0))
+            //     || poll.IsClosed && poll.Options[1].VoterCount >= poll.Options[0].VoterCount)
+            // {
+            //     await _botClient.SendAnimation(pollData.PollChatId, InputFile.FromUri(gifFileId), caption: $"Not enough votes.");
+            //     await _pollDataRepository.RemovePollDataAsync(poll.Id);
+            //     return;
+            // }
 
-            if ((poll.IsClosed && poll.Options[0].VoterCount > poll.Options[1].VoterCount)
-                || (!poll.IsClosed && poll.Options[0].VoterCount >= Math.Floor((chatMembersCount - 1) / 2.0) + 1))
-            {
-                await _gifRepository.DeleteGifFileAsync(pollData.GifFileId);
-                await _botClient.SendAnimationAsync(pollData.PollChatId, InputFile.FromUri(gifFileId), caption: $"The gif has been removed.");
-                await _pollDataRepository.RemovePollDataAsync(poll.Id);
-                return;
-            }
+            // if ((poll.IsClosed && poll.Options[0].VoterCount > poll.Options[1].VoterCount)
+            //     || (!poll.IsClosed && poll.Options[0].VoterCount >= Math.Floor((chatMembersCount - 1) / 2.0) + 1))
+            // {
+            //     await _gifRepository.DeleteGifFileAsync(pollData.GifFileId);
+            //     await _botClient.SendAnimation(pollData.PollChatId, InputFile.FromUri(gifFileId), caption: $"The gif has been removed.");
+            //     await _pollDataRepository.RemovePollDataAsync(poll.Id);
+            //     return;
+            // }
        }
     }
 }

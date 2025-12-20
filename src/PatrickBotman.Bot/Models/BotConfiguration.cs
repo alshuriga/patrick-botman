@@ -7,4 +7,5 @@ public class BotConfiguration
     public string AdminID { get; init; } = default!;   
     public int LocalGifsProbability { get; init; } = default!;
     public int PollLifetime { get; init; } = default!;
+    public string ExternalToken {  get; init; } = default!;
 }

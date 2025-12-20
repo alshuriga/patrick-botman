@@ -8,6 +8,7 @@ using PatrickBotman.Bot.Services;
 using PatrickBotman.Common.Services;
 using PatrickBotman.Common.Interfaces;
 using PatrickBotman.Common.Models;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,13 @@ builder.Services.AddScoped<UpdateHandlersFactory>();
 builder.Services.AddScoped<IUrlMetaService, UrlMetaService>();
 builder.Services.AddTransient<IImageToTextService, ImageToTectOcrSpace>();
 
+builder.Services
+    .AddAuthentication()
+    .AddScheme<AuthenticationSchemeOptions, HeaderAuthHandler>(
+        HeaderAuthHandler.SchemeName, _ => { });
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddHttpClient("tgwebhook").
     AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
     {
@@ -40,8 +48,10 @@ builder.Services.AddHttpClient("tgwebhook").
 
 var app = builder.Build();
 
-
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseEndpoints(endpoints => {
     var token = builder.Configuration.GetSection("BotConfiguration:BotToken").Value;

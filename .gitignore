@@ -464,3 +464,4 @@ assets/
 *.db*
 /src/db/
 /src/db/gifRatings.db
+/src/scripts/update-db.bat

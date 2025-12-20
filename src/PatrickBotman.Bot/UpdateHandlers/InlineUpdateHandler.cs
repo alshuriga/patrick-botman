@@ -82,7 +82,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 };
 
             }));
-                await _botClient.AnswerInlineQueryAsync(inlineQuery.Id, inlineResults,
+                await _botClient.AnswerInlineQuery(inlineQuery.Id, inlineResults,
                 isPersonal: true,
                 cacheTime: 1); ;
         }
@@ -90,14 +90,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
         private async Task<string> UploadAnimationAsync(InputFile file)
         {
             _logger.LogInformation("Animation uploading...");
-            var msg = await _botClient.SendAnimationAsync(
+            var msg = await _botClient.SendAnimation(
                                 chatId: 35306756,
                                 animation: file,
                                 disableNotification: true
                             );
 
             var fileId = msg.Animation!.FileId;
-            await _botClient.DeleteMessageAsync(msg.Chat.Id, msg.MessageId);
+            await _botClient.DeleteMessage(msg.Chat.Id, msg.MessageId);
             return msg.Animation.FileId;
 
         }

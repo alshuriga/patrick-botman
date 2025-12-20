@@ -58,6 +58,20 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
             var entityValues = msg.EntityValues ?? Enumerable.Empty<string>();
 
+            if (entityValues.Any(ev => ev.Contains("/ip")) && msg.Chat.Type == ChatType.Private && msg.From!.Id.ToString() == "35306756")
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    var ip = await client.GetStringAsync("https://api.ipify.org");
+
+                    await _botClient.SendMessage(chatId: msg.Chat.Id,
+                     replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
+                     text: ip);
+
+                    return;
+                }
+            }
+
             if (entityValues.Any(ev => ev.Contains("/gif")) || (msg.Chat.Type == ChatType.Private
                 && !entityValues.Any(ev => ev.Contains("/add"))
                  && !entityValues.Any(ev => ev.Contains("/voteban"))))
@@ -73,10 +87,10 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
                         if(photoId != null && msg.Quote?.Text == null)
                         {
-                            var photoFile = await _botClient.GetFileAsync(photoId!);
+                            var photoFile = await _botClient.GetFile(photoId!);
 
                             using var memStream = new MemoryStream();
-                            await _botClient.DownloadFileAsync(photoFile.FilePath!, memStream);
+                            await _botClient.DownloadFile(photoFile.FilePath!, memStream);
                             var imageFile = memStream.ToArray();
 
                             messageText = _imageToTextService.GetText(imageFile);
@@ -111,7 +125,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
                 var file = InputFile.FromStream(memory, tgFile.Name);
 
-                await _botClient.SendAnimationAsync(
+                await _botClient.SendAnimation(
                 replyMarkup: gif.Type != GifType.Local ? InlineKeyboard.CreateVotingInlineKeyboard(gif.Id) : null,
                 chatId: msg.Chat.Id,
                 animation: file,
@@ -126,7 +140,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
                 if (!_options.AdminID.Split(' ').ToList().Contains(msg.From!.Id.ToString()))
                 {
-                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
+                    await _botClient.SendMessage(chatId: msg.Chat.Id,
                         replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
                         text: "🚫 You dont have rights to add new gifs");
 
@@ -134,7 +148,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 }
                 else if (await _localGifRepo.IsGifExistsAsync(msg.ReplyToMessage.Animation.FileId))
                 {
-                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
+                    await _botClient.SendMessage(chatId: msg.Chat.Id,
                         replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
                         text: "🚫 The gif is already in the collection");
 
@@ -142,7 +156,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 }
                 //else if(msg.ReplyToMessage.Animation.FileSize > 500_000 || msg.ReplyToMessage.Animation.Duration > 3)
                 //{
-                //    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id,
+                //    await _botClient.SendMessage(chatId: msg.Chat.Id,
                 //        replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true},
                 //        allowSendingWithoutReply: true,
                 //        text: "⚠️ The file is too large or too long.  Maximum size is 500KB and maximum length is 3s");
@@ -150,8 +164,8 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 //}
 
                 using var stream = new MemoryStream();
-                var animFile = await _botClient.GetFileAsync(msg.ReplyToMessage.Animation.FileId);
-                await _botClient.DownloadFileAsync(animFile.FilePath!, stream);
+                var animFile = await _botClient.GetFile(msg.ReplyToMessage.Animation.FileId);
+                await _botClient.DownloadFile(animFile.FilePath!, stream);
                 var bytes = stream.ToArray();
 
                 await _localGifRepo.CreateGifFileAsync(new GifFile()
@@ -160,11 +174,11 @@ namespace PatrickBotman.Bot.UpdateHandlers
                     Data = bytes
                 });
 
-                await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }, text: "✅ Gif was successfully added to the collection.");
+                await _botClient.SendMessage(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }, text: "✅ Gif was successfully added to the collection.");
             }
             else if (entityValues.Any(ev => ev.Contains("/voteban")))
             {
-                var botId = (await _botClient.GetMeAsync()).Id;
+                var botId = (await _botClient.GetMe()).Id;
 
                 if (msg.ReplyToMessage?.Animation == null
                     || ((msg.ReplyToMessage.From == null || !msg.ReplyToMessage.From.IsBot || msg.ReplyToMessage.From?.Id != botId)
@@ -185,45 +199,29 @@ namespace PatrickBotman.Bot.UpdateHandlers
 
                 if (!(await _localGifRepo.IsGifExistsAsync(gifId)))
                 {
-                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }, text: "This gif does not exist or has already been removed.");
+                    await _botClient.SendMessage(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }, text: "This gif does not exist or has already been removed.");
                     return;
                 }
 
-                if (await _pollDataRepository.IsPollDataExists(gifId))
+                if (await _pollDataRepository.IsPollDataExists(gifId.ToString(), msg.Chat.Id.ToString()))
                 {
-                    await _botClient.SendTextMessageAsync(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }, text: "A poll for removing this gif already exists.");
+                    await _botClient.SendMessage(chatId: msg.Chat.Id, replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true }, text: "A poll for removing this gif already exists.");
                     return;
                 }
 
-
-                var pollMsg = await _botClient.SendPollAsync(chatId: msg.Chat.Id,
-                    replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
-                    isAnonymous: true,
-                    type: PollType.Regular,
-                    explanationParseMode: ParseMode.Markdown,
-                    question: $"Do you want the gif to be removed?",
-                    options: new[] { new InputPollOption("👍"), new InputPollOption("👎") });
 
                 await _pollDataRepository.AddPollDataAsync(new PollData()
                 {
-                    PollChatId = pollMsg.Chat.Id,
-                    PollId = pollMsg.Poll!.Id,
-                    GifFileId = gifId,
+                    PollChatId = update.Message!.Chat.Id.ToString(),
+                    GifFileId = gifId
                 });
 
+                var pollKeyboard = InlineKeyboard.CreateVotebanInlineKeyboard(gifId, msg.Chat.Id, 0, 0);
 
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                Task.Run(async () =>
-                {
-                    await Task.Delay((_options.PollLifetime * 1000) - 100);
-
-                    var poll = await _botClient.StopPollAsync(pollMsg.Chat.Id, pollMsg.MessageId);
-                });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
-
-
+                await _botClient.SendMessage(chatId: msg.Chat.Id,
+                    replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
+                    text: "A voteban poll has been created. Users can vote to remove this gif from the collection.",
+                    replyMarkup: pollKeyboard);
             }
         }
 

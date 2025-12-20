@@ -5,8 +5,9 @@ namespace PatrickBotman.Common.Interfaces
     public interface IPollDataRepository
     {
         Task AddPollDataAsync(PollData pollData);
-        Task<PollData> GetPollDataAsync(string pollId);
-        Task<bool> IsPollDataExists(int gifId);
-        Task RemovePollDataAsync(string pollId);
+        Task<PollData> GetPollDataAsync(string gifId, string chatId);
+        Task<bool> IsPollDataExists(string gifId, string chatId);
+        Task RemovePollDataAsync(string gifId, string chatId);
+        Task<PollData> AddVoteToPollAsync(string gifId, string chatId, string userId, int vote);
     }
 }
