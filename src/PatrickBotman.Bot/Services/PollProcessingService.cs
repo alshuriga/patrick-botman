@@ -63,7 +63,7 @@ namespace PatrickBotman.Bot.Services
                 {
                     await _localGifRepository.DeleteGifFileAsync(pollData.GifFileId);
                     var msg = "Poll is closed. Gif has been banned";
-                    await _botClient.EditMessageText(pollChatId, messageId, msg);
+                    await _botClient.EditMessageCaption(pollChatId, messageId, msg);
                     await _botClient.SendMessage(chatId: pollChatId, text: msg, replyParameters: replyParameters);
 
                     return;
@@ -72,7 +72,7 @@ namespace PatrickBotman.Bot.Services
                 {
                     await _botClient.EditMessageReplyMarkup(pollChatId, messageId, null);
                     var msg = "Poll is closed. Gif has not been banned";
-                    await _botClient.EditMessageText(pollChatId, messageId, msg);
+                    await _botClient.EditMessageCaption(pollChatId, messageId, msg);
                     await _botClient.SendMessage(chatId: pollChatId, text: msg, replyParameters: replyParameters);
                     return;
                 }

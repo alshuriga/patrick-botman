@@ -220,6 +220,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                     caption: "A voteban poll has been created. Users can vote to remove this gif from the collection.",
                     replyMarkup: pollKeyboard);
 
+
                 await _pollDataRepository.AddPollDataAsync(new PollData()
                 {
                     PollChatId = update.Message!.Chat.Id.ToString(),
