@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.Extensions.Options;
+using PatrickBotman.Bot.Models;
 using PatrickBotman.Common.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -33,12 +35,13 @@ namespace PatrickBotman.Bot.Services
             var _pollDataRepository = scope.ServiceProvider.GetRequiredService<IPollDataRepository>();
             var _botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
             var _localGifRepository = scope.ServiceProvider.GetRequiredService<ILocalGifRepository>();
+            var _botConfig = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<BotConfiguration>>().Value;
 
             _logger.LogInformation($"Poll processing: {DateTime.Now}");
 
             var openedPolls = await _pollDataRepository.GetOpenPollsAsync();
 
-            var timedOutPolls = openedPolls.Where(p => DateTime.UtcNow.Subtract(p.Created) >= TimeSpan.FromSeconds(600)).ToList();
+            var timedOutPolls = openedPolls.Where(p => DateTime.UtcNow.Subtract(p.Created) >= TimeSpan.FromSeconds(_botConfig.PollLifetime)).ToList();
 
             _logger.LogInformation($"Closing {timedOutPolls.Count} outdated polls");
 
