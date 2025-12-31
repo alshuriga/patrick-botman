@@ -21,6 +21,7 @@ builder.Services.Configure<BotConfiguration>(builder.Configuration.GetSection(na
 builder.Services.Configure<OCRConfiguration>(builder.Configuration.GetSection(nameof(OCRConfiguration)));
 builder.Services.ConfigurePersistence(builder.Configuration);
 builder.Services.AddHostedService<ConfigureWebhook>();
+builder.Services.AddHostedService<PollProcessingService>();
 builder.Services.AddScoped<IGifProvider, GIfProvider>();
 builder.Services.AddScoped<HandleUpdateService>();
 builder.Services.AddScoped<AnimationComposeService>();
@@ -29,7 +30,6 @@ builder.Services.ConfigureTelegramBotMvc();
 builder.Services.AddScoped<UpdateHandlersFactory>();
 builder.Services.AddScoped<IUrlMetaService, UrlMetaService>();
 builder.Services.AddTransient<IImageToTextService, ImageToTectOcrSpace>();
-
 builder.Services
     .AddAuthentication()
     .AddScheme<AuthenticationSchemeOptions, HeaderAuthHandler>(

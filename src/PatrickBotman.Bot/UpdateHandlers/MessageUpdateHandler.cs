@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic;
 using PatrickBotman.Bot.Helpers;
 using PatrickBotman.Bot.Interfaces;
 using PatrickBotman.Bot.Models;
@@ -190,8 +189,6 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 var gifId = int.Parse(msg.ReplyToMessage.Animation!.FileName!.Split('_', '.')[2]);
                 var gifType = (GifType)Enum.Parse(typeof(GifType), msg.ReplyToMessage.Animation!.FileName!.Split('_', '.')[1]);
 
-
-
                 if (gifType != GifType.Local)
                 {
                     throw new Exception("Wrong gif type to create a poll");
@@ -209,19 +206,28 @@ namespace PatrickBotman.Bot.UpdateHandlers
                     return;
                 }
 
+                var pollKeyboard = InlineKeyboard.CreateVotebanInlineKeyboard(gifId, msg.Chat.Id, 0, 0);
+
+                var gif = await _gifProvider.GetByIdAsync(gifId, GifType.Local);
+                using var memory = new MemoryStream(gif.File);
+
+                var file = InputFile.FromStream(memory, $"{gifId}.mp4");
+
+                var pollMsg = await _botClient.SendAnimation(
+                    chatId: msg.Chat.Id,
+                    animation: file,
+                    replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
+                    caption: "A voteban poll has been created. Users can vote to remove this gif from the collection.",
+                    replyMarkup: pollKeyboard);
 
                 await _pollDataRepository.AddPollDataAsync(new PollData()
                 {
                     PollChatId = update.Message!.Chat.Id.ToString(),
-                    GifFileId = gifId
+                    MessageId = pollMsg.MessageId,
+                    GifFileId = gifId,
+                    Created = DateTime.UtcNow,
+                    Closed = false
                 });
-
-                var pollKeyboard = InlineKeyboard.CreateVotebanInlineKeyboard(gifId, msg.Chat.Id, 0, 0);
-
-                await _botClient.SendMessage(chatId: msg.Chat.Id,
-                    replyParameters: new ReplyParameters() { MessageId = msg.MessageId, AllowSendingWithoutReply = true },
-                    text: "A voteban poll has been created. Users can vote to remove this gif from the collection.",
-                    replyMarkup: pollKeyboard);
             }
         }
 

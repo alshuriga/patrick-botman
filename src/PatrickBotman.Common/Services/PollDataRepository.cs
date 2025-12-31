@@ -16,7 +16,7 @@ namespace PatrickBotman.Common.Services
 
         public async Task<PollData> GetPollDataAsync(string gifId, string chatId)
         {
-            return await _context.PollData.SingleAsync(p => p.PollChatId == chatId && p.GifFileId.ToString() == gifId);
+            return await _context.PollData.SingleAsync(p => p.PollChatId == chatId && p.GifFileId.ToString() == gifId && p.Closed == false);
         }
 
         public async Task AddPollDataAsync(PollData pollData)
@@ -35,12 +35,12 @@ namespace PatrickBotman.Common.Services
 
         public async Task<bool> IsPollDataExists(string gifId, string chatId)
         {
-            return await _context.PollData.AnyAsync(p => p.PollChatId == chatId && p.GifFileId.ToString() == gifId);
+            return await _context.PollData.AnyAsync(p => p.PollChatId == chatId && p.GifFileId.ToString() == gifId && p.Closed == false);
         }
 
         public async Task<PollData> AddVoteToPollAsync(string gifId, string chatId, string userId, int vote)
         {
-            var pollData = await _context.PollData.Include(pd => pd.PollVote).SingleAsync(p => p.PollChatId == chatId.ToString() && p.GifFileId.ToString() == gifId);
+            var pollData = await _context.PollData.Include(pd => pd.PollVote).SingleAsync(p => p.PollChatId == chatId.ToString() && p.GifFileId.ToString() == gifId && p.Closed == false);
 
             var existingVote = pollData.PollVote.FirstOrDefault(v => v.UserId == long.Parse(userId));
 
@@ -65,6 +65,24 @@ namespace PatrickBotman.Common.Services
             await _context.SaveChangesAsync();
 
             return pollData;
+        }
+
+        public async Task<IEnumerable<PollData>> GetOpenPollsAsync()
+        {
+            var polls = await _context.PollData.Include(p => p.PollVote).Where(p => p.Closed == false).ToListAsync();
+            return polls;
+        }
+
+        public async Task ClosePollsByIds(IEnumerable<int> ids)
+        {
+            var polls = await _context.PollData.Where(p => ids.Contains(p.Id)).ToListAsync();
+
+            foreach(var poll in polls)
+            {
+                poll.Closed = true;
+            };
+
+            await _context.SaveChangesAsync();
         }
     }
 }

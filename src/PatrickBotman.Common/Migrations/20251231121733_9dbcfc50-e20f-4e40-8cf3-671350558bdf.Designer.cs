@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatrickBotman.Common.Persistence;
@@ -11,9 +12,10 @@ using PatrickBotman.Common.Persistence;
 namespace PatrickBotman.Common.Migrations
 {
     [DbContext(typeof(PatrickBotmanContext))]
-    partial class PatrickBotmanContextModelSnapshot : ModelSnapshot
+    [Migration("20251231121733_9dbcfc50-e20f-4e40-8cf3-671350558bdf")]
+    partial class _9dbcfc50e20f4e408cf3671350558bdf
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,9 +125,6 @@ namespace PatrickBotman.Common.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("GifFileId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MessageId")
                         .HasColumnType("integer");
 
                     b.Property<string>("PollChatId")

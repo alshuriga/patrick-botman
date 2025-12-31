@@ -9,5 +9,7 @@ namespace PatrickBotman.Common.Interfaces
         Task<bool> IsPollDataExists(string gifId, string chatId);
         Task RemovePollDataAsync(string gifId, string chatId);
         Task<PollData> AddVoteToPollAsync(string gifId, string chatId, string userId, int vote);
+        Task<IEnumerable<PollData>> GetOpenPollsAsync();
+        Task ClosePollsByIds(IEnumerable<int> ids);
     }
 }

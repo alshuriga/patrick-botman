@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatrickBotman.Common.Persistence;
@@ -11,9 +12,10 @@ using PatrickBotman.Common.Persistence;
 namespace PatrickBotman.Common.Migrations
 {
     [DbContext(typeof(PatrickBotmanContext))]
-    partial class PatrickBotmanContextModelSnapshot : ModelSnapshot
+    [Migration("20251231124349_12ce43f2-09e5-49c1-9f7c-c2eaf9940952")]
+    partial class _12ce43f209e549c19f7cc2eaf9940952
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

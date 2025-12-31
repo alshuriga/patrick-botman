@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PatrickBotman.Common.Persistence;
@@ -11,9 +12,10 @@ using PatrickBotman.Common.Persistence;
 namespace PatrickBotman.Common.Migrations
 {
     [DbContext(typeof(PatrickBotmanContext))]
-    partial class PatrickBotmanContextModelSnapshot : ModelSnapshot
+    [Migration("20251231121201_353dae2c-fa3d-4bfc-b9d5-9f82712761b6")]
+    partial class _353dae2cfa3d4bfcb9d59f82712761b6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,16 +118,10 @@ namespace PatrickBotman.Common.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Closed")
-                        .HasColumnType("boolean");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("GifFileId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MessageId")
                         .HasColumnType("integer");
 
                     b.Property<string>("PollChatId")

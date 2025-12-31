@@ -67,7 +67,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 var forCount = pollData.PollVote.Where(v => v.Vote > 0).Count();
                 var againstCount = pollData.PollVote.Where(v =>  v.Vote < 0).Count();
 
-                if(forCount > Math.Floor((chatMembersCount - 1) / 2.0) + 1)
+                if(forCount >= Math.Floor((chatMembersCount - 2) / 2.0) + 1)
                 {
                     await _localGifRepository.DeleteGifFileAsync(pollData.GifFileId);
                     await _botClient.EditMessageReplyMarkup(long.Parse(pollChatId), callbackQuery.Message.MessageId, null);
@@ -75,7 +75,7 @@ namespace PatrickBotman.Bot.UpdateHandlers
                     return;
                 }
 
-                if (againstCount > Math.Floor((chatMembersCount - 1) / 2.0) + 1)
+                if (againstCount >= Math.Floor((chatMembersCount - 2) / 2.0) + 1)
                 {
                     await _botClient.EditMessageReplyMarkup(long.Parse(pollChatId), callbackQuery.Message.MessageId, null);
                     await _botClient.EditMessageText(long.Parse(pollChatId), callbackQuery.Message.MessageId, "Poll is closed. Gif has not been banned");
