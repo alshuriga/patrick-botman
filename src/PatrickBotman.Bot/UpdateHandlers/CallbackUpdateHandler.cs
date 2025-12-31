@@ -71,14 +71,14 @@ namespace PatrickBotman.Bot.UpdateHandlers
                 {
                     await _localGifRepository.DeleteGifFileAsync(pollData.GifFileId);
                     await _botClient.EditMessageReplyMarkup(long.Parse(pollChatId), callbackQuery.Message.MessageId, null);
-                    await _botClient.EditMessageText(long.Parse(pollChatId), callbackQuery.Message.MessageId, "Poll is closed. Gif has been banned");
+                    await _botClient.EditMessageCaption(long.Parse(pollChatId), callbackQuery.Message.MessageId, "Poll is closed. Gif has been banned");
                     return;
                 }
 
                 if (againstCount >= Math.Floor((chatMembersCount - 2) / 2.0) + 1)
                 {
                     await _botClient.EditMessageReplyMarkup(long.Parse(pollChatId), callbackQuery.Message.MessageId, null);
-                    await _botClient.EditMessageText(long.Parse(pollChatId), callbackQuery.Message.MessageId, "Poll is closed. Gif has not been banned");
+                    await _botClient.EditMessageCaption(long.Parse(pollChatId), callbackQuery.Message.MessageId, "Poll is closed. Gif has not been banned");
                     return;
                 }
 
